@@ -46,8 +46,8 @@ import {
   Component, 
   ShieldAlert
 } from 'lucide-react';
-import { CASE_STUDIES, DEFAULT_HOMEPAGE_CONTENT, DEFAULT_PROFILE_DATA, INITIAL_ADMIN_STATS } from '../data';
-import { CaseStudy, HomepageContent, ProfileData, ContactMessage, AdminStats } from '../types';
+import { CASE_STUDIES, DEFAULT_HOMEPAGE_CONTENT, DEFAULT_PROFILE_DATA, INITIAL_ADMIN_STATS, DEFAULT_APP_SETTINGS, DEFAULT_BLOG_POSTS } from '../data';
+import { CaseStudy, HomepageContent, ProfileData, ContactMessage, AdminStats, AppSettings, BlogPost } from '../types';
 
 const LOGO_OPTIONS = [
   { id: 'Cpu', name: 'Microprocessor (Cpu)', desc: 'Standard system chip' },
@@ -84,7 +84,7 @@ export default function Admin({ onSync }: AdminProps) {
 
   // Sidebar Layout State (Mobile)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'pages' | 'posts' | 'resume' | 'messages' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'pages' | 'posts' | 'blog' | 'resume' | 'messages' | 'settings'>('dashboard');
 
   // Shared Data States
   const [stats, setStats] = useState<AdminStats>(INITIAL_ADMIN_STATS);
@@ -92,6 +92,8 @@ export default function Admin({ onSync }: AdminProps) {
   const [homepageContent, setHomepageContent] = useState<HomepageContent>(DEFAULT_HOMEPAGE_CONTENT);
   const [profileForm, setProfileForm] = useState<ProfileData>(DEFAULT_PROFILE_DATA);
   const [caseStudies, setCaseStudies] = useState<CaseStudy[]>(CASE_STUDIES);
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [appSettings, setAppSettings] = useState<AppSettings>(DEFAULT_APP_SETTINGS);
 
   // Active editors / selectors
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
@@ -117,6 +119,22 @@ export default function Admin({ onSync }: AdminProps) {
   const [tagInput, setTagInput] = useState('');
   const [resultInput, setResultInput] = useState('');
 
+  // Blog Post Editor States
+  const [editingBlogSlug, setEditingBlogSlug] = useState<string | null>(null); // null means creating new
+  const [blogForm, setBlogForm] = useState<Partial<BlogPost>>({
+    title: '',
+    slug: '',
+    category: 'Substation Maintenance',
+    date: '',
+    readTime: '5 min read',
+    summary: '',
+    content: '',
+    tags: [],
+    imageUrl: '',
+    published: true
+  });
+  const [blogTagInput, setBlogTagInput] = useState('');
+
   // Drag and Drop Image state & handlers
   const [isDragging, setIsDragging] = useState(false);
 
@@ -130,9 +148,14 @@ export default function Admin({ onSync }: AdminProps) {
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
+          const base64Img = event.target!.result as string;
           setHomepageContent(prev => ({
             ...prev,
-            heroProfileImage: event.target!.result as string
+            heroProfileImage: base64Img
+          }));
+          setProfileForm(prev => ({
+            ...prev,
+            imageUrl: base64Img
           }));
           triggerQuickAction("Image loaded & parsed as Data URL successfully.");
         }
@@ -162,9 +185,14 @@ export default function Admin({ onSync }: AdminProps) {
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
+          const base64Img = event.target!.result as string;
           setHomepageContent(prev => ({
             ...prev,
-            heroProfileImage: event.target!.result as string
+            heroProfileImage: base64Img
+          }));
+          setProfileForm(prev => ({
+            ...prev,
+            imageUrl: base64Img
           }));
           triggerQuickAction("Image dropped & parsed successfully.");
         }
@@ -224,6 +252,23 @@ export default function Admin({ onSync }: AdminProps) {
     } else {
       localStorage.setItem('sahin_case_studies', JSON.stringify(CASE_STUDIES));
     }
+
+    // Blog Posts
+    const storedBlogs = localStorage.getItem('sahin_blog_posts');
+    if (storedBlogs) {
+      try { setBlogPosts(JSON.parse(storedBlogs)); } catch (e) {}
+    } else {
+      localStorage.setItem('sahin_blog_posts', JSON.stringify(DEFAULT_BLOG_POSTS));
+      setBlogPosts(DEFAULT_BLOG_POSTS);
+    }
+
+    // App Settings
+    const storedSettings = localStorage.getItem('sahin_portfolio_settings');
+    if (storedSettings) {
+      try { setAppSettings(JSON.parse(storedSettings)); } catch (e) {}
+    } else {
+      localStorage.setItem('sahin_portfolio_settings', JSON.stringify(DEFAULT_APP_SETTINGS));
+    }
   };
 
   // Login handler
@@ -253,13 +298,33 @@ export default function Admin({ onSync }: AdminProps) {
     triggerQuickAction('Passcode updated successfully!');
   };
 
+  const handleSaveSettings = (updatedSettings: AppSettings) => {
+    setAppSettings(updatedSettings);
+    localStorage.setItem('sahin_portfolio_settings', JSON.stringify(updatedSettings));
+    
+    // Also sync the theme immediately so the changes reflect on the fly
+    if (updatedSettings.defaultTheme === 'light') {
+      document.documentElement.classList.add('light');
+      localStorage.setItem('sahin_portfolio_theme', 'light');
+    } else {
+      document.documentElement.classList.remove('light');
+      localStorage.setItem('sahin_portfolio_theme', 'dark');
+    }
+
+    if (onSync) onSync();
+    triggerQuickAction('Console parameters updated & integrated.');
+  };
+
   const handleResetFactoryDefaults = () => {
-    if (window.confirm('Are you absolutely sure you want to reset all custom text, posts, and CV records to factory defaults? This is non-reversible.')) {
+    if (window.confirm('Are you absolutely sure you want to reset all custom text, posts, blogs, and CV records to factory defaults? This is non-reversible.')) {
       localStorage.removeItem('sahin_homepage_content');
       localStorage.removeItem('sahin_profile_data');
       localStorage.removeItem('sahin_case_studies');
+      localStorage.removeItem('sahin_blog_posts');
       localStorage.removeItem('sahin_portfolio_messages');
       localStorage.removeItem('sahin_admin_stats');
+      localStorage.removeItem('sahin_portfolio_settings');
+      localStorage.removeItem('sahin_portfolio_theme');
       loadData();
       if (onSync) onSync();
       triggerQuickAction('System cleared. Default EE matrices loaded from flash memory.');
@@ -436,6 +501,108 @@ export default function Admin({ onSync }: AdminProps) {
     setPostForm(prev => ({
       ...prev,
       results: (prev.results || []).filter((_, i) => i !== idx)
+    }));
+  };
+
+  // Blog Post CMS handlers
+  const handleSaveBlogPost = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!blogForm.title || !blogForm.slug || !blogForm.category) {
+      alert('Title, slug, and category are required fields.');
+      return;
+    }
+
+    let updatedList = [...blogPosts];
+    // Autofill date if not set
+    const finalDate = blogForm.date || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    const finalForm = { ...blogForm, date: finalDate } as BlogPost;
+
+    if (editingBlogSlug) {
+      // Edit
+      updatedList = updatedList.map(item => item.slug === editingBlogSlug ? finalForm : item);
+      triggerQuickAction(`Blog article "${blogForm.title}" updated successfully.`);
+    } else {
+      // Check duplicate slug
+      if (blogPosts.some(item => item.slug === blogForm.slug)) {
+        alert('Slug already exists. Please choose a unique URL slug.');
+        return;
+      }
+      // Create new
+      updatedList.unshift(finalForm);
+      triggerQuickAction(`New blog article "${blogForm.title}" published & live.`);
+    }
+
+    setBlogPosts(updatedList);
+    localStorage.setItem('sahin_blog_posts', JSON.stringify(updatedList));
+    if (onSync) onSync();
+    
+    handleCancelBlogEdit();
+  };
+
+  const handleDeleteBlogPost = (slug: string) => {
+    if (window.confirm('Delete this blog post permanently?')) {
+      const updatedList = blogPosts.filter(item => item.slug !== slug);
+      setBlogPosts(updatedList);
+      localStorage.setItem('sahin_blog_posts', JSON.stringify(updatedList));
+      if (onSync) onSync();
+      triggerQuickAction('Blog post removed from local memory.');
+    }
+  };
+
+  const handleEditBlogClick = (post: BlogPost) => {
+    setEditingBlogSlug(post.slug);
+    setBlogForm({ ...post });
+    setBlogTagInput(post.tags.join(', '));
+  };
+
+  const handleCreateNewBlogClick = () => {
+    setEditingBlogSlug(null);
+    setBlogForm({
+      title: '',
+      slug: '',
+      category: 'Substation Maintenance',
+      date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+      readTime: '5 min read',
+      summary: '',
+      content: '',
+      tags: [],
+      imageUrl: '',
+      published: true
+    });
+    setBlogTagInput('');
+  };
+
+  const handleCancelBlogEdit = () => {
+    setEditingBlogSlug(null);
+    setBlogForm({
+      title: '',
+      slug: '',
+      category: 'Substation Maintenance',
+      date: '',
+      readTime: '5 min read',
+      summary: '',
+      content: '',
+      tags: [],
+      imageUrl: '',
+      published: true
+    });
+    setBlogTagInput('');
+  };
+
+  const handleAddBlogTag = () => {
+    if (!blogTagInput.trim()) return;
+    const items = blogTagInput.split(',').map(s => s.trim()).filter(Boolean);
+    setBlogForm(prev => ({
+      ...prev,
+      tags: Array.from(new Set([...(prev.tags || []), ...items]))
+    }));
+    setBlogTagInput('');
+  };
+
+  const handleRemoveBlogTag = (tagToRemove: string) => {
+    setBlogForm(prev => ({
+      ...prev,
+      tags: (prev.tags || []).filter(t => t !== tagToRemove)
     }));
   };
 
@@ -633,7 +800,8 @@ export default function Admin({ onSync }: AdminProps) {
           {[
             { id: 'dashboard', label: 'Operational Desk', desc: 'Stats, messages & status', icon: LayoutDashboard },
             { id: 'pages', label: 'Home Page Editor', desc: 'Hero titles, taglines, media', icon: FileText },
-            { id: 'posts', label: 'Posts & Case Studies', desc: 'Manage field research', icon: BookOpen },
+            { id: 'posts', label: 'Posts & Case Studies', desc: 'Manage field research', icon: Layers },
+            { id: 'blog', label: 'Industrial Notes CMS', desc: 'Add or edit blog articles', icon: BookOpen },
             { id: 'resume', label: 'CV & Biodata Editor', desc: 'Profile credentials & biography', icon: UserCheck },
             { id: 'messages', label: 'Inbox Messages', desc: 'Reader & reply portal', icon: Inbox, badge: messages.length },
             { id: 'settings', label: 'Console Settings', desc: 'Security & factory clear', icon: SettingsIcon }
@@ -717,7 +885,7 @@ export default function Admin({ onSync }: AdminProps) {
               AUTHORIZED OPERATIONS — SYSTEM ACTIVE
             </span>
             <h1 className="font-display font-bold text-2xl sm:text-3xl text-zinc-100 light:text-zinc-900 tracking-tight mt-0.5 capitalize">
-              {activeTab === 'dashboard' ? 'Operational Desk' : activeTab === 'pages' ? 'Page Content Editor' : activeTab === 'posts' ? 'Case Studies & Blogs' : activeTab === 'resume' ? 'CV & Marriage Biodata' : activeTab === 'messages' ? 'Received Contact Messages' : 'Console System Settings'}
+              {activeTab === 'dashboard' ? 'Operational Desk' : activeTab === 'pages' ? 'Page Content Editor' : activeTab === 'posts' ? 'Case Studies & Research' : activeTab === 'blog' ? 'Industrial Notes CMS' : activeTab === 'resume' ? 'CV & Marriage Biodata' : activeTab === 'messages' ? 'Received Contact Messages' : 'Console System Settings'}
             </h1>
           </div>
           
@@ -1378,6 +1546,116 @@ export default function Admin({ onSync }: AdminProps) {
                   </div>
                 </div>
 
+                {/* TECHNICAL SPECS SECTION */}
+                <div className="border border-zinc-850 dark:border-zinc-800/80 light:border-zinc-200 rounded-lg p-4 bg-zinc-900/10 light:bg-zinc-50/50 space-y-3">
+                  <h4 className="font-mono text-xs font-bold text-amber-500 uppercase tracking-wide">
+                    Technical Specifications (Datasheet fields)
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <label className="block font-mono text-[9px] text-zinc-400 light:text-zinc-500 uppercase">System Voltage</label>
+                      <input 
+                        type="text" 
+                        value={postForm.specs?.voltage || ''}
+                        onChange={e => setPostForm({
+                          ...postForm,
+                          specs: { ...(postForm.specs || {}), voltage: e.target.value }
+                        })}
+                        placeholder="e.g. 11kV / 0.415kV LT"
+                        className="w-full p-2 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border border-zinc-850 text-xs rounded text-zinc-100 light:text-zinc-900 font-sans"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block font-mono text-[9px] text-zinc-400 light:text-zinc-500 uppercase">Site Capacity</label>
+                      <input 
+                        type="text" 
+                        value={postForm.specs?.capacity || ''}
+                        onChange={e => setPostForm({
+                          ...postForm,
+                          specs: { ...(postForm.specs || {}), capacity: e.target.value }
+                        })}
+                        placeholder="e.g. 630 kVA Transformer"
+                        className="w-full p-2 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border border-zinc-850 text-xs rounded text-zinc-100 light:text-zinc-900 font-sans"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block font-mono text-[9px] text-zinc-400 light:text-zinc-500 uppercase">Project Duration</label>
+                      <input 
+                        type="text" 
+                        value={postForm.specs?.duration || ''}
+                        onChange={e => setPostForm({
+                          ...postForm,
+                          specs: { ...(postForm.specs || {}), duration: e.target.value }
+                        })}
+                        placeholder="e.g. 3 Weeks"
+                        className="w-full p-2 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border border-zinc-850 text-xs rounded text-zinc-100 light:text-zinc-900 font-sans"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block font-mono text-[9px] text-zinc-400 light:text-zinc-500 uppercase">Industrial Sector</label>
+                      <input 
+                        type="text" 
+                        value={postForm.specs?.sector || ''}
+                        onChange={e => setPostForm({
+                          ...postForm,
+                          specs: { ...(postForm.specs || {}), sector: e.target.value }
+                        })}
+                        placeholder="e.g. Textile Manufacturing"
+                        className="w-full p-2 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border border-zinc-850 text-xs rounded text-zinc-100 light:text-zinc-900 font-sans"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block font-mono text-[9px] text-zinc-400 light:text-zinc-500 uppercase">Primary Equipment</label>
+                      <input 
+                        type="text" 
+                        value={postForm.specs?.equipment || ''}
+                        onChange={e => setPostForm({
+                          ...postForm,
+                          specs: { ...(postForm.specs || {}), equipment: e.target.value }
+                        })}
+                        placeholder="e.g. HT VCB, Main ACB"
+                        className="w-full p-2 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border border-zinc-850 text-xs rounded text-zinc-100 light:text-zinc-900 font-sans"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block font-mono text-[9px] text-zinc-400 light:text-zinc-500 uppercase">Applied Standard</label>
+                      <input 
+                        type="text" 
+                        value={postForm.specs?.standard || ''}
+                        onChange={e => setPostForm({
+                          ...postForm,
+                          specs: { ...(postForm.specs || {}), standard: e.target.value }
+                        })}
+                        placeholder="e.g. BNBC 2020 Part 8"
+                        className="w-full p-2 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border border-zinc-850 text-xs rounded text-zinc-100 light:text-zinc-900 font-sans"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* GALLERY IMAGES SECTION */}
+                <div className="border border-zinc-850 dark:border-zinc-800/80 light:border-zinc-200 rounded-lg p-4 bg-zinc-900/10 light:bg-zinc-50/50 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-mono text-xs font-bold text-amber-500 uppercase tracking-wide">
+                      Site Gallery Photos (One URL per line)
+                    </h4>
+                    <span className="text-[9px] text-zinc-500 font-mono">LIGHTBOX EVIDENCE</span>
+                  </div>
+                  <textarea 
+                    rows={3}
+                    value={postForm.galleryImages ? postForm.galleryImages.join('\n') : ''}
+                    onChange={e => setPostForm({
+                      ...postForm,
+                      galleryImages: e.target.value.split('\n').map(line => line.trim()).filter(Boolean)
+                    })}
+                    placeholder="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200&#10;https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=1200"
+                    className="w-full p-2 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border border-zinc-850 text-xs font-mono rounded text-zinc-100 light:text-zinc-900 leading-relaxed"
+                  />
+                  <p className="text-[9px] text-zinc-500 font-mono">
+                    Enter one or more high-resolution photographic image URLs. Each URL must occupy a new line. These will render in the click-to-expand lightbox component on the detail view.
+                  </p>
+                </div>
+
                 <div className="space-y-1">
                   <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Short Description (Preview Snippet)</label>
                   <textarea 
@@ -1660,6 +1938,46 @@ export default function Admin({ onSync }: AdminProps) {
                   onChange={e => setProfileForm({ ...profileForm, skills: e.target.value })}
                   className="w-full p-2.5 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border border-zinc-850 dark:border-zinc-850 light:border-zinc-250 text-xs rounded text-zinc-100 light:text-zinc-900"
                 />
+              </div>
+
+              <div className="space-y-1 mt-2">
+                <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Profile & Author Photo</label>
+                <div className="flex flex-col sm:flex-row gap-4 items-center">
+                  {profileForm.imageUrl ? (
+                    <div className="w-16 h-16 rounded-full overflow-hidden border border-zinc-800 light:border-zinc-200 bg-zinc-950 flex-shrink-0">
+                      <img src={profileForm.imageUrl} alt="Profile preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-zinc-950 flex items-center justify-center border border-zinc-800 text-zinc-600 flex-shrink-0 text-xs">
+                      No Photo
+                    </div>
+                  )}
+                  <div className="flex-1 w-full space-y-2">
+                    <input 
+                      type="text" 
+                      value={profileForm.imageUrl || ''}
+                      onChange={e => {
+                        const val = e.target.value;
+                        setProfileForm({ ...profileForm, imageUrl: val });
+                        setHomepageContent(prev => ({ ...prev, heroProfileImage: val }));
+                      }}
+                      placeholder="Paste public photo URL here"
+                      className="w-full p-2.5 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border border-zinc-850 dark:border-zinc-850 light:border-zinc-250 text-xs rounded text-zinc-100 light:text-zinc-900"
+                    />
+                    <div className="flex items-center space-x-2">
+                      <label className="px-3 py-1.5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-850 text-zinc-300 hover:text-amber-500 text-[11px] font-mono rounded cursor-pointer transition-colors">
+                        Choose Image File
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          onChange={handleImageFileChange} 
+                          className="hidden" 
+                        />
+                      </label>
+                      <span className="text-[10px] text-zinc-500 font-mono">This automatically updates your hero and blog author pictures.</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -2040,6 +2358,287 @@ export default function Admin({ onSync }: AdminProps) {
           </form>
         )}
 
+        {/* 4b. BLOG NOTES CMS TAB */}
+        {activeTab === 'blog' && (
+          <div className="space-y-6 animate-fade-in text-left">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-zinc-900/20 light:bg-zinc-50 border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 p-4 rounded-lg">
+              <div>
+                <h3 className="font-display font-bold text-sm text-zinc-100 light:text-zinc-900 uppercase">
+                  Industrial Experience Journal & Notes CMS
+                </h3>
+                <p className="text-xs text-zinc-400 light:text-zinc-500 mt-1">
+                  Draft technical articles, share maintenance experiences, and document BNBC 2020 compliance standards. Supports custom markdown formatting.
+                </p>
+              </div>
+              <button
+                onClick={handleCreateNewBlogClick}
+                className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-zinc-950 font-bold text-xs rounded shadow-md flex items-center space-x-1.5 self-start sm:self-center cursor-pointer"
+                id="blog-cms-create-btn"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Write Technical Note</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              
+              {/* Blog posts directory/table (Left) */}
+              <div className="lg:col-span-5 p-5 bg-zinc-900/40 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-lg space-y-4">
+                <div className="border-b border-zinc-850 dark:border-zinc-800/50 light:border-zinc-100 pb-3 flex justify-between items-center">
+                  <span className="font-mono text-xs text-zinc-400 light:text-zinc-500 font-bold uppercase">Articles Index ({blogPosts.length})</span>
+                  <span className="font-mono text-[9px] text-zinc-500">Local Synced Cache</span>
+                </div>
+
+                <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
+                  {blogPosts.length === 0 ? (
+                    <div className="text-center py-12 text-zinc-500 font-mono text-xs border border-dashed border-zinc-850 rounded">
+                      No technical articles recorded yet. Use the action button to draft one.
+                    </div>
+                  ) : (
+                    blogPosts.map((post) => (
+                      <div
+                        key={post.slug}
+                        className={`p-4 border rounded transition-all text-left space-y-2 relative ${
+                          editingBlogSlug === post.slug
+                            ? 'bg-amber-500/10 border-amber-500/40 text-zinc-100'
+                            : 'bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-50 border-zinc-900 dark:border-zinc-900 light:border-zinc-250 hover:bg-zinc-900 dark:hover:bg-zinc-900 light:hover:bg-zinc-100'
+                        }`}
+                        id={`blog-item-${post.slug}`}
+                      >
+                        <div className="flex justify-between items-start gap-2">
+                          <span className={`px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase ${
+                            post.published 
+                              ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' 
+                              : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
+                          }`}>
+                            {post.published ? 'Published' : 'Draft'}
+                          </span>
+                          <span className="font-mono text-[9px] text-zinc-500">{post.date}</span>
+                        </div>
+
+                        <div>
+                          <h4 className="font-display font-bold text-sm text-zinc-100 light:text-zinc-900 line-clamp-1">{post.title}</h4>
+                          <span className="block font-mono text-[9px] text-amber-500/80 mt-0.5">{post.category}</span>
+                          <p className="text-[11px] text-zinc-400 light:text-zinc-600 line-clamp-2 mt-1 leading-relaxed">{post.summary}</p>
+                        </div>
+
+                        <div className="flex items-center space-x-1 pt-1.5 border-t border-zinc-850 dark:border-zinc-850/40 light:border-zinc-200 justify-end">
+                          <button
+                            type="button"
+                            onClick={() => handleEditBlogClick(post)}
+                            className="p-1.5 rounded border border-zinc-800 dark:border-zinc-800 light:border-zinc-300 hover:border-amber-500/50 hover:text-amber-500 text-zinc-400 light:text-zinc-600 text-xs flex items-center space-x-1"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                            <span className="font-mono text-[9px]">Modify</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteBlogPost(post.slug)}
+                            className="p-1.5 rounded border border-zinc-800 dark:border-zinc-800 light:border-zinc-300 hover:border-rose-500/50 hover:text-rose-500 text-zinc-500 text-xs flex items-center space-x-1"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span className="font-mono text-[9px]">Wipe</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Blog Form / Editor (Right) */}
+              <div className="lg:col-span-7">
+                <div className="p-5 bg-zinc-900/40 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-lg space-y-4">
+                  <div className="border-b border-zinc-850 dark:border-zinc-800/50 light:border-zinc-100 pb-3 flex justify-between items-center">
+                    <span className="font-mono text-xs text-amber-500 font-bold uppercase">
+                      {editingBlogSlug ? `Modifying Article: "${blogForm.title}"` : 'Journal Matrix Compiler'}
+                    </span>
+                    <span className="font-mono text-[9px] text-zinc-500">
+                      {editingBlogSlug ? 'Revision Mode' : 'New Stream Draft'}
+                    </span>
+                  </div>
+
+                  <form onSubmit={handleSaveBlogPost} className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Article Title</label>
+                        <input
+                          type="text"
+                          required
+                          value={blogForm.title || ''}
+                          onChange={e => {
+                            const val = e.target.value;
+                            const slugified = val.toLowerCase()
+                              .replace(/[^a-z0-9\s-]/g, '')
+                              .replace(/\s+/g, '-');
+                            setBlogForm(prev => ({
+                              ...prev,
+                              title: val,
+                              slug: editingBlogSlug ? prev.slug : slugified
+                            }));
+                          }}
+                          placeholder="e.g. Substation Earthing & BNBC Codes"
+                          className="w-full p-2.5 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border border-zinc-850 dark:border-zinc-850 light:border-zinc-250 text-xs rounded text-zinc-100 light:text-zinc-900"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Unique Slug Identifier</label>
+                        <input
+                          type="text"
+                          required
+                          value={blogForm.slug || ''}
+                          onChange={e => setBlogForm({ ...blogForm, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
+                          placeholder="e.g. substation-earthing-bnbc"
+                          className="w-full p-2.5 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border border-zinc-850 dark:border-zinc-850 light:border-zinc-250 text-xs rounded text-zinc-100 light:text-zinc-900"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Category</label>
+                        <select
+                          value={blogForm.category || ''}
+                          onChange={e => setBlogForm({ ...blogForm, category: e.target.value })}
+                          className="w-full p-2.5 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border border-zinc-850 dark:border-zinc-850 light:border-zinc-250 text-xs rounded text-zinc-100 light:text-zinc-900"
+                        >
+                          <option value="Substation Maintenance">Substation Maintenance</option>
+                          <option value="Safety & Earthing">Safety & Earthing</option>
+                          <option value="BNBC Compliance">BNBC Compliance</option>
+                          <option value="Power Quality & PFI">Power Quality & PFI</option>
+                          <option value="ACB Selectivity">ACB Selectivity</option>
+                          <option value="Transformers">Transformers</option>
+                          <option value="General Engineering">General Engineering</option>
+                        </select>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Estimated Read Time</label>
+                        <input
+                          type="text"
+                          value={blogForm.readTime || ''}
+                          onChange={e => setBlogForm({ ...blogForm, readTime: e.target.value })}
+                          placeholder="e.g. 5 min read"
+                          className="w-full p-2.5 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border border-zinc-850 dark:border-zinc-850 light:border-zinc-250 text-xs rounded text-zinc-100 light:text-zinc-900"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Banner Image URL (Optional)</label>
+                        <input
+                          type="url"
+                          value={blogForm.imageUrl || ''}
+                          onChange={e => setBlogForm({ ...blogForm, imageUrl: e.target.value })}
+                          placeholder="Unsplash / custom image url"
+                          className="w-full p-2.5 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border border-zinc-850 dark:border-zinc-850 light:border-zinc-250 text-xs rounded text-zinc-100 light:text-zinc-900"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-center">
+                        <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Summary (Short Pitch / Overview)</label>
+                        <span className="text-[9px] font-mono text-zinc-500">Max 2 sentences</span>
+                      </div>
+                      <textarea
+                        rows={2}
+                        value={blogForm.summary || ''}
+                        onChange={e => setBlogForm({ ...blogForm, summary: e.target.value })}
+                        placeholder="Draft a highly scannable introductory paragraph or hook for this engineering note."
+                        className="w-full p-2.5 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border border-zinc-850 dark:border-zinc-850 light:border-zinc-250 text-xs rounded text-zinc-100 light:text-zinc-900"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-center">
+                        <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Core Technical Content (Markdown-like)</label>
+                        <div className="text-[9px] font-mono text-zinc-500 flex gap-2">
+                          <span># H1</span>
+                          <span>## H2</span>
+                          <span>- List</span>
+                          <span>$$ Formula $$</span>
+                        </div>
+                      </div>
+                      <p className="text-[10px] text-zinc-500 font-mono leading-tight bg-zinc-900/20 light:bg-zinc-50 p-2 rounded border border-zinc-850 dark:border-zinc-850/60 light:border-zinc-200">
+                        Pro tip: Use double asterisks **bold** to highlight terms. Write bullet points with `-`. Wrap formulas inside `$$` (e.g. `$$ I = S / (V * \sqrt{3}) $$`). Wrap logs or code blocks in triple backticks.
+                      </p>
+                      <textarea
+                        rows={12}
+                        value={blogForm.content || ''}
+                        onChange={e => setBlogForm({ ...blogForm, content: e.target.value })}
+                        placeholder="Write your article core body contents here..."
+                        className="w-full p-3 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border border-zinc-850 dark:border-zinc-850 light:border-zinc-250 text-xs font-mono rounded text-zinc-100 light:text-zinc-900 leading-relaxed"
+                      />
+                    </div>
+
+                    {/* Tag Editor */}
+                    <div className="space-y-1">
+                      <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Tags / Keywords</label>
+                      <div className="flex space-x-2">
+                        <input
+                          type="text"
+                          value={blogTagInput}
+                          onChange={e => setBlogTagInput(e.target.value)}
+                          placeholder="e.g. PFI, BNBC, ACB (Comma separated)"
+                          className="w-full p-2 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border border-zinc-850 dark:border-zinc-850 light:border-zinc-250 text-xs rounded text-zinc-100 light:text-zinc-900"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleAddBlogTag}
+                          className="px-3 bg-zinc-900 dark:bg-zinc-900 light:bg-zinc-100 hover:bg-zinc-850 border border-zinc-850 hover:text-amber-500 text-xs font-mono rounded cursor-pointer"
+                        >
+                          Append
+                        </button>
+                      </div>
+                      <div className="flex flex-wrap gap-1 pt-1.5">
+                        {blogForm.tags?.map(t => (
+                          <span key={t} className="bg-zinc-900 dark:bg-zinc-900 light:bg-zinc-100 text-zinc-300 light:text-zinc-800 text-[9px] font-mono px-2 py-0.5 rounded flex items-center gap-1 border border-zinc-800">
+                            <span>#{t}</span>
+                            <button type="button" onClick={() => handleRemoveBlogTag(t)} className="text-rose-500 hover:text-rose-400 font-bold ml-1 text-[10px]">×</button>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Status Toggle (Published / Draft) */}
+                    <div className="flex items-center space-x-3 pt-2">
+                      <label className="font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Publication Status:</label>
+                      <button
+                        type="button"
+                        onClick={() => setBlogForm(prev => ({ ...prev, published: !prev.published }))}
+                        className={`px-3 py-1 text-[10px] font-mono font-bold rounded border cursor-pointer transition-colors ${
+                          blogForm.published
+                            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30'
+                            : 'bg-amber-500/10 text-amber-500 border-amber-500/30'
+                        }`}
+                      >
+                        {blogForm.published ? '⬤ Published (Live on Site)' : '⬤ Draft (Hidden)'}
+                      </button>
+                    </div>
+
+                    {/* Editor actions */}
+                    <div className="flex justify-between items-center pt-4 border-t border-zinc-850 dark:border-zinc-850 light:border-zinc-200">
+                      <button
+                        type="button"
+                        onClick={handleCancelBlogEdit}
+                        className="px-4 py-2.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-850 text-zinc-400 light:text-zinc-600 hover:text-zinc-200 font-mono text-xs rounded transition-colors"
+                      >
+                        Abort Changes
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-zinc-950 font-bold text-xs rounded shadow-md flex items-center space-x-2 cursor-pointer"
+                      >
+                        <Save className="w-4 h-4 text-zinc-950" />
+                        <span>{editingBlogSlug ? 'Deploy Revisions' : 'Serialize & Broadcast'}</span>
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        )}
+
         {/* 5. MESSAGES INBOX TAB */}
         {activeTab === 'messages' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start animate-fade-in text-left">
@@ -2168,6 +2767,82 @@ export default function Admin({ onSync }: AdminProps) {
         {activeTab === 'settings' && (
           <div className="space-y-6 animate-fade-in text-left">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+              {/* Application Layout & Theme Configuration */}
+              <div className="p-5 bg-zinc-900/40 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-lg space-y-4 md:col-span-2">
+                <h3 className="font-display font-bold text-sm text-zinc-100 light:text-zinc-900 uppercase border-b border-zinc-850 dark:border-zinc-800/50 light:border-zinc-100 pb-3">
+                  Application Theme & Layout Configuration
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {/* Bottom Navigation Toggle */}
+                  <div className="space-y-2">
+                    <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase tracking-wide">
+                      Mobile Bottom Navigation Tab
+                    </label>
+                    <p className="text-xs text-zinc-400 light:text-zinc-600 leading-relaxed">
+                      Enable or disable the persistent bottom navigation bar on mobile devices.
+                    </p>
+                    <div className="flex items-center space-x-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => handleSaveSettings({ ...appSettings, showBottomNav: true })}
+                        className={`px-4 py-2 text-xs font-mono font-bold rounded transition-colors cursor-pointer ${
+                          appSettings.showBottomNav
+                            ? 'bg-amber-500 text-zinc-950'
+                            : 'bg-zinc-850 text-zinc-400 light:bg-zinc-100 light:text-zinc-600 border border-zinc-800 light:border-zinc-200'
+                        }`}
+                      >
+                        Enabled (Default)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleSaveSettings({ ...appSettings, showBottomNav: false })}
+                        className={`px-4 py-2 text-xs font-mono font-bold rounded transition-colors cursor-pointer ${
+                          !appSettings.showBottomNav
+                            ? 'bg-rose-500 text-zinc-950'
+                            : 'bg-zinc-850 text-zinc-400 light:bg-zinc-100 light:text-zinc-600 border border-zinc-800 light:border-zinc-200'
+                        }`}
+                      >
+                        Disabled (Turn Off)
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Default Theme Selection */}
+                  <div className="space-y-2">
+                    <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase tracking-wide">
+                      Default Application Theme
+                    </label>
+                    <p className="text-xs text-zinc-400 light:text-zinc-600 leading-relaxed">
+                      Configure the default theme mode (Dark/Night mode or Light mode) for visitors.
+                    </p>
+                    <div className="flex items-center space-x-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => handleSaveSettings({ ...appSettings, defaultTheme: 'dark' })}
+                        className={`px-4 py-2 text-xs font-mono font-bold rounded transition-colors cursor-pointer ${
+                          appSettings.defaultTheme === 'dark'
+                            ? 'bg-amber-500 text-zinc-950'
+                            : 'bg-zinc-850 text-zinc-400 light:bg-zinc-100 light:text-zinc-600 border border-zinc-800 light:border-zinc-200'
+                        }`}
+                      >
+                        Dark Mode (Night Mode)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleSaveSettings({ ...appSettings, defaultTheme: 'light' })}
+                        className={`px-4 py-2 text-xs font-mono font-bold rounded transition-colors cursor-pointer ${
+                          appSettings.defaultTheme === 'light'
+                            ? 'bg-amber-500 text-zinc-950'
+                            : 'bg-zinc-850 text-zinc-400 light:bg-zinc-100 light:text-zinc-600 border border-zinc-800 light:border-zinc-200'
+                        }`}
+                      >
+                        Light Mode
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
               
               {/* Passcode changer */}
               <div className="p-5 bg-zinc-900/40 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-lg space-y-4">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CASE_STUDIES } from '../data';
-import { ArrowLeft, Calculator, ShieldCheck, CheckCircle2, Clipboard, Cpu, Award, Clock } from 'lucide-react';
+import { ArrowLeft, Calculator, ShieldCheck, CheckCircle2, Clipboard, Cpu, Award, Clock, X, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
 import { CaseStudy } from '../types';
 
 interface CaseStudyDetailProps {
@@ -11,6 +11,7 @@ interface CaseStudyDetailProps {
 
 export default function CaseStudyDetail({ slug, onBack, caseStudies = CASE_STUDIES }: CaseStudyDetailProps) {
   const [copied, setCopied] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState<number | null>(null);
   
   // Find case study matching slug
   const study = caseStudies.find(item => item.slug === slug);
@@ -19,6 +20,40 @@ export default function CaseStudyDetail({ slug, onBack, caseStudies = CASE_STUDI
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [slug]);
+
+  // Handle keyboard navigation for lightbox
+  useEffect(() => {
+    if (activeImageIndex === null) return;
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setActiveImageIndex(null);
+      } else if (e.key === 'ArrowRight' && study?.galleryImages) {
+        setActiveImageIndex((prev) => 
+          prev !== null ? (prev + 1) % study.galleryImages!.length : 0
+        );
+      } else if (e.key === 'ArrowLeft' && study?.galleryImages) {
+        setActiveImageIndex((prev) => 
+          prev !== null ? (prev - 1 + study.galleryImages!.length) % study.galleryImages!.length : 0
+        );
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeImageIndex, study?.galleryImages]);
+
+  // Lock scrolling when lightbox is active
+  useEffect(() => {
+    if (activeImageIndex !== null) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [activeImageIndex]);
 
   if (!study) {
     return (
@@ -94,6 +129,57 @@ export default function CaseStudyDetail({ slug, onBack, caseStudies = CASE_STUDI
         {/* Case Study Content Grid */}
         <div className="space-y-8">
           
+          {/* Section: Technical Specifications Grid */}
+          {study.specs && (
+            <div className="border border-zinc-850 dark:border-zinc-800/80 light:border-zinc-200 bg-zinc-900/10 light:bg-zinc-50 rounded-lg overflow-hidden">
+              <div className="bg-zinc-900/50 dark:bg-zinc-900/50 light:bg-zinc-100 px-4 py-3 border-b border-zinc-850 dark:border-zinc-800/80 light:border-zinc-200 flex items-center justify-between">
+                <h3 className="font-mono text-[10px] sm:text-xs font-bold text-zinc-350 light:text-zinc-800 uppercase tracking-wider">
+                  Technical Specifications & Site Parameters
+                </h3>
+                <span className="font-mono text-[9px] text-amber-500 font-semibold uppercase">Datasheet</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 divide-y sm:divide-y-0 md:divide-y-0 divide-zinc-850 dark:divide-zinc-800/50 light:divide-zinc-200">
+                
+                {/* Spec 1: Voltage */}
+                <div className="p-4 flex flex-col justify-between hover:bg-zinc-900/20 light:hover:bg-zinc-100/50 transition-colors">
+                  <span className="font-mono text-[9px] uppercase tracking-wider text-zinc-500">System Voltage</span>
+                  <span className="text-xs sm:text-sm font-semibold text-zinc-250 light:text-zinc-850 mt-1.5">{study.specs.voltage || 'N/A'}</span>
+                </div>
+
+                {/* Spec 2: Capacity */}
+                <div className="p-4 flex flex-col justify-between sm:border-l border-zinc-850 dark:border-zinc-800/50 light:border-zinc-200 hover:bg-zinc-900/20 light:hover:bg-zinc-100/50 transition-colors">
+                  <span className="font-mono text-[9px] uppercase tracking-wider text-zinc-500">Site Capacity</span>
+                  <span className="text-xs sm:text-sm font-semibold text-zinc-250 light:text-zinc-850 mt-1.5">{study.specs.capacity || 'N/A'}</span>
+                </div>
+
+                {/* Spec 3: Duration */}
+                <div className="p-4 flex flex-col justify-between md:border-l border-zinc-850 dark:border-zinc-800/50 light:border-zinc-200 border-t sm:border-t-0 hover:bg-zinc-900/20 light:hover:bg-zinc-100/50 transition-colors">
+                  <span className="font-mono text-[9px] uppercase tracking-wider text-zinc-500">Project Duration</span>
+                  <span className="text-xs sm:text-sm font-semibold text-zinc-250 light:text-zinc-850 mt-1.5">{study.specs.duration || 'N/A'}</span>
+                </div>
+
+                {/* Spec 4: Sector */}
+                <div className="p-4 flex flex-col justify-between border-t border-zinc-850 dark:border-zinc-800/50 light:border-zinc-200 hover:bg-zinc-900/20 light:hover:bg-zinc-100/50 transition-colors">
+                  <span className="font-mono text-[9px] uppercase tracking-wider text-zinc-500">Industrial Sector</span>
+                  <span className="text-xs sm:text-sm font-semibold text-zinc-250 light:text-zinc-850 mt-1.5">{study.specs.sector || 'N/A'}</span>
+                </div>
+
+                {/* Spec 5: Equipment */}
+                <div className="p-4 flex flex-col justify-between border-t sm:border-l border-zinc-850 dark:border-zinc-800/50 light:border-zinc-200 hover:bg-zinc-900/20 light:hover:bg-zinc-100/50 transition-colors">
+                  <span className="font-mono text-[9px] uppercase tracking-wider text-zinc-500">Primary Equipment</span>
+                  <span className="text-xs sm:text-sm font-semibold text-zinc-250 light:text-zinc-850 mt-1.5">{study.specs.equipment || 'N/A'}</span>
+                </div>
+
+                {/* Spec 6: Standard */}
+                <div className="p-4 flex flex-col justify-between border-t md:border-l border-zinc-850 dark:border-zinc-800/50 light:border-zinc-200 hover:bg-zinc-900/20 light:hover:bg-zinc-100/50 transition-colors">
+                  <span className="font-mono text-[9px] uppercase tracking-wider text-zinc-500">Applied Standard</span>
+                  <span className="text-xs sm:text-sm font-semibold text-zinc-250 light:text-zinc-850 mt-1.5">{study.specs.standard || 'N/A'}</span>
+                </div>
+
+              </div>
+            </div>
+          )}
+
           {/* Section: The Problem */}
           <div className="p-6 bg-zinc-900/20 dark:bg-zinc-900/20 light:bg-zinc-100 border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-lg">
             <h2 className="font-display font-bold text-lg text-zinc-200 light:text-zinc-900 flex items-center space-x-2">
@@ -148,6 +234,50 @@ export default function CaseStudyDetail({ slug, onBack, caseStudies = CASE_STUDI
             </p>
           </div>
 
+          {/* Section: Field Photographic Evidence */}
+          {study.galleryImages && study.galleryImages.length > 0 && (
+            <div className="p-6 bg-zinc-900/20 dark:bg-zinc-900/20 light:bg-zinc-100 border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-lg">
+              <h2 className="font-display font-bold text-lg text-zinc-200 light:text-zinc-900 flex items-center space-x-2">
+                <span className="text-amber-500 font-mono">03 —</span>
+                <span>Photographic Evidence & Site Inspection</span>
+              </h2>
+              <div className="h-0.5 w-8 bg-amber-500/50 mt-2 mb-4" />
+              <p className="text-zinc-450 light:text-zinc-550 text-xs sm:text-sm mb-6 leading-relaxed">
+                High-resolution site records capturing switchgear assemblies, cable routing, soil earth continuity testing, and protective relays. Click any image to view full-screen.
+              </p>
+              
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {study.galleryImages.map((imgUrl, index) => (
+                  <div
+                    key={index}
+                    onClick={() => setActiveImageIndex(index)}
+                    className="group relative aspect-[4/3] rounded-lg overflow-hidden border border-zinc-850 dark:border-zinc-800 light:border-zinc-200 bg-zinc-950 cursor-pointer hover:border-amber-500/40 transition-all duration-300 shadow-sm"
+                  >
+                    <img 
+                      src={imgUrl} 
+                      alt={`Site photo ${index + 1}`}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      referrerPolicy="no-referrer"
+                    />
+                    
+                    {/* Hover state overlay */}
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <div className="p-2 bg-zinc-900/90 text-amber-500 border border-amber-500/20 rounded-lg text-xs font-mono flex items-center gap-1.5 shadow-md">
+                        <Maximize2 className="w-3.5 h-3.5" />
+                        <span>Expand</span>
+                      </div>
+                    </div>
+                    
+                    {/* Thumbnail counter label */}
+                    <span className="absolute bottom-2 left-2 px-2 py-0.5 bg-black/60 backdrop-blur-sm text-zinc-300 rounded font-mono text-[9px] uppercase tracking-wider">
+                      Photo 0{index + 1}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Section: The Results */}
           <div className="p-6 bg-zinc-900/40 dark:bg-zinc-900/40 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-lg circuit-border">
             <h2 className="font-display font-bold text-lg text-zinc-100 light:text-zinc-900 flex items-center space-x-2">
@@ -184,6 +314,86 @@ export default function CaseStudyDetail({ slug, onBack, caseStudies = CASE_STUDI
         </div>
 
       </div>
+
+      {/* LIGHTBOX OVERLAY */}
+      {activeImageIndex !== null && study.galleryImages && (
+        <div 
+          className="fixed inset-0 z-50 flex flex-col justify-between bg-zinc-950/95 backdrop-blur-sm select-none p-4"
+          onClick={() => setActiveImageIndex(null)}
+          id="case-study-lightbox"
+        >
+          {/* Top Bar */}
+          <div className="flex items-center justify-between py-2 px-4 text-zinc-300">
+            <div className="font-mono text-xs">
+              <span className="text-amber-500 font-bold">{activeImageIndex + 1}</span>
+              <span className="text-zinc-600"> / </span>
+              <span>{study.galleryImages.length}</span>
+              <span className="hidden sm:inline text-zinc-500 ml-4 font-normal">| {study.title}</span>
+            </div>
+            <button
+              onClick={() => setActiveImageIndex(null)}
+              className="p-2 hover:bg-zinc-900 text-zinc-400 hover:text-zinc-100 rounded-lg transition-colors cursor-pointer"
+              aria-label="Close lightbox"
+              id="close-lightbox-btn"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Main Display Image Container */}
+          <div className="relative flex-1 flex items-center justify-center max-w-5xl mx-auto w-full my-4">
+            
+            {/* Left Nav Button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveImageIndex((prev) => 
+                  prev !== null ? (prev - 1 + study.galleryImages!.length) % study.galleryImages!.length : 0
+                );
+              }}
+              className="absolute left-2 sm:-left-12 p-3 bg-zinc-900/85 border border-zinc-800 text-zinc-350 hover:text-amber-500 hover:border-amber-500/50 rounded-full transition-all cursor-pointer shadow-lg z-10"
+              aria-label="Previous image"
+              id="lightbox-prev-btn"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+
+            {/* Expanded Image Frame */}
+            <div 
+              className="relative max-h-[75vh] max-w-full overflow-hidden rounded-lg border border-zinc-850 dark:border-zinc-800 light:border-zinc-200 bg-zinc-900 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img 
+                src={study.galleryImages[activeImageIndex]} 
+                alt={`Expanded Site Photo ${activeImageIndex + 1}`}
+                className="max-h-[75vh] w-auto max-w-full object-contain mx-auto"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+
+            {/* Right Nav Button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveImageIndex((prev) => 
+                  prev !== null ? (prev + 1) % study.galleryImages!.length : 0
+                );
+              }}
+              className="absolute right-2 sm:-right-12 p-3 bg-zinc-900/85 border border-zinc-800 text-zinc-350 hover:text-amber-500 hover:border-amber-500/50 rounded-full transition-all cursor-pointer shadow-lg z-10"
+              aria-label="Next image"
+              id="lightbox-next-btn"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Bottom Bar Hints */}
+          <div className="py-2 text-center text-zinc-500 font-mono text-[10px] uppercase tracking-widest">
+            Use Left / Right Arrows to Navigate • Esc to Close
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

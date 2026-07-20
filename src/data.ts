@@ -1,4 +1,4 @@
-import { CaseStudy, TimelineStep, ReadingItem, AdminStats, ProfileData, HomepageContent } from './types';
+import { CaseStudy, TimelineStep, ReadingItem, AdminStats, ProfileData, HomepageContent, AppSettings, BlogPost } from './types';
 
 export const CASE_STUDIES: CaseStudy[] = [
   {
@@ -29,7 +29,20 @@ Main ACB Trip Settings:
       'Achieved zero cascaded blackouts over a 12-month monitoring period.',
       'Ensured absolute safety compliance with BNBC 2020 Part 8 guidelines.'
     ],
-    duration: '3 Weeks'
+    duration: '3 Weeks',
+    galleryImages: [
+      'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1517646287270-a5a9ca602e5c?auto=format&fit=crop&q=80&w=1200'
+    ],
+    specs: {
+      voltage: '11kV / 0.415kV LT',
+      capacity: '630 kVA Transformer',
+      duration: '3 Weeks',
+      equipment: 'HT VCB, Main ACB, IDMT Protection Relays',
+      standard: 'BNBC 2020 Part 8 (Selectivity)',
+      sector: 'Textile & Apparel Manufacturing'
+    }
   },
   {
     slug: 'industrial-load-distribution',
@@ -63,7 +76,20 @@ Previous Cable: 4-Core 25 mm² NYY (Rated for 95A in free air; derated rating = 
       'Prevented premature failure of cable insulation, saving the factory from potential fire hazards.',
       'Improved line voltage regulation at the knitting machine terminals from 390V to 411V.'
     ],
-    duration: '2 Weeks'
+    duration: '2 Weeks',
+    galleryImages: [
+      'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1508873535684-277a3cbcc4e8?auto=format&fit=crop&q=80&w=1200'
+    ],
+    specs: {
+      voltage: '415V Three-Phase AC',
+      capacity: '45 kW Knitting Machinery Sector',
+      duration: '2 Weeks',
+      equipment: '4-Core 35 mm² NYY Copper Cable, Cable Ladder Trays',
+      standard: 'IEC 60364-5-52 Thermal Directives',
+      sector: 'Light Industrial Manufacturing'
+    }
   },
   {
     slug: 'earthing-system-inspection',
@@ -90,7 +116,20 @@ We require 2 new chemical ground electrodes to reach under 1.0 Ω.`,
       'Measured chassis touch voltage dropped to absolute 0V during simulated fault tests.',
       'Completely eliminated operators electrical shock reports and erratic machine controller reboots.'
     ],
-    duration: '4 Days'
+    duration: '4 Days',
+    galleryImages: [
+      'https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=1200'
+    ],
+    specs: {
+      voltage: 'Fault Grounding Selectivity',
+      capacity: 'Composite Resistance < 1.0 Ω target',
+      duration: '4 Days',
+      equipment: 'Bentonite Chemical Earth Rods, 35 mm² ECC Bond',
+      standard: 'BNBC 2020 Safety Ground Standards',
+      sector: 'Heavy Industrial Machinery Plant'
+    }
   },
   {
     slug: 'ips-lighting-troubleshooting',
@@ -115,7 +154,20 @@ Actual Problem: The relay contacts of the 40A Automatic Transfer Switch (ATS) we
       'Extended emergency lighting battery backup autonomy to a proven 2.2 hours under full load.',
       'Created a fail-safe manual bypass switch on the IPS control board for emergency maintenance.'
     ],
-    duration: '1 Week'
+    duration: '1 Week',
+    galleryImages: [
+      'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1498084393753-b411b2d26b34?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1200'
+    ],
+    specs: {
+      voltage: '12V DC Battery / 240V AC Inverted Output',
+      capacity: '3.0 kVA IPS Inverter Capacity',
+      duration: '1 Week',
+      equipment: '40A Silver-Alloy Contactor Relays, 2x 200Ah Deep-Cycle Batteries',
+      standard: 'IEC Emergency Lighting Switching Standards',
+      sector: 'Commercial and Logistics Facilities'
+    }
   }
 ];
 
@@ -167,6 +219,7 @@ export const DEFAULT_PROFILE_DATA: ProfileData = {
   whatsapp: "+880 1712-345678",
   summary: "Results-driven Industrial Electrical Engineer with over 4 years of hands-on expertise in electrical maintenance, load calculation, distribution substation operation, and advanced troubleshooting for large-scale textile and sweater manufacturing operations. Proven capability in maintaining zero unscheduled downtime, ensuring electrical safety compliance per BNBC and IEC standards, and designing automatic protection and transfer systems.",
   skills: "Substation Maintenance (11kV/0.4kV), SLD Interpretation, Protection Selectivity (ACB/MCCB/VCB), Power Factor Improvement (PFI), Cable & Breaker Sizing, Earth Resistance Testing, Generator Load Matching, Industrial Automation, LOTO Safety Protocols, BNBC & IEC Compliance",
+  imageUrl: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=800&auto=format&fit=crop",
   experience: [
     {
       role: "Senior Electrical Maintenance Engineer",
@@ -214,7 +267,7 @@ export const DEFAULT_PROFILE_DATA: ProfileData = {
 };
 
 export const DEFAULT_HOMEPAGE_CONTENT: HomepageContent = {
-  heroTagline: "Electrical Engineer — Dhaka, Bangladesh",
+  heroTagline: "Electrical Engineer",
   heroHeading: "I keep factories running.",
   heroSubheading: "Electrical maintenance, load distribution, and power system troubleshooting for industrial facilities. Currently maintaining a sweater factory in Dhaka — keeping production lines live, motors humming, and safety standards met.",
   heroStat1Val: "4+ Years",
@@ -241,5 +294,127 @@ export const DEFAULT_HOMEPAGE_CONTENT: HomepageContent = {
   contactGithub: "https://github.com",
   headerLogoIcon: "Cpu"
 };
+
+export const DEFAULT_APP_SETTINGS: AppSettings = {
+  showBottomNav: true,
+  defaultTheme: 'dark'
+};
+
+export const DEFAULT_BLOG_POSTS: BlogPost[] = [
+  {
+    slug: 'pfi-plant-maintenance-bangladesh',
+    title: 'The Ultimate Guide to PFI (Power Factor Improvement) Plant Maintenance in Bangladesh Factories',
+    category: 'Substation Maintenance',
+    date: '2026-06-15',
+    readTime: '6 min read',
+    summary: 'A deep-dive technical look at maintaining power factor correction above 0.95 under harsh industrial loads, preventing heavy regulatory penalties from distribution authorities.',
+    content: `Maintaining a healthy Power Factor (PF) is not just a technical necessity in Bangladesh—it is a critical financial priority. Under Bangladesh Energy Regulatory Commission (BERC) rules, local distribution utilities (like DESCO, DPDC, or BREB) levy heavy surcharges if a factory's average power factor drops below 0.95.
+
+### The Physics of Power Factor in Textile Machinery
+Most textile machinery operates using highly inductive loads (three-phase induction motors for circular knitting machines, spinning frames, compressors, and pumps). These inductive loads absorb both Active Power (kW) and Reactive Power (kVAR). 
+
+The Power Factor is represented as:
+$$\\text{PF} = \\cos(\\theta) = \\frac{\\text{Active Power (kW)}}{\\text{Apparent Power (kVA)}}$$
+
+To compensate for the lagging reactive current, we install a Power Factor Improvement (PFI) plant, which supplies local leading reactive power via heavy-duty capacitor banks.
+
+### Common Failure Points of PFI Plants in Dhaka's Climate
+Having maintained PFI plants in Gazipur and Uttara, I have identified three primary reasons why power factor panels fail:
+
+1. **Capacitor Cell Degradation due to Ambient Thermal Stress:**
+   Dhaka summers routinely push factory ambient temperatures above 40°C. Heavy-duty capacitors generate internal heat. If the PFI panel lacks active forced ventilation (cooling fans with clean dust filters), the internal foil insulation inside the capacitor cans dries out. This results in a gradual loss of capacitance. A 50 kVAR capacitor cell can drop to 30 kVAR in less than a year without thermal management.
+
+2. **Contact Pit & Arcing in Switching Contactors:**
+   Standard electrical contactors suffer from heavy sparking (inrush currents) when switching capacitive loads. Over time, the contacts become pitted, creating high contact resistance. This causes voltage imbalances across the capacitor phases or prevents the steps from turning on altogether.
+   *Solution:* Always use specialized capacitor-switching contactors equipped with pre-charging damping resistors to limit current surges.
+
+3. **Inaccurate Power Factor Controller (PFC) Relays:**
+   The brain of the PFI plant is the microprocessor controller. If the CT (Current Transformer) ratio is entered incorrectly or if the CT is installed on the wrong phase, the controller reads false parameters, leading to under-compensation (surcharges) or over-compensation (overvoltage and resonance issues).
+
+### Recommended Monthly PFI Maintenance Protocol
+To ensure 100% reliability and keep your power factor at a comfortable 0.98, implement this checklist:
+- **Thermal Imaging:** Scan all capacitor terminal blocks, contactors, and HRC fuses weekly. Any hot spot (> 55°C) indicates loose terminals or internal capacitor cell failure.
+- **Current Balance Check:** Measure the individual phase currents of each capacitor step using a clamp-on ammeter. Equal current across all three phases verifies balanced capacitive impedance.
+- **Manual Discharge and Discharge Resistor Verification:** Always wait 3-5 minutes after switching off a capacitor step before re-energizing or servicing, allowing built-in discharging resistors to bleed down the residual voltage to a safe level (< 50V).`,
+    tags: ['PFI', 'Substation', 'Energy Efficiency', 'Industrial Maintenance'],
+    imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200',
+    published: true
+  },
+  {
+    slug: 'bnbc-2020-earthing-guidelines',
+    title: 'Understanding BNBC 2020 Earthing and Safety Bonding Guidelines for Industrial Plants',
+    category: 'Electrical Safety',
+    date: '2026-05-28',
+    readTime: '5 min read',
+    summary: 'An engineer\'s field manual to the latest Bangladesh National Building Code (BNBC) directives on grounding system design, soil resistivity testing, and equipment bonding.',
+    content: `Safety earthing is the single most important line of defense against electrocution and equipment failure in modern industrial plants. In Bangladesh, the definitive standard is the **Bangladesh National Building Code (BNBC) 2020, Part 8, Chapter 2**.
+
+### The Core Target: Earth Electrode Resistance
+BNBC 2020 specifies that the composite resistance of the earthing system should ideally be **less than 1.0 Ohm** for industrial substations and sensitive electronic data centers, and must never exceed **5.0 Ohms** for residential/commercial loads under any seasonal variations.
+
+In regions like Gazipur, Savar, and Narayanganj, the upper soil layer consists of highly resistive red clay and sand. Achieving less than 1.0 Ohm with a simple copper pipe is nearly impossible.
+
+### Field Engineering: Achieving Compliance in Low-Conductivity Soils
+To drive down earthing resistance to compliant levels, we employ several techniques:
+
+1. **Chemical Earthing Systems:**
+   Instead of traditional salt-and-charcoal (which washes away in the monsoon and corrodes the copper electrode), we use bentonite-based chemical earth-enhancing compounds. Bentonite is an highly conductive clay that absorbs surrounding soil moisture, expanding to form a tight, continuous conductive path around the electrode.
+
+2. **Parallel Earth Loop Grid:**
+   Never rely on a single earth bore. Connect all earth electrodes (Power Earth, Substation Neutral Earth, Lightning Protection Earth, and Body Earth) in a parallel loop. The equivalent resistance of parallel resistors is always lower than the lowest single resistance:
+   $$\\frac{1}{R_{\\text{total}}} = \\frac{1}{R_1} + \\frac{1}{R_2} + \\dots + \\frac{1}{R_n}$$
+
+3. **Equipotential Bonding:**
+   To completely eliminate dangerous potential differences between metal structures, BNBC 2020 mandates equipotential bonding. All exposed structural metallic parts, generator frames, boiler pipes, and cable ladders must be bonded together and connected directly to the Earth Grid using Earth Continuity Conductors (ECC) sized precisely according to the maximum prospective fault current.
+
+### How We Conduct Soil Resistivity Testing
+Before drilling, we perform a 4-point Wenner test using an earth tester:
+- Place four stakes in a straight line at equal spacing 'a'.
+- Inject current through the outer stakes and measure the voltage drop across the inner stakes.
+- Calculate soil resistivity ($\\rho$) using:
+  $$\\rho = 2 \\pi a R$$
+This value tells us exactly how deep we need to bore or how many parallel earth rods are required.`,
+    tags: ['BNBC 2020', 'Earthing', 'Safety Compliance', 'Field Testing'],
+    imageUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=1200',
+    published: true
+  },
+  {
+    slug: 'acb-mccb-relay-selectivity',
+    title: 'Demystifying ACB vs MCCB Protective Relay Selectivity & Coordination',
+    category: 'Industrial Protection',
+    date: '2026-04-10',
+    readTime: '7 min read',
+    summary: 'How to plot IDMT curves and configure micro-processor trip units to prevent minor downstream faults from causing expensive factory-wide blackouts.',
+    content: `A factory-wide power interruption is extremely expensive. In sweater manufacturing, a sudden loss of voltage during a circular knitting cycle ruins the raw material, causing major production waste and disrupting tight delivery schedules.
+
+The solution to avoiding cascading outages is **Protective Device Coordination (Selectivity)**.
+
+### What is Selectivity?
+Selectivity means that when an electrical fault (overload or short-circuit) occurs, only the protective device immediately upstream of the fault should trip. All other upstream devices must remain closed, confining the outage exclusively to the faulty sub-circuit.
+
+If a motor on a knitting floor has a phase-to-ground short, the individual Sub-Distribution Board (SDB) Moulded Case Circuit Breaker (MCCB) must trip. The main Substation Air Circuit Breaker (ACB) must NOT trip.
+
+### The Role of Microprocessor-Based Trip Units (LSIG)
+Modern ACBs are equipped with advanced electronic trip units that monitor and protect against four main conditions:
+- **L (Long Time Delay - Overload):** Protects cable systems from slow, sustained overcurrents. Set close to the rated operating current ($I_r$).
+- **S (Short Time Delay - Short Circuit):** Protects against medium-intensity faults. Allows downstream breakers to clear the fault first by delaying the ACB trip by a few milliseconds (e.g., 100ms or 200ms).
+- **I (Instantaneous - High Fault Current):** Trips with no intentional time delay if a catastrophic near-zero impedance short-circuit occurs close to the main busbars.
+- **G (Ground Fault):** Detects leakage current to earth, identifying winding insulation failures.
+
+### Real-World Configuration Scenario
+Consider an industrial facility with:
+1. Downstream MCCB protecting a 45 kW motor line: Rated at 125A.
+2. Main Substation ACB: Rated at 1000A.
+
+If a short-circuit fault of 3000A occurs on the motor cable:
+- If the ACB Instantaneous trip is set to $3 \\times I_n = 3000A$ with 0s delay, **both** the ACB and MCCB will trip simultaneously. The entire factory goes dark.
+- **Selectivity Fix:** Adjust the ACB Short-Time trip ($I_{sd}$) to $4 \\times I_r = 4000A$ with a delay of **150 milliseconds**, while keeping the MCCB instantaneous trip at 0.05s. This 150ms buffer gives the downstream MCCB ample time to clear the motor fault independently. The ACB stays online, keeping the other floors operating normally.`,
+    tags: ['Selectivity', 'ACB', 'MCCB', 'Overcurrent Protection', 'LSIG'],
+    imageUrl: 'https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&q=80&w=1200',
+    published: true
+  }
+];
+
+
 
 

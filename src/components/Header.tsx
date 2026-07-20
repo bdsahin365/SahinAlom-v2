@@ -104,34 +104,21 @@ export default function Header({
           {/* Logo / Title Left */}
           <div 
             onClick={() => onNavigate('home')} 
-            className="flex items-center space-x-3 cursor-pointer group"
+            className="flex items-center space-x-2 cursor-pointer group"
           >
-            <div className="relative flex items-center justify-center w-9 h-9 border border-amber-500/30 rounded bg-zinc-900 group-hover:border-amber-500 transition-colors">
-              <DynamicIcon name={homepageContent?.headerLogoIcon || 'Cpu'} className="w-5 h-5 text-amber-500" />
-              {/* Live green dot in corner */}
-              <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-              </span>
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-amber-500/10 text-amber-500 border border-amber-500/20 group-hover:bg-amber-500/20 group-hover:border-amber-500/40 transition-all">
+              <DynamicIcon name={homepageContent?.headerLogoIcon || 'Cpu'} className="w-4.5 h-4.5 text-amber-500" />
             </div>
-            <div>
-              <span className="font-display font-bold tracking-tight text-lg text-zinc-100 light:text-zinc-950">
-                SAHIN ALOM
-              </span>
-              <div className="flex items-center space-x-1">
-                <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest">
-                  EE. Dhaka
-                </span>
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              </div>
-            </div>
+            <span className="font-display font-bold tracking-tight text-base text-zinc-100 light:text-zinc-950 group-hover:text-amber-500 transition-colors">
+              Sahin Alom
+            </span>
           </div>
 
           {/* Desktop Nav Center */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden lg:flex items-center space-x-4 lg:space-x-5">
             <button
               onClick={() => handleNavClick('hero')}
-              className={`font-display text-sm font-medium tracking-wide transition-colors hover:text-amber-500 ${
+              className={`font-display text-xs lg:text-sm font-medium tracking-wide transition-colors hover:text-amber-500 ${
                 activeSection === 'hero' && currentView === 'home'
                   ? 'text-amber-500'
                   : 'text-zinc-400 light:text-zinc-600'
@@ -141,57 +128,47 @@ export default function Header({
             </button>
             <button
               onClick={() => handleNavClick('daily-check')}
-              className={`font-display text-sm font-medium tracking-wide transition-colors hover:text-amber-500 ${
+              className={`font-display text-xs lg:text-sm font-medium tracking-wide transition-colors hover:text-amber-500 ${
                 activeSection === 'daily-check' && currentView === 'home'
                   ? 'text-amber-500'
                   : 'text-zinc-400 light:text-zinc-600'
               }`}
             >
-              The Daily Check
+              Daily
             </button>
             <button
-              onClick={() => handleNavClick('work')}
-              className={`font-display text-sm font-medium tracking-wide transition-colors hover:text-amber-500 ${
-                activeSection === 'work' && currentView === 'home'
-                  ? 'text-amber-500'
+              onClick={() => onNavigate('all-work')}
+              className={`font-display text-xs lg:text-sm font-medium tracking-wide transition-colors hover:text-amber-500 ${
+                currentView === 'all-work'
+                  ? 'text-amber-500 font-bold border-b border-amber-500/30'
                   : 'text-zinc-400 light:text-zinc-600'
               }`}
             >
-              Case Studies
+              Work
             </button>
             <button
               onClick={() => handleNavClick('capabilities')}
-              className={`font-display text-sm font-medium tracking-wide transition-colors hover:text-amber-500 ${
+              className={`font-display text-xs lg:text-sm font-medium tracking-wide transition-colors hover:text-amber-500 ${
                 activeSection === 'capabilities' && currentView === 'home'
                   ? 'text-amber-500'
                   : 'text-zinc-400 light:text-zinc-600'
               }`}
             >
-              Capabilities
+              Skills
             </button>
             <button
-              onClick={() => handleNavClick('contact')}
-              className={`font-display text-sm font-medium tracking-wide transition-colors hover:text-amber-500 ${
-                activeSection === 'contact' && currentView === 'home'
-                  ? 'text-amber-500'
+              onClick={() => onNavigate('blog')}
+              className={`font-display text-xs lg:text-sm font-medium tracking-wide transition-colors hover:text-amber-500 ${
+                currentView === 'blog'
+                  ? 'text-amber-500 font-bold border-b border-amber-500/30'
                   : 'text-zinc-400 light:text-zinc-600'
               }`}
             >
-              Contact
-            </button>
-            <button
-              onClick={() => onNavigate('resume')}
-              className={`font-display text-sm font-medium tracking-wide transition-colors hover:text-amber-500 ${
-                currentView === 'resume'
-                  ? 'text-amber-500'
-                  : 'text-zinc-400 light:text-zinc-600'
-              }`}
-            >
-              Resume
+              Notes
             </button>
             <button
               onClick={() => onNavigate('tools')}
-              className={`font-display text-sm font-medium tracking-wide transition-colors hover:text-amber-500 ${
+              className={`font-display text-xs lg:text-sm font-medium tracking-wide transition-colors hover:text-amber-500 ${
                 currentView === 'tools'
                   ? 'text-amber-500 font-bold border-b border-amber-500/30'
                   : 'text-zinc-400 light:text-zinc-600'
@@ -200,8 +177,28 @@ export default function Header({
               Tools
             </button>
             <button
+              onClick={() => onNavigate('resume')}
+              className={`font-display text-xs lg:text-sm font-medium tracking-wide transition-colors hover:text-amber-500 ${
+                currentView === 'resume'
+                  ? 'text-amber-500'
+                  : 'text-zinc-400 light:text-zinc-600'
+              }`}
+            >
+              Resume
+            </button>
+            <button
+              onClick={() => handleNavClick('contact')}
+              className={`font-display text-xs lg:text-sm font-medium tracking-wide transition-colors hover:text-amber-500 ${
+                activeSection === 'contact' && currentView === 'home'
+                  ? 'text-amber-500'
+                  : 'text-zinc-400 light:text-zinc-600'
+              }`}
+            >
+              Contact
+            </button>
+            <button
               onClick={() => onNavigate('admin')}
-              className={`font-display text-sm font-medium tracking-wide transition-colors hover:text-amber-500 ${
+              className={`font-display text-xs lg:text-sm font-medium tracking-wide transition-colors hover:text-amber-500 ${
                 currentView === 'admin'
                   ? 'text-amber-500'
                   : 'text-zinc-400 light:text-zinc-600'
@@ -212,7 +209,7 @@ export default function Header({
             {currentView === 'biodata' && (
               <button
                 onClick={() => onNavigate('biodata')}
-                className="font-display text-sm font-medium tracking-wide transition-colors text-amber-500"
+                className="font-display text-xs lg:text-sm font-medium tracking-wide transition-colors text-amber-500"
               >
                 Biodata
               </button>
@@ -220,7 +217,7 @@ export default function Header({
           </nav>
 
           {/* Desktop Right CTA / Theme Toggle */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden lg:flex items-center space-x-4">
             {/* Theme Toggle */}
             <button
               onClick={onToggleDarkMode}
@@ -241,12 +238,12 @@ export default function Header({
           </div>
 
           {/* Mobile hamburger menu */}
-          <div className="flex md:hidden items-center space-x-2">
+          <div className="flex lg:hidden items-center space-x-2">
             <button
               onClick={onToggleDarkMode}
               className="p-2 rounded border border-zinc-800 light:border-zinc-200 text-zinc-400 light:text-zinc-600"
             >
-              {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {darkMode ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
             </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -259,7 +256,7 @@ export default function Header({
 
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-50 border-b border-zinc-800 dark:border-zinc-800 light:border-zinc-200 px-4 pt-2 pb-4 space-y-2">
+          <div className="lg:hidden bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-50 border-b border-zinc-800 dark:border-zinc-800 light:border-zinc-200 px-4 pt-2 pb-4 space-y-2">
             <button
               onClick={() => handleNavClick('hero')}
               className="block w-full text-left py-2 px-3 rounded text-sm text-zinc-400 light:text-zinc-600 hover:bg-zinc-900 dark:hover:bg-zinc-900 light:hover:bg-zinc-100"
@@ -270,19 +267,26 @@ export default function Header({
               onClick={() => handleNavClick('daily-check')}
               className="block w-full text-left py-2 px-3 rounded text-sm text-zinc-400 light:text-zinc-600 hover:bg-zinc-900 dark:hover:bg-zinc-900 light:hover:bg-zinc-100"
             >
-              The Daily Check
+              Daily
             </button>
             <button
-              onClick={() => handleNavClick('work')}
-              className="block w-full text-left py-2 px-3 rounded text-sm text-zinc-400 light:text-zinc-600 hover:bg-zinc-900 dark:hover:bg-zinc-900 light:hover:bg-zinc-100"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onNavigate('all-work');
+              }}
+              className={`block w-full text-left py-2 px-3 rounded text-sm hover:bg-zinc-900 dark:hover:bg-zinc-900 light:hover:bg-zinc-100 ${
+                currentView === 'all-work'
+                  ? 'text-amber-500 font-medium'
+                  : 'text-zinc-400 light:text-zinc-600'
+              }`}
             >
-              Case Studies
+              Work
             </button>
             <button
               onClick={() => handleNavClick('capabilities')}
               className="block w-full text-left py-2 px-3 rounded text-sm text-zinc-400 light:text-zinc-600 hover:bg-zinc-900 dark:hover:bg-zinc-900 light:hover:bg-zinc-100"
             >
-              Capabilities
+              Skills
             </button>
             <button
               onClick={() => handleNavClick('contact')}
@@ -298,6 +302,19 @@ export default function Header({
               className="block w-full text-left py-2 px-3 rounded text-sm text-zinc-400 light:text-zinc-600 hover:bg-zinc-900 dark:hover:bg-zinc-900 light:hover:bg-zinc-100"
             >
               Resume
+            </button>
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onNavigate('blog');
+              }}
+              className={`block w-full text-left py-2 px-3 rounded text-sm hover:bg-zinc-900 dark:hover:bg-zinc-900 light:hover:bg-zinc-100 ${
+                currentView === 'blog'
+                  ? 'text-amber-500 font-medium'
+                  : 'text-zinc-400 light:text-zinc-600'
+              }`}
+            >
+              Notes
             </button>
             <button
               onClick={() => {

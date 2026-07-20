@@ -9,7 +9,16 @@ export interface CaseStudy {
   solution: string;
   results: string[];
   imageUrl?: string;
+  galleryImages?: string[];
   duration?: string;
+  specs?: {
+    voltage?: string;
+    capacity?: string;
+    duration?: string;
+    equipment?: string;
+    standard?: string;
+    sector?: string;
+  };
 }
 
 export interface ReadingItem {
@@ -64,6 +73,7 @@ export interface ProfileData {
   whatsapp: string;
   summary: string;
   skills: string; // comma separated
+  imageUrl?: string;
   experience: ProfileExperience[];
   education: ProfileEducation[];
   personalDetails: {
@@ -112,5 +122,25 @@ export interface HomepageContent {
   contactGithub: string;
   headerLogoIcon?: string;
 }
+
+export interface AppSettings {
+  showBottomNav: boolean;
+  defaultTheme: 'dark' | 'light';
+}
+
+export interface BlogPost {
+  slug: string;
+  title: string;
+  category: string;
+  date: string;
+  readTime: string;
+  summary: string;
+  content: string; // Markdown or plain text with rich paragraphs
+  tags: string[];
+  imageUrl?: string;
+  published: boolean;
+}
+
+
 
 

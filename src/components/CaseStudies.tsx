@@ -17,25 +17,48 @@ export default function CaseStudies({ onNavigate, caseStudies = CASE_STUDIES }: 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="mb-12 flex flex-col md:flex-row md:items-end md:justify-between">
-          <div className="space-y-2">
-            <span className="font-mono text-xs text-amber-500 uppercase tracking-widest block">
+        <div className="mb-12 flex flex-row items-end justify-between border-b border-zinc-900/60 dark:border-zinc-900/40 light:border-zinc-200 pb-6">
+          <div className="space-y-1 flex-1 pr-4">
+            <span className="font-mono text-[10px] sm:text-xs text-amber-500 uppercase tracking-widest block">
               02 — Field Investigations
             </span>
-            <h2 className="font-display font-bold text-3xl md:text-4xl text-zinc-100 light:text-zinc-900 tracking-tight">
-              Problem → Solve
-            </h2>
-            <p className="text-zinc-400 light:text-zinc-600 max-w-xl text-sm md:text-base">
+            <div className="flex items-center justify-between">
+              <h2 className="font-display font-bold text-3xl md:text-4xl text-zinc-100 light:text-zinc-900 tracking-tight">
+                Problem → Solve
+              </h2>
+              
+              {/* Mobile-only Arrow Button right next to/aligned with Title */}
+              <button
+                onClick={() => onNavigate('all-work')}
+                className="md:hidden flex items-center justify-center p-2 rounded-full border border-amber-500/20 text-amber-500 hover:bg-amber-500/10 cursor-pointer transition-colors"
+                title="Explore All"
+                id="mobile-explore-all-btn"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+            <p className="text-zinc-400 light:text-zinc-650 max-w-xl text-xs sm:text-sm leading-relaxed mt-2">
               Real faults, real calculations, real fixes. Every case follows the same discipline: 
               diagnose first, calculate second, fix third.
             </p>
           </div>
-          <div className="h-0.5 w-12 bg-amber-500 mt-4 md:mt-0 md:hidden" />
+          
+          {/* Desktop-only Explore All Button */}
+          <div className="hidden md:flex items-center">
+            <button
+              onClick={() => onNavigate('all-work')}
+              className="inline-flex items-center space-x-1.5 text-xs sm:text-sm font-mono uppercase tracking-wider text-amber-500 hover:text-amber-400 font-bold group cursor-pointer transition-all"
+              id="view-all-studies-header-btn"
+            >
+              <span>Explore All ({caseStudies.length})</span>
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
         </div>
 
         {/* 2-Column Grid on Desktop, Horizontal Snap Carousel or stacked on Mobile */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-          {caseStudies.map((study) => (
+          {caseStudies.slice(0, 4).map((study) => (
             <div 
               key={study.slug}
               onClick={() => onNavigate('work-detail', study.slug)}
@@ -93,6 +116,19 @@ export default function CaseStudies({ onNavigate, caseStudies = CASE_STUDIES }: 
             </div>
           ))}
         </div>
+
+        {/* View All Case Studies Button */}
+        {caseStudies.length > 4 && (
+          <div className="mt-12 flex justify-center">
+            <button
+              onClick={() => onNavigate('all-work')}
+              className="inline-flex items-center space-x-2 px-6 py-3 border border-amber-500/30 hover:border-amber-500 text-zinc-100 light:text-zinc-900 font-mono text-xs uppercase tracking-wider rounded bg-zinc-900/50 light:bg-white hover:bg-amber-500 hover:text-zinc-950 transition-all cursor-pointer font-bold duration-300 group shadow-sm"
+            >
+              <span>Explore All Case Studies ({caseStudies.length})</span>
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
+            </button>
+          </div>
+        )}
 
       </div>
     </section>

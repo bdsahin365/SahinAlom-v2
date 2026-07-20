@@ -18,6 +18,18 @@ html {
   scroll-behavior: smooth;
 }
 
+@media (min-width: 1024px) {
+  html {
+    font-size: 112.5%; /* Scales 16px to 18px base - making all rem typography highly readable on desktop */
+  }
+}
+
+@media (min-width: 1536px) {
+  html {
+    font-size: 118.75%; /* Scales 16px to 19px base for ultra-wide screen readability */
+  }
+}
+
 body {
   font-family: var(--font-sans);
   background-color: #0A0A0A; /* Sleek, professional pitch black */
@@ -39,6 +51,20 @@ body {
 
 .animate-blink {
   animation: blink 2s infinite ease-in-out;
+}
+
+/* Animated edge pulse utility for profile pill */
+@keyframes edge-pulse {
+  0%, 100% {
+    border-color: rgba(245, 158, 11, 0.3);
+  }
+  50% {
+    border-color: rgba(245, 158, 11, 0.9);
+  }
+}
+
+.animate-edge-pulse {
+  animation: edge-pulse 2s infinite ease-in-out;
 }
 
 /* Circuit-like pattern grid background - Professional Polish */
@@ -87,3 +113,114 @@ body {
   border-bottom: 2px solid var(--color-brand-copper);
   border-left: 2px solid var(--color-brand-copper);
 }
+
+/* Specific Print Media Queries for High-Resolution SLD and Compliance Study */
+@media print {
+  /* Set portrait letter-size page with 0.4in margins */
+  @page {
+    size: letter portrait;
+    margin: 0.4in;
+  }
+
+  /* Force background colors and borders to print accurately on all modern browsers */
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Hide active application screen, navigation header, and interactive controls */
+  body > div:not(#compliance-study-report),
+  header,
+  footer,
+  button,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Target the compliance study report for clean flow layout */
+  #compliance-study-report {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background-color: #ffffff !important;
+    color: #09090b !important;
+    box-shadow: none !important;
+  }
+
+  /* Prevent sections and elements from awkwardly breaking halfway across two pages */
+  h1, h2, h3, h4,
+  table, tr, thead, tbody,
+  .border,
+  .rounded-xl,
+  .border-2 {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Headings spacing adjustments for printable sheet */
+  h2 {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  /* High-resolution rendering adjustments for the Single Line Diagram (SLD) container */
+  .overflow-x-auto {
+    overflow-x: visible !important;
+    overflow: visible !important;
+  }
+
+  /* Ensure the busbar SLD fits completely and crisply inside the printable grid width */
+  #compliance-study-report .relative.min-w-\[840px\] {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    transform: scale(0.92) !important;
+    transform-origin: top left !important;
+    margin-bottom: -40px; /* Offset the scale transform spacing */
+  }
+
+  /* Ensure text elements within the SLD display with absolute contrast */
+  #compliance-study-report text,
+  #compliance-study-report span,
+  #compliance-study-report div {
+    font-size: inherit;
+  }
+
+  /* Make phase conductors, neutral, and ground bar lines completely solid and visible */
+  .bg-red-600 {
+    background-color: #dc2626 !important;
+  }
+  .bg-yellow-400 {
+    background-color: #eab308 !important;
+  }
+  .bg-blue-600 {
+    background-color: #2563eb !important;
+  }
+  .bg-neutral-500 {
+    background-color: #737373 !important;
+  }
+  .bg-emerald-500 {
+    background-color: #10b981 !important;
+  }
+  .bg-zinc-400 {
+    background-color: #71717a !important;
+  }
+
+  /* Borders should print in deep charcoal grey to be highly visible */
+  .border-zinc-200 {
+    border-color: #d4d4d8 !important;
+  }
+  .border-zinc-300 {
+    border-color: #a1a1aa !important;
+  }
+  .border-zinc-800 {
+    border-color: #27272a !important;
+  }
+}
+

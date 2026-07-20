@@ -1,5 +1,5 @@
 import React from 'react';
-import { Activity, ShieldCheck, Zap, AlertTriangle, ArrowRight, Mail } from 'lucide-react';
+import { ShieldCheck, Zap, AlertTriangle, ArrowRight, Mail } from 'lucide-react';
 import { HomepageContent } from '../types';
 
 interface HeroProps {
@@ -40,10 +40,14 @@ export default function Hero({ onScrollToSection, homepageContent }: HeroProps) 
           {/* Left Column: Text & stats */}
           <div className="lg:col-span-7 space-y-6">
             
-            {/* Status indicator pill */}
-            <div className="inline-flex items-center space-x-2.5 px-3 py-1.5 border border-zinc-800 dark:border-zinc-800 light:border-zinc-200 bg-zinc-900/50 light:bg-zinc-100 rounded text-xs font-mono text-amber-500 uppercase tracking-widest">
-              <Zap className="w-3.5 h-3.5 animate-pulse text-amber-500" />
-              <span>{content.heroTagline}</span>
+            {/* Visually stunning Electrical Engineer profile card badge */}
+            <div className="inline-flex items-center space-x-2 px-3 py-1 border border-zinc-800 dark:border-zinc-800 light:border-zinc-200 animate-edge-pulse bg-zinc-900/60 dark:bg-zinc-900/60 light:bg-zinc-50 rounded-full backdrop-blur-sm">
+              <div className="flex h-4 w-4 items-center justify-center rounded-full bg-amber-500/10 text-amber-500 ring-2 ring-amber-500/20">
+                <Zap className="w-2.5 h-2.5 animate-pulse text-amber-500" />
+              </div>
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-zinc-100 light:text-zinc-800">
+                Electrical Engineer
+              </span>
             </div>
 
             <h1 className="font-display font-bold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-zinc-100 light:text-zinc-900 leading-tight">
@@ -91,33 +95,28 @@ export default function Hero({ onScrollToSection, homepageContent }: HeroProps) 
             </div>
           </div>
 
-          {/* Right Column: Live panel portrait mockup */}
+          {/* Right Column: Professional Portrait Panel */}
           <div className="lg:col-span-5 flex justify-center">
-            <div className="relative w-full max-w-[360px] p-4 bg-zinc-900 dark:bg-zinc-900 light:bg-zinc-100 border border-zinc-800 dark:border-zinc-800 light:border-zinc-200 rounded-lg shadow-xl circuit-border">
+            <div className="relative w-full max-w-[340px] p-3 bg-zinc-900/40 dark:bg-zinc-900/40 light:bg-white border border-zinc-800 dark:border-zinc-800/60 light:border-zinc-200/80 rounded-2xl shadow-sm">
               
-              {/* Camera layout lines */}
-              <div className="absolute top-2 left-2 text-[9px] font-mono text-zinc-500 tracking-wider">REC ● CH1</div>
-              <div className="absolute top-2 right-2 text-[9px] font-mono text-zinc-500 tracking-wider">1080P 50FPS</div>
-              <div className="absolute bottom-2 left-2 text-[9px] font-mono text-zinc-500 tracking-wider">UTC+6 (DHAKA)</div>
-
-              {/* Blinking Badge */}
-              <div className="absolute -top-3 left-6 inline-flex items-center space-x-1.5 px-2 py-0.5 border border-zinc-800 dark:border-zinc-800 light:border-zinc-300 bg-zinc-950 dark:bg-zinc-950 light:bg-white rounded text-[10px] font-mono text-zinc-100 light:text-zinc-900 uppercase">
+              {/* Animated Live Status Badge */}
+              <div className="absolute top-5 left-5 z-20 inline-flex items-center space-x-1.5 px-2.5 py-1 bg-zinc-950/80 dark:bg-zinc-950/80 light:bg-white/90 backdrop-blur border border-zinc-800/50 dark:border-zinc-800/50 light:border-zinc-200 rounded-full text-[10px] font-mono font-bold text-emerald-400 light:text-emerald-600 shadow-sm">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
-                <span>Currently on duty</span>
+                <span>Active On Duty</span>
               </div>
 
               {/* Styled Technical Portrait Frame */}
-              <div className="w-full h-[360px] bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-200 rounded-lg border border-zinc-800 dark:border-zinc-800 light:border-zinc-300 relative overflow-hidden flex flex-col items-center justify-center">
+              <div className="w-full h-[380px] bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 rounded-xl relative overflow-hidden flex flex-col items-center justify-center border border-zinc-850 dark:border-zinc-850 light:border-zinc-200">
                 
-                {/* Technical portrait representing operator (Fills the entire container) */}
+                {/* Profile Picture */}
                 {content.heroProfileImage ? (
                   <img 
                     src={content.heroProfileImage} 
                     alt={content.heroProfileName} 
-                    className="absolute inset-0 w-full h-full object-cover z-0"
+                    className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 hover:scale-105"
                     referrerPolicy="no-referrer"
                   />
                 ) : content.heroProfileVideo ? (
@@ -128,50 +127,23 @@ export default function Hero({ onScrollToSection, homepageContent }: HeroProps) 
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center z-0 bg-zinc-950">
-                    <svg className="w-40 h-40 text-amber-500/25 dark:text-amber-500/15" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-24 h-24 text-amber-500/20" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
                     </svg>
                   </div>
                 )}
 
-                {/* Dark Gradient Overlay for text and hud readability */}
-                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/95 via-black/50 to-transparent z-10 pointer-events-none" />
-
-                {/* Simulated Radar / Circle Grids overlaying on top of the image */}
-                <div className="absolute inset-0 opacity-15 pointer-events-none flex items-center justify-center z-10">
-                  <div className="w-64 h-64 border border-amber-500/30 rounded-full" />
-                  <div className="w-44 h-44 border border-dashed border-amber-500/20 rounded-full" />
-                  <div className="w-24 h-24 border border-amber-500/35 rounded-full" />
-                </div>
-
-                {/* Grid Overlay on top of image */}
-                <div className="absolute inset-0 bg-[linear-gradient(rgba(245,158,11,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(245,158,11,0.06)_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none z-10" />
-
-                {/* Technical Corner Brackets on top of image */}
-                <div className="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-amber-500 z-10 pointer-events-none" />
-                <div className="absolute top-3 right-3 w-4 h-4 border-t-2 border-r-2 border-amber-500 z-10 pointer-events-none" />
-                <div className="absolute bottom-3 left-3 w-4 h-4 border-b-2 border-l-2 border-amber-500 z-10 pointer-events-none" />
-                <div className="absolute bottom-3 right-3 w-4 h-4 border-b-2 border-r-2 border-amber-500 z-10 pointer-events-none" />
+                {/* Dark Gradient Overlay for text readability */}
+                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10 pointer-events-none" />
 
                 {/* Overlaid Title and Info */}
-                <div className="absolute bottom-4 left-4 right-4 z-20 text-center sm:text-left">
-                  <span className="inline-block font-mono text-[9px] text-amber-500 tracking-widest uppercase font-bold bg-black/40 px-1.5 py-0.5 rounded border border-amber-500/20">
-                    OPERATOR CHASSIS PROFILE
+                <div className="absolute bottom-4 left-4 right-4 z-20">
+                  <span className="block font-display font-bold text-base text-white tracking-wide drop-shadow-sm">
+                    {content.heroProfileName}
                   </span>
-                  <span className="block font-display font-bold text-base text-white tracking-wide mt-1.5 drop-shadow-md">
+                  <span className="block text-xs text-zinc-300 font-mono mt-0.5 opacity-90">
                     {content.heroProfileTitle}
                   </span>
-                </div>
-              </div>
-
-              {/* Status bar details below screen */}
-              <div className="mt-4 pt-3 border-t border-zinc-800 dark:border-zinc-800 light:border-zinc-200 flex items-center justify-between font-mono text-[10px]">
-                <div className="flex items-center space-x-2 text-zinc-400 light:text-zinc-600">
-                  <Activity className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
-                  <span>SYS: ONLINE</span>
-                </div>
-                <div className="text-zinc-500">
-                  REF_V: 415.00V
                 </div>
               </div>
             </div>

@@ -3,6 +3,7 @@ import Header from './components/Header';
 import Hero from './components/Hero';
 import DailyCheck from './components/DailyCheck';
 import CaseStudies from './components/CaseStudies';
+import FeaturedBlogs from './components/FeaturedBlogs';
 import Capabilities from './components/Capabilities';
 import Contact from './components/Contact';
 import CaseStudyDetail from './components/CaseStudyDetail';
@@ -10,9 +11,11 @@ import Admin from './components/Admin';
 import Resume from './components/Resume';
 import Biodata from './components/Biodata';
 import Tools from './components/Tools';
+import AllCaseStudies from './components/AllCaseStudies';
+import Blogs from './components/Blogs';
 import { Home, Calculator, Cpu, Mail, Zap, ExternalLink, FileText, Heart } from 'lucide-react';
-import { CASE_STUDIES, DEFAULT_HOMEPAGE_CONTENT } from './data';
-import { CaseStudy, HomepageContent } from './types';
+import { CASE_STUDIES, DEFAULT_HOMEPAGE_CONTENT, DEFAULT_APP_SETTINGS } from './data';
+import { CaseStudy, HomepageContent, AppSettings } from './types';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<string>('home'); // 'home' | 'work-detail' | 'admin' | 'resume' | 'biodata'
@@ -22,6 +25,7 @@ export default function App() {
 
   const [caseStudies, setCaseStudies] = useState<CaseStudy[]>(CASE_STUDIES);
   const [homepageContent, setHomepageContent] = useState<HomepageContent>(DEFAULT_HOMEPAGE_CONTENT);
+  const [appSettings, setAppSettings] = useState<AppSettings>(DEFAULT_APP_SETTINGS);
 
   // Sync data function
   const syncFromStorage = () => {
@@ -46,6 +50,29 @@ export default function App() {
     } else {
       setHomepageContent(DEFAULT_HOMEPAGE_CONTENT);
     }
+
+    const storedSettings = localStorage.getItem('sahin_portfolio_settings');
+    if (storedSettings) {
+      try {
+        const parsed = JSON.parse(storedSettings) as AppSettings;
+        setAppSettings(parsed);
+        
+        // Apply theme from settings if no custom manual preference has been set
+        const storedTheme = localStorage.getItem('sahin_portfolio_theme');
+        const themeToApply = storedTheme || parsed.defaultTheme;
+        if (themeToApply === 'light') {
+          setDarkMode(false);
+          document.documentElement.classList.add('light');
+        } else {
+          setDarkMode(true);
+          document.documentElement.classList.remove('light');
+        }
+      } catch (e) {
+        console.error('Error loading stored app settings', e);
+      }
+    } else {
+      setAppSettings(DEFAULT_APP_SETTINGS);
+    }
   };
 
   // Load editable contents
@@ -56,7 +83,21 @@ export default function App() {
   // Initialize theme from storage
   useEffect(() => {
     const storedTheme = localStorage.getItem('sahin_portfolio_theme');
-    const isLight = storedTheme === 'light';
+    let isLight = false;
+    if (storedTheme) {
+      isLight = storedTheme === 'light';
+    } else {
+      const storedSettings = localStorage.getItem('sahin_portfolio_settings');
+      if (storedSettings) {
+        try {
+          const parsed = JSON.parse(storedSettings) as AppSettings;
+          isLight = parsed.defaultTheme === 'light';
+        } catch (e) {}
+      } else {
+        isLight = DEFAULT_APP_SETTINGS.defaultTheme === 'light';
+      }
+    }
+
     if (isLight) {
       setDarkMode(false);
       document.documentElement.classList.add('light');
@@ -75,6 +116,13 @@ export default function App() {
         const slug = hash.replace('#/work/', '');
         setCurrentView('work-detail');
         setActiveSlug(slug);
+      } else if (hash.startsWith('#/blog/')) {
+        const slug = hash.replace('#/blog/', '');
+        setCurrentView('blog');
+        setActiveSlug(slug);
+      } else if (hash === '#/blog') {
+        setCurrentView('blog');
+        setActiveSlug('');
       } else if (hash === '#/admin') {
         setCurrentView('admin');
         setActiveSlug('');
@@ -86,6 +134,9 @@ export default function App() {
         setActiveSlug('');
       } else if (hash === '#/tools') {
         setCurrentView('tools');
+        setActiveSlug('');
+      } else if (hash === '#/all-work') {
+        setCurrentView('all-work');
         setActiveSlug('');
       } else {
         setCurrentView('home');
@@ -161,6 +212,12 @@ export default function App() {
   const handleNavigate = (view: string, slug?: string, sectionId?: string) => {
     if (view === 'work-detail' && slug) {
       window.location.hash = `#/work/${slug}`;
+    } else if (view === 'blog') {
+      if (slug) {
+        window.location.hash = `#/blog/${slug}`;
+      } else {
+        window.location.hash = '#/blog';
+      }
     } else if (view === 'admin') {
       window.location.hash = '#/admin';
     } else if (view === 'resume') {
@@ -169,6 +226,8 @@ export default function App() {
       window.location.hash = '#/biodata';
     } else if (view === 'tools') {
       window.location.hash = '#/tools';
+    } else if (view === 'all-work') {
+      window.location.hash = '#/all-work';
     } else {
       // Home navigation
       if (sectionId) {
@@ -198,7 +257,7 @@ export default function App() {
       )}
 
       {/* Main Container */}
-      <main className={currentView === 'admin' ? '' : 'pb-16 md:pb-0'}>
+      <main className={(currentView === 'admin' || !appSettings.showBottomNav) ? '' : 'pb-16 md:pb-0'}>
         {currentView === 'home' && (
           <>
             {/* Hero Section */}
@@ -209,6 +268,9 @@ export default function App() {
 
             {/* Case Studies */}
             <CaseStudies onNavigate={handleNavigate} caseStudies={caseStudies} />
+
+            {/* Featured Blogs */}
+            <FeaturedBlogs onNavigate={handleNavigate} />
 
             {/* Capabilities */}
             <Capabilities onNavigate={handleNavigate} />
@@ -226,6 +288,13 @@ export default function App() {
           />
         )}
 
+        {currentView === 'blog' && (
+          <Blogs 
+            initialSlug={activeSlug}
+            onBack={() => handleNavigate('home')}
+          />
+        )}
+
         {currentView === 'admin' && (
           <Admin onSync={syncFromStorage} />
         )}
@@ -240,6 +309,14 @@ export default function App() {
 
         {currentView === 'tools' && (
           <Tools onBack={() => handleNavigate('home')} />
+        )}
+
+        {currentView === 'all-work' && (
+          <AllCaseStudies 
+            onBack={() => handleNavigate('home')} 
+            caseStudies={caseStudies}
+            onNavigate={handleNavigate}
+          />
         )}
       </main>
 
@@ -269,7 +346,7 @@ export default function App() {
       </footer>
 
       {/* Mobile Bottom Tab Navigation (< 768px) */}
-      {currentView !== 'admin' && currentView !== 'tools' && (
+      {currentView !== 'admin' && currentView !== 'tools' && appSettings.showBottomNav && (
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-zinc-950/95 dark:bg-zinc-950/95 light:bg-zinc-50/95 border-t border-zinc-900 dark:border-zinc-900 light:border-zinc-200 z-50 h-16 flex items-center justify-around px-4 shadow-lg backdrop-blur">
           
           <button
