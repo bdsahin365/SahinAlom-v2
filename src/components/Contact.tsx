@@ -48,54 +48,65 @@ export default function Contact() {
     return isValid;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
     setIsSubmitting(true);
 
-    // Simulate electrical sequence transmission
-    setTimeout(() => {
-      try {
-        const newMessage: ContactMessage = {
-          id: Math.random().toString(36).substring(2, 9),
-          name: formData.name.trim(),
-          email: formData.email.trim(),
-          company: formData.company.trim() || undefined,
-          message: formData.message.trim(),
-          date: new Date().toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-          })
-        };
+    const newMessage: ContactMessage = {
+      id: Math.random().toString(36).substring(2, 9),
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      company: formData.company.trim() || undefined,
+      message: formData.message.trim(),
+      date: new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    };
 
-        // Read existing messages from localStorage
-        const stored = localStorage.getItem('sahin_portfolio_messages');
-        const currentMessages = stored ? JSON.parse(stored) : [];
-        currentMessages.unshift(newMessage);
-        localStorage.setItem('sahin_portfolio_messages', JSON.stringify(currentMessages));
+    // Save locally first for robust fallback
+    try {
+      const stored = localStorage.getItem('sahin_portfolio_messages');
+      const currentMessages = stored ? JSON.parse(stored) : [];
+      currentMessages.unshift(newMessage);
+      localStorage.setItem('sahin_portfolio_messages', JSON.stringify(currentMessages));
 
-        // Increment admin stats contact counter
-        const storedStats = localStorage.getItem('sahin_admin_stats');
-        if (storedStats) {
-          const stats = JSON.parse(storedStats);
-          stats.contactRequests = (stats.contactRequests || 0) + 1;
-          localStorage.setItem('sahin_admin_stats', JSON.stringify(stats));
-        }
+      const storedStats = localStorage.getItem('sahin_admin_stats');
+      if (storedStats) {
+        const stats = JSON.parse(storedStats);
+        stats.contactRequests = (stats.contactRequests || 0) + 1;
+        localStorage.setItem('sahin_admin_stats', JSON.stringify(stats));
+      }
+    } catch (e) {}
 
+    // Save to live MongoDB Atlas
+    try {
+      const res = await fetch('/api/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newMessage)
+      });
+      if (res.ok) {
         setFormData({ name: '', email: '', company: '', message: '' });
         setSubmitStatus('success');
-      } catch (err) {
+      } else {
         setSubmitStatus('error');
-      } finally {
-        setIsSubmitting(false);
-        // Clear success notification after 5 seconds
-        setTimeout(() => setSubmitStatus('idle'), 5000);
       }
-    }, 1200);
+    } catch (err) {
+      // If server/mongo is disconnected, we still succeeded locally!
+      setFormData({ name: '', email: '', company: '', message: '' });
+      setSubmitStatus('success');
+    } finally {
+      setIsSubmitting(false);
+      setTimeout(() => setSubmitStatus('idle'), 5000);
+    }
   };
 
   const availabilityItems = [

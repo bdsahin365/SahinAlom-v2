@@ -8,6 +8,19 @@ interface FeaturedBlogsProps {
   posts?: BlogPost[];
 }
 
+// Helper to calculate estimated reading time based on content word count
+const getReadingTime = (content: string) => {
+  const text = content || '';
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  const wordsPerMinute = 200;
+  const minutes = Math.max(1, Math.ceil(words / wordsPerMinute));
+  return {
+    minutes,
+    words,
+    text: `${minutes} min read`
+  };
+};
+
 export default function FeaturedBlogs({ onNavigate, posts = DEFAULT_BLOG_POSTS }: FeaturedBlogsProps) {
   // Show first 3 published blog posts
   const featuredPosts = posts.filter(p => p.published).slice(0, 3);
@@ -85,9 +98,9 @@ export default function FeaturedBlogs({ onNavigate, posts = DEFAULT_BLOG_POSTS }
                     {post.category}
                   </span>
                   <span className="text-zinc-600 font-mono text-[10px]">•</span>
-                  <span className="inline-flex items-center text-zinc-500 font-mono text-[10px] gap-1">
-                    <Clock className="w-3 h-3" />
-                    {post.readTime}
+                  <span className="inline-flex items-center text-zinc-500 font-mono text-[10px] gap-1" title="Dynamic word count reading time">
+                    <Clock className="w-3 h-3 text-amber-500" />
+                    <span>{getReadingTime(post.content).text}</span>
                   </span>
                 </div>
 

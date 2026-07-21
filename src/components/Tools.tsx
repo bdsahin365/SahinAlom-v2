@@ -16,7 +16,7 @@ export default function Tools({ onBack }: ToolsProps) {
   }
 
   return (
-    <div className="pt-24 pb-16 min-h-screen bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-50 text-zinc-100 light:text-zinc-900 transition-colors">
+    <div className="pt-12 md:pt-16 pb-16 min-h-screen bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-50 text-zinc-100 light:text-zinc-900 transition-colors">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* BACK NAVIGATION */}

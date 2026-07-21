@@ -78,7 +78,7 @@ export default function AllCaseStudies({ onBack, caseStudies, onNavigate }: AllC
   };
 
   return (
-    <div className="pt-24 pb-16 min-h-screen bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-50 text-zinc-100 light:text-zinc-900 transition-colors duration-300">
+    <div className="pt-12 md:pt-16 pb-16 min-h-screen bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-50 text-zinc-100 light:text-zinc-900 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* BACK NAVIGATION */}

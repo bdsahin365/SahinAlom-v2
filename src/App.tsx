@@ -14,8 +14,8 @@ import Tools from './components/Tools';
 import AllCaseStudies from './components/AllCaseStudies';
 import Blogs from './components/Blogs';
 import { Home, Calculator, Cpu, Mail, Zap, ExternalLink, FileText, Heart } from 'lucide-react';
-import { CASE_STUDIES, DEFAULT_HOMEPAGE_CONTENT, DEFAULT_APP_SETTINGS } from './data';
-import { CaseStudy, HomepageContent, AppSettings } from './types';
+import { CASE_STUDIES, DEFAULT_HOMEPAGE_CONTENT, DEFAULT_APP_SETTINGS, DEFAULT_BLOG_POSTS } from './data';
+import { CaseStudy, HomepageContent, AppSettings, BlogPost } from './types';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<string>('home'); // 'home' | 'work-detail' | 'admin' | 'resume' | 'biodata'
@@ -26,15 +26,22 @@ export default function App() {
   const [caseStudies, setCaseStudies] = useState<CaseStudy[]>(CASE_STUDIES);
   const [homepageContent, setHomepageContent] = useState<HomepageContent>(DEFAULT_HOMEPAGE_CONTENT);
   const [appSettings, setAppSettings] = useState<AppSettings>(DEFAULT_APP_SETTINGS);
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
 
   // Sync data function
-  const syncFromStorage = () => {
+  const syncFromStorage = async () => {
+    // 1. Immediate local memory load for snappy interface performance
     const storedCaseStudies = localStorage.getItem('sahin_case_studies');
     if (storedCaseStudies) {
       try {
-        setCaseStudies(JSON.parse(storedCaseStudies));
+        const parsed = JSON.parse(storedCaseStudies);
+        if (Array.isArray(parsed)) {
+          setCaseStudies(parsed);
+        } else {
+          setCaseStudies(CASE_STUDIES);
+        }
       } catch (e) {
-        console.error('Error loading stored case studies', e);
+        setCaseStudies(CASE_STUDIES);
       }
     } else {
       setCaseStudies(CASE_STUDIES);
@@ -43,9 +50,14 @@ export default function App() {
     const storedHome = localStorage.getItem('sahin_homepage_content');
     if (storedHome) {
       try {
-        setHomepageContent(JSON.parse(storedHome));
+        const parsed = JSON.parse(storedHome);
+        if (parsed && typeof parsed === 'object') {
+          setHomepageContent({ ...DEFAULT_HOMEPAGE_CONTENT, ...parsed });
+        } else {
+          setHomepageContent(DEFAULT_HOMEPAGE_CONTENT);
+        }
       } catch (e) {
-        console.error('Error loading stored homepage content', e);
+        setHomepageContent(DEFAULT_HOMEPAGE_CONTENT);
       }
     } else {
       setHomepageContent(DEFAULT_HOMEPAGE_CONTENT);
@@ -55,23 +67,102 @@ export default function App() {
     if (storedSettings) {
       try {
         const parsed = JSON.parse(storedSettings) as AppSettings;
-        setAppSettings(parsed);
-        
-        // Apply theme from settings if no custom manual preference has been set
-        const storedTheme = localStorage.getItem('sahin_portfolio_theme');
-        const themeToApply = storedTheme || parsed.defaultTheme;
-        if (themeToApply === 'light') {
-          setDarkMode(false);
-          document.documentElement.classList.add('light');
+        if (parsed && typeof parsed === 'object') {
+          const merged = { ...DEFAULT_APP_SETTINGS, ...parsed };
+          setAppSettings(merged);
+          
+          const storedTheme = localStorage.getItem('sahin_portfolio_theme');
+          const themeToApply = storedTheme || merged.defaultTheme;
+          if (themeToApply === 'light') {
+            setDarkMode(false);
+            document.documentElement.classList.add('light');
+            document.documentElement.classList.remove('dark');
+          } else {
+            setDarkMode(true);
+            document.documentElement.classList.remove('light');
+            document.documentElement.classList.add('dark');
+          }
         } else {
-          setDarkMode(true);
-          document.documentElement.classList.remove('light');
+          setAppSettings(DEFAULT_APP_SETTINGS);
         }
       } catch (e) {
-        console.error('Error loading stored app settings', e);
+        setAppSettings(DEFAULT_APP_SETTINGS);
       }
     } else {
       setAppSettings(DEFAULT_APP_SETTINGS);
+    }
+
+    const storedBlogs = localStorage.getItem('sahin_blog_posts');
+    if (storedBlogs) {
+      try {
+        const parsed = JSON.parse(storedBlogs);
+        if (Array.isArray(parsed)) {
+          setBlogPosts(parsed);
+        } else {
+          setBlogPosts(DEFAULT_BLOG_POSTS);
+        }
+      } catch (e) {
+        setBlogPosts(DEFAULT_BLOG_POSTS);
+      }
+    } else {
+      setBlogPosts(DEFAULT_BLOG_POSTS);
+    }
+
+    // 2. Fetch live values asynchronously from MongoDB Atlas database
+    try {
+      const homeRes = await fetch('/api/homepage');
+      if (homeRes.ok) {
+        const data = await homeRes.json();
+        setHomepageContent(data);
+        localStorage.setItem('sahin_homepage_content', JSON.stringify(data));
+      }
+    } catch (err) {
+      console.warn("Could not retrieve homepage from MongoDB Atlas, using cache.");
+    }
+
+    try {
+      const studiesRes = await fetch('/api/case-studies');
+      if (studiesRes.ok) {
+        const data = await studiesRes.json();
+        setCaseStudies(data);
+        localStorage.setItem('sahin_case_studies', JSON.stringify(data));
+      }
+    } catch (err) {
+      console.warn("Could not retrieve case studies from MongoDB Atlas, using cache.");
+    }
+
+    try {
+      const blogsRes = await fetch('/api/blog-posts');
+      if (blogsRes.ok) {
+        const data = await blogsRes.json();
+        setBlogPosts(data);
+        localStorage.setItem('sahin_blog_posts', JSON.stringify(data));
+      }
+    } catch (err) {
+      console.warn("Could not retrieve blog posts from MongoDB Atlas, using cache.");
+    }
+
+    try {
+      const settingsRes = await fetch('/api/settings');
+      if (settingsRes.ok) {
+        const data = await settingsRes.json();
+        setAppSettings(data);
+        localStorage.setItem('sahin_portfolio_settings', JSON.stringify(data));
+        
+        const storedTheme = localStorage.getItem('sahin_portfolio_theme');
+        const themeToApply = storedTheme || data.defaultTheme;
+        if (themeToApply === 'light') {
+          setDarkMode(false);
+          document.documentElement.classList.add('light');
+          document.documentElement.classList.remove('dark');
+        } else {
+          setDarkMode(true);
+          document.documentElement.classList.remove('light');
+          document.documentElement.classList.add('dark');
+        }
+      }
+    } catch (err) {
+      console.warn("Could not retrieve settings from MongoDB Atlas, using cache.");
     }
   };
 
@@ -101,9 +192,11 @@ export default function App() {
     if (isLight) {
       setDarkMode(false);
       document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
     } else {
       setDarkMode(true);
       document.documentElement.classList.remove('light');
+      document.documentElement.classList.add('dark');
     }
   }, []);
 
@@ -193,9 +286,11 @@ export default function App() {
     setDarkMode(newMode);
     if (newMode) {
       document.documentElement.classList.remove('light');
+      document.documentElement.classList.add('dark');
       localStorage.setItem('sahin_portfolio_theme', 'dark');
     } else {
       document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
       localStorage.setItem('sahin_portfolio_theme', 'light');
     }
   };
@@ -245,7 +340,7 @@ export default function App() {
     <div className="min-h-screen transition-colors duration-300">
       
       {/* Top Header */}
-      {currentView !== 'admin' && (
+      {currentView === 'home' && (
         <Header 
           currentView={currentView}
           activeSection={activeSection}
@@ -270,7 +365,7 @@ export default function App() {
             <CaseStudies onNavigate={handleNavigate} caseStudies={caseStudies} />
 
             {/* Featured Blogs */}
-            <FeaturedBlogs onNavigate={handleNavigate} />
+            <FeaturedBlogs onNavigate={handleNavigate} posts={blogPosts} />
 
             {/* Capabilities */}
             <Capabilities onNavigate={handleNavigate} />
@@ -292,6 +387,7 @@ export default function App() {
           <Blogs 
             initialSlug={activeSlug}
             onBack={() => handleNavigate('home')}
+            blogPosts={blogPosts}
           />
         )}
 
@@ -321,29 +417,31 @@ export default function App() {
       </main>
 
       {/* Footer Section */}
-      <footer className="bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border-t border-zinc-900 dark:border-zinc-900 light:border-zinc-200 py-12 text-center text-xs text-zinc-500">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-zinc-900 dark:border-zinc-900 light:border-zinc-200 pb-6 gap-4">
-            <span className="font-display font-semibold text-sm text-zinc-350 light:text-zinc-800">
-              Sahin Alom — Electrical Engineer, Dhaka
-            </span>
-            <div className="flex flex-wrap justify-center gap-6 font-mono text-[11px] text-zinc-400">
-              <button onClick={() => handleNavigate('home', undefined, 'daily-check')} className="hover:text-amber-500 cursor-pointer">Daily Check</button>
-              <button onClick={() => handleNavigate('home', undefined, 'work')} className="hover:text-amber-500 cursor-pointer">Work</button>
-              <button onClick={() => handleNavigate('home', undefined, 'capabilities')} className="hover:text-amber-500 cursor-pointer">Capabilities</button>
-              <button onClick={() => handleNavigate('home', undefined, 'contact')} className="hover:text-amber-500 cursor-pointer">Contact</button>
+      {currentView !== 'admin' && (
+        <footer className="bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border-t border-zinc-900 dark:border-zinc-900 light:border-zinc-200 py-12 text-center text-xs text-zinc-500">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-zinc-900 dark:border-zinc-900 light:border-zinc-200 pb-6 gap-4">
+              <span className="font-display font-semibold text-sm text-zinc-350 light:text-zinc-800">
+                Sahin Alom — Electrical Engineer, Dhaka
+              </span>
+              <div className="flex flex-wrap justify-center gap-6 font-mono text-[11px] text-zinc-400">
+                <button onClick={() => handleNavigate('home', undefined, 'daily-check')} className="hover:text-amber-500 cursor-pointer">Daily Check</button>
+                <button onClick={() => handleNavigate('home', undefined, 'work')} className="hover:text-amber-500 cursor-pointer">Work</button>
+                <button onClick={() => handleNavigate('home', undefined, 'capabilities')} className="hover:text-amber-500 cursor-pointer">Capabilities</button>
+                <button onClick={() => handleNavigate('home', undefined, 'contact')} className="hover:text-amber-500 cursor-pointer">Contact</button>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-[11px]">
+              <span>
+                &copy; 2026 Sahin Alom. Designed for heavy industrial reliability.
+              </span>
+              <span className="font-mono text-zinc-600">
+                COMPLIANT TO BNBC 2020 | DESCO GRID REF: 50HZ
+              </span>
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-[11px]">
-            <span>
-              &copy; 2026 Sahin Alom. Designed for heavy industrial reliability.
-            </span>
-            <span className="font-mono text-zinc-600">
-              COMPLIANT TO BNBC 2020 | DESCO GRID REF: 50HZ
-            </span>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      )}
 
       {/* Mobile Bottom Tab Navigation (< 768px) */}
       {currentView !== 'admin' && currentView !== 'tools' && appSettings.showBottomNav && (

@@ -9,6 +9,20 @@ interface BlogsProps {
   initialSlug?: string;
 }
 
+// Helper to calculate estimated reading time based on content word count
+export const getReadingTime = (content: string) => {
+  const text = content || '';
+  // Split on whitespaces to get clean word array
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  const wordsPerMinute = 200; // Average technical reading speed
+  const minutes = Math.max(1, Math.ceil(words / wordsPerMinute));
+  return {
+    minutes,
+    words,
+    text: `${minutes} min read`
+  };
+};
+
 export default function Blogs({ onBack, blogPosts = DEFAULT_BLOG_POSTS, initialSlug }: BlogsProps) {
   const [posts, setPosts] = useState<BlogPost[]>(blogPosts);
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
@@ -485,7 +499,7 @@ export default function Blogs({ onBack, blogPosts = DEFAULT_BLOG_POSTS, initialS
   };
 
   return (
-    <div className="pt-24 pb-20 min-h-screen bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-50">
+    <div className="pt-12 md:pt-16 pb-20 min-h-screen bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-50">
       {/* Thin reading progress bar for long-form technical articles */}
       {selectedPost && (
         <div 
@@ -533,9 +547,10 @@ export default function Blogs({ onBack, blogPosts = DEFAULT_BLOG_POSTS, initialS
                   {selectedPost.date}
                 </span>
                 <span className="text-zinc-500 font-mono text-xs">•</span>
-                <span className="inline-flex items-center text-zinc-400 font-mono text-[11px] gap-1">
-                  <Clock className="w-3.5 h-3.5 text-zinc-500" />
-                  {selectedPost.readTime}
+                <span className="inline-flex items-center text-zinc-400 font-mono text-[11px] gap-1.5 bg-zinc-900/40 dark:bg-zinc-900/40 light:bg-zinc-100 px-2 py-0.5 rounded border border-zinc-800 dark:border-zinc-800/80 light:border-zinc-200" title="Dynamically calculated based on article word count">
+                  <Clock className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
+                  <span className="text-amber-500 font-semibold">{getReadingTime(selectedPost.content).text}</span>
+                  <span className="text-zinc-500 text-[10px]">({getReadingTime(selectedPost.content).words} words)</span>
                 </span>
               </div>
 
@@ -718,9 +733,9 @@ export default function Blogs({ onBack, blogPosts = DEFAULT_BLOG_POSTS, initialS
                         <span className="px-2 py-0.5 bg-amber-500/5 text-amber-500 text-[9px] font-mono uppercase tracking-wider rounded border border-amber-500/10">
                           {post.category}
                         </span>
-                        <span className="text-[10px] text-zinc-500 font-mono flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {post.readTime}
+                        <span className="text-[10px] text-zinc-500 font-mono flex items-center gap-1" title="Dynamic word count reading time">
+                          <Clock className="w-3 h-3 text-amber-500" />
+                          <span>{getReadingTime(post.content).text}</span>
                         </span>
                       </div>
 

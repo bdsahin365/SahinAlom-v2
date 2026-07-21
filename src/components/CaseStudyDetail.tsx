@@ -78,7 +78,7 @@ export default function CaseStudyDetail({ slug, onBack, caseStudies = CASE_STUDI
   };
 
   return (
-    <div className="pt-24 pb-20 md:pb-28 min-h-screen bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-50">
+    <div className="pt-12 md:pt-16 pb-20 md:pb-28 min-h-screen bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Back navigation header */}
