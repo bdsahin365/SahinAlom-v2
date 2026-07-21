@@ -1,7 +1,330 @@
 import React, { useState, useEffect } from 'react';
 import { BlogPost } from '../types';
 import { DEFAULT_BLOG_POSTS } from '../data';
-import { Search, Calendar, Clock, ArrowLeft, Tag, BookOpen, Share2, Check, Send, ChevronRight, CheckSquare, Square } from 'lucide-react';
+import { Search, Calendar, Clock, ArrowLeft, Tag, BookOpen, Share2, Check, Send, ChevronRight, CheckSquare, Square, Grid, List, HelpCircle, Filter } from 'lucide-react';
+
+interface InteractiveTableProps {
+  headers: string[];
+  dataRows: string[][];
+  key?: React.Key;
+}
+
+const InteractiveTable: React.FC<InteractiveTableProps> = ({ headers, dataRows }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSection, setSelectedSection] = useState('All');
+  const [viewMode, setViewMode] = useState<'card' | 'grid'>('card');
+  const [checkedRows, setCheckedRows] = useState<Record<string, boolean>>({});
+
+  // Parse rows into structured records
+  const parsedRows = React.useMemo(() => {
+    return dataRows.map((row, idx) => {
+      const text = row[0] || '';
+      const lux = row[1] || '';
+      
+      // Split by hyphen: could be " - ", " – " or " — "
+      const parts = text.split(/\s*[-–—]\s*/);
+      let section = 'অন্যান্য / সাধারণ';
+      let activity = text;
+      
+      if (parts.length > 1) {
+        section = parts[0].trim();
+        activity = parts.slice(1).join(' - ').trim();
+      }
+      
+      return {
+        id: `${idx}-${text}`,
+        originalIdx: idx,
+        section,
+        activity,
+        fullText: text,
+        lux,
+        rawRow: row
+      };
+    });
+  }, [dataRows]);
+
+  // Extract unique sections
+  const sections = React.useMemo(() => {
+    const list: string[] = Array.from(new Set(parsedRows.map(r => r.section)));
+    // Filter out very short or empty sections
+    return list.filter(s => s.length > 0 && s !== 'অন্যান্য / সাধারণ');
+  }, [parsedRows]);
+
+  // Filtered rows
+  const filteredRows = React.useMemo(() => {
+    return parsedRows.filter(row => {
+      const matchesSection = selectedSection === 'All' || row.section === selectedSection;
+      const matchesSearch = 
+        row.activity.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        row.section.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        row.lux.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesSection && matchesSearch;
+    });
+  }, [parsedRows, selectedSection, searchQuery]);
+
+  const toggleRow = (id: string) => {
+    setCheckedRows(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
+  const clearChecked = () => {
+    setCheckedRows({});
+  };
+
+  const totalChecked = Object.values(checkedRows).filter(Boolean).length;
+
+  const getLuxStyle = (luxStr: string) => {
+    const val = parseInt(luxStr.replace(/[^0-9]/g, ''), 10);
+    if (isNaN(val)) return { bg: 'bg-zinc-900/60 dark:bg-zinc-900/40 text-zinc-400 border-zinc-800', label: 'বিশেষ' };
+    if (val < 100) return { bg: 'bg-sky-500/10 text-sky-400 border-sky-500/20', label: 'আলোকসজ্জা' };
+    if (val < 300) return { bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', label: 'সাধারণ কাজ' };
+    if (val < 600) return { bg: 'bg-amber-500/10 text-amber-400 border-amber-500/20', label: 'মাঝারি কাজ' };
+    return { bg: 'bg-rose-500/15 text-rose-400 border-rose-500/20', label: 'উচ্চ সূক্ষ্মতা' };
+  };
+
+  return (
+    <div className="my-8 overflow-hidden rounded-xl border border-zinc-800 dark:border-zinc-800/80 light:border-zinc-200 bg-zinc-950 dark:bg-zinc-950 light:bg-white shadow-xl">
+      {/* Table Header Controls */}
+      <div className="p-4 sm:p-5 bg-zinc-900/90 dark:bg-zinc-900/95 light:bg-zinc-50 border-b border-zinc-800 dark:border-zinc-800/80 light:border-zinc-200">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h4 className="text-xs font-bold tracking-wider text-emerald-500 uppercase flex items-center gap-1.5 font-mono mb-1">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+              BNBC 2020 Standard
+            </h4>
+            <h3 className="text-sm sm:text-base font-bold text-zinc-100 light:text-zinc-900 font-display">
+              লাইটিং লেভেল ও কমপ্লায়েন্স ক্যালকুলেটর
+            </h3>
+          </div>
+
+          {/* View Toggles */}
+          <div className="flex items-center gap-2 self-start sm:self-auto bg-zinc-950 dark:bg-zinc-950/80 light:bg-zinc-100 p-1 rounded-lg border border-zinc-850 dark:border-zinc-850 light:border-zinc-200 text-xs font-mono">
+            <button
+              onClick={() => setViewMode('card')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-bold transition-all ${
+                viewMode === 'card'
+                  ? 'bg-emerald-500/15 text-emerald-500 dark:bg-emerald-500/20'
+                  : 'text-zinc-450 light:text-zinc-600 hover:text-zinc-200'
+              }`}
+            >
+              <List size={14} />
+              কার্ড ভিউ
+            </button>
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-bold transition-all ${
+                viewMode === 'grid'
+                  ? 'bg-emerald-500/15 text-emerald-500 dark:bg-emerald-500/20'
+                  : 'text-zinc-455 light:text-zinc-600 hover:text-zinc-200'
+              }`}
+            >
+              <Grid size={14} />
+              টেবিল ভিউ
+            </button>
+          </div>
+        </div>
+
+        {/* Search and Checklist Status */}
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative flex-1 max-w-md">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+            <input
+              type="text"
+              placeholder="যেকোনো শাখা বা কাজ খুঁজুন (যেমন: কাটিং, ড্রেসিং, ৩০০)..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm rounded-lg bg-zinc-950 dark:bg-zinc-950 light:bg-white border border-zinc-800 dark:border-zinc-850 light:border-zinc-300 text-zinc-150 light:text-zinc-900 focus:outline-none focus:border-emerald-500 transition-colors"
+            />
+          </div>
+
+          {/* Checklist Status */}
+          {totalChecked > 0 && (
+            <div className="flex items-center gap-2.5 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-lg text-[11px] sm:text-xs text-emerald-500 font-bold self-start sm:self-auto">
+              <span>{totalChecked}টি রুম সিলেক্টেড</span>
+              <button
+                onClick={clearChecked}
+                className="hover:underline text-rose-400 hover:text-rose-300 transition-colors"
+              >
+                রিসেট করুন
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Section Filters */}
+        {sections.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-zinc-850 dark:border-zinc-850/60 light:border-zinc-200">
+            <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-500 light:text-zinc-400 mb-2 flex items-center gap-1.5">
+              <Filter size={10} />
+              ফ্যাক্টরি টাইপ / সেকশন অনুযায়ী আলাদা করুন:
+            </div>
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 scrollbar-thin">
+              <button
+                onClick={() => setSelectedSection('All')}
+                className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${
+                  selectedSection === 'All'
+                    ? 'bg-emerald-500 text-zinc-950 border-emerald-400'
+                    : 'bg-zinc-950 dark:bg-zinc-950 light:bg-white text-zinc-400 light:text-zinc-600 border-zinc-800 dark:border-zinc-850 light:border-zinc-350 hover:text-zinc-200'
+                }`}
+              >
+                সবগুলো ({parsedRows.length})
+              </button>
+              {sections.map((sec) => {
+                const count = parsedRows.filter(r => r.section === sec).length;
+                return (
+                  <button
+                    key={sec}
+                    onClick={() => setSelectedSection(sec)}
+                    className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${
+                      selectedSection === sec
+                        ? 'bg-emerald-500 text-zinc-950 border-emerald-400'
+                        : 'bg-zinc-950 dark:bg-zinc-950 light:bg-white text-zinc-400 light:text-zinc-600 border-zinc-800 dark:border-zinc-850 light:border-zinc-350 hover:text-zinc-200'
+                    }`}
+                  >
+                    {sec} ({count})
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Main Content Area */}
+      <div className="p-4 sm:p-5">
+        {filteredRows.length === 0 ? (
+          <div className="py-12 text-center text-zinc-500">
+            <HelpCircle size={32} className="mx-auto mb-2 text-zinc-600" />
+            <p className="text-sm font-sans font-bold text-zinc-400">কোনো তথ্য পাওয়া যায়নি!</p>
+            <p className="text-xs font-sans text-zinc-500 mt-1">দয়া করে অন্য শব্দ বা নাম দিয়ে সার্চ করুন।</p>
+          </div>
+        ) : viewMode === 'card' ? (
+          /* Mobile Friendly Card View */
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filteredRows.map((row) => {
+              const style = getLuxStyle(row.lux);
+              const isChecked = !!checkedRows[row.id];
+              return (
+                <div
+                  key={row.id}
+                  onClick={() => toggleRow(row.id)}
+                  className={`group relative p-4 rounded-xl border text-left cursor-pointer transition-all ${
+                    isChecked
+                      ? 'bg-emerald-500/5 border-emerald-500 shadow-md'
+                      : 'bg-zinc-900/30 dark:bg-zinc-900/20 light:bg-zinc-50/50 border-zinc-850 dark:border-zinc-850/60 light:border-zinc-200 hover:bg-zinc-900/60 dark:hover:bg-zinc-900/40 hover:border-zinc-800'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 space-y-1.5">
+                      {/* Section Badge */}
+                      <span className="inline-block text-[10px] font-bold px-2 py-0.5 bg-zinc-900/80 dark:bg-zinc-950 light:bg-zinc-250 text-zinc-400 light:text-zinc-600 rounded border border-zinc-800 dark:border-zinc-850/60 light:border-zinc-300">
+                        {row.section}
+                      </span>
+                      {/* Activity Title */}
+                      <h4 className="text-xs sm:text-sm font-bold text-zinc-200 light:text-zinc-850 leading-snug group-hover:text-emerald-400 transition-colors font-sans">
+                        {row.activity}
+                      </h4>
+                    </div>
+
+                    {/* Lux Badge */}
+                    <div className="flex flex-col items-end gap-1.5 shrink-0">
+                      <span className={`text-[11px] sm:text-xs font-mono font-black px-2.5 py-1.5 rounded-lg border uppercase tracking-wide shadow-sm ${style.bg}`}>
+                        {row.lux}
+                      </span>
+                      <span className="text-[9px] font-mono font-bold text-zinc-500 uppercase tracking-widest">
+                        {style.label}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Interactive Checkbox Indicator */}
+                  <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {isChecked ? (
+                      <CheckSquare size={14} className="text-emerald-500" />
+                    ) : (
+                      <Square size={14} className="text-zinc-600" />
+                    )}
+                  </div>
+                  {isChecked && (
+                    <div className="absolute top-3 right-3">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 block"></span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          /* Elegant Grid / Table View */
+          <div className="overflow-x-auto scrollbar-thin rounded-lg border border-zinc-850 dark:border-zinc-850/60 light:border-zinc-200">
+            <table className="w-full text-left border-collapse text-xs sm:text-sm font-sans min-w-[500px]">
+              <thead>
+                <tr className="bg-zinc-900/60 dark:bg-zinc-900/40 light:bg-zinc-100 border-b border-zinc-800 dark:border-zinc-800/80 light:border-zinc-200">
+                  <th className="p-3 w-12 text-center text-[10px] font-mono text-zinc-500 select-none">
+                    #
+                  </th>
+                  <th className="p-3 font-bold text-zinc-300 light:text-zinc-700 uppercase tracking-wider text-[10px] sm:text-xs">
+                    সেকশন / ক্যাটাগরি
+                  </th>
+                  <th className="p-3 font-bold text-zinc-300 light:text-zinc-700 uppercase tracking-wider text-[10px] sm:text-xs">
+                    রুম বা কার্যক্রমের স্থান (Area / Activity)
+                  </th>
+                  <th className="p-3 font-bold text-zinc-300 light:text-zinc-700 uppercase tracking-wider text-[10px] sm:text-xs w-28 text-right">
+                    প্রয়োজনীয় আলো
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-900 dark:divide-zinc-900/60 light:divide-zinc-200">
+                {filteredRows.map((row, idx) => {
+                  const style = getLuxStyle(row.lux);
+                  const isChecked = !!checkedRows[row.id];
+                  return (
+                    <tr
+                      key={row.id}
+                      onClick={() => toggleRow(row.id)}
+                      className={`cursor-pointer transition-colors ${
+                        isChecked
+                          ? 'bg-emerald-500/5 hover:bg-emerald-500/10'
+                          : 'hover:bg-zinc-900/40 dark:hover:bg-zinc-900/20 light:hover:bg-zinc-50/50 odd:bg-zinc-950/20 even:bg-zinc-900/5 light:odd:bg-white light:even:bg-zinc-50/50'
+                      }`}
+                    >
+                      <td className="p-3 text-center text-[10px] font-mono text-zinc-500 select-none font-bold">
+                        {isChecked ? (
+                          <CheckSquare size={12} className="text-emerald-500 mx-auto" />
+                        ) : (
+                          idx + 1
+                        )}
+                      </td>
+                      <td className="p-3 text-zinc-400 light:text-zinc-600 font-bold text-[11px] sm:text-xs">
+                        {row.section}
+                      </td>
+                      <td className="p-3 text-zinc-200 light:text-zinc-800 font-medium">
+                        {row.activity}
+                      </td>
+                      <td className="p-3 text-right">
+                        <span className={`inline-block text-[11px] font-mono font-black px-2 py-1 rounded border uppercase tracking-wide ${style.bg}`}>
+                          {row.lux}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Footer Info */}
+      <div className="px-4 py-2 bg-zinc-900/40 dark:bg-zinc-900/40 light:bg-zinc-100 border-t border-zinc-850 dark:border-zinc-850/60 light:border-zinc-200 text-[10px] text-zinc-500 flex justify-between items-center">
+        <span>মোট ফিল্টারকৃত আইটেম: {filteredRows.length}টি</span>
+        <span className="font-mono uppercase tracking-widest text-emerald-500/80">BNBC CODE 2020 COMPLIANT</span>
+      </div>
+    </div>
+  );
+}
 
 interface BlogsProps {
   onBack: () => void;
@@ -350,63 +673,59 @@ export default function Blogs({ onBack, blogPosts = DEFAULT_BLOG_POSTS, initialS
   };
 
   const formatContent = (content: string) => {
-    // Basic rich text/markdown paragraph splitter & custom renderer for standard codes & formulas
-    return content.split('\n\n').map((paragraph, index) => {
-      const trimmed = paragraph.trim();
-      if (!trimmed) return null;
+    const lines = content.split('\n');
+    const elements: React.ReactNode[] = [];
+    let currentBlock: { type: string; lines: string[] } | null = null;
 
-      // Check for code blocks / tables
-      if (trimmed.startsWith('```') && trimmed.endsWith('```')) {
-        const codeText = trimmed.slice(3, -3).trim();
-        return (
-          <pre key={index} className="p-4 bg-zinc-950 border border-zinc-800 dark:border-zinc-800 light:border-zinc-300 rounded font-mono text-xs text-zinc-300 light:text-zinc-800 overflow-x-auto my-4 leading-relaxed light:bg-zinc-100">
-            {codeText}
-          </pre>
-        );
+    const commitBlock = (index: number) => {
+      if (!currentBlock) return;
+      const trimmedText = currentBlock.lines.join('\n').trim();
+      if (!trimmedText) {
+        currentBlock = null;
+        return;
       }
 
-      // Check for formulas (starts with $$ and ends with $$)
-      if (trimmed.startsWith('$$') && trimmed.endsWith('$$')) {
-        const formula = trimmed.slice(2, -2).trim();
-        return (
-          <div key={index} className="my-6 p-5 bg-amber-500/5 border-l-2 border-amber-500 font-mono text-xs sm:text-sm text-amber-500 overflow-x-auto rounded-r-xl shadow-inner flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      const key = `block-${index}`;
+
+      if (currentBlock.type === 'code') {
+        elements.push(
+          <pre key={key} className="p-4 bg-zinc-950 border border-zinc-800 dark:border-zinc-800 light:border-zinc-300 rounded font-mono text-xs text-zinc-300 light:text-zinc-800 overflow-x-auto my-4 leading-relaxed light:bg-zinc-100">
+            {trimmedText}
+          </pre>
+        );
+      } else if (currentBlock.type === 'formula') {
+        elements.push(
+          <div key={key} className="my-6 p-5 bg-amber-500/5 border-l-2 border-amber-500 font-mono text-xs sm:text-sm text-amber-500 overflow-x-auto rounded-r-xl shadow-inner flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex-1">
               <span className="block text-[8px] text-zinc-500 uppercase tracking-widest mb-2 font-bold font-mono">
                 Industrial Calculation Node
               </span>
               <div className="py-2 text-sm sm:text-base text-zinc-100 light:text-zinc-900 select-all overflow-x-auto leading-relaxed">
-                {renderMathSegment(formula)}
+                {renderMathSegment(trimmedText)}
               </div>
             </div>
             <div className="text-[10px] text-zinc-500 font-mono bg-zinc-950/40 p-2 rounded border border-zinc-900 self-start md:self-auto uppercase tracking-wider">
-              Formula Node: {formula.includes('\\frac') ? 'Fraction Relation' : 'Lineal Relation'}
+              Formula Node
             </div>
           </div>
         );
-      }
-
-      // Check for headings
-      if (trimmed.startsWith('###')) {
-        return (
-          <h3 key={index} className="text-sm sm:text-base font-bold font-display text-zinc-100 light:text-zinc-900 mt-6 mb-3 tracking-tight flex items-center gap-2">
-            <span className="w-1.5 h-3 bg-amber-500 rounded-sm"></span>
-            {trimmed.replace('###', '').trim()}
-          </h3>
-        );
-      }
-      if (trimmed.startsWith('##')) {
-        return (
-          <h2 key={index} className="text-base sm:text-lg font-bold font-display text-zinc-100 light:text-zinc-900 mt-8 mb-4 border-b border-zinc-800 dark:border-zinc-800/60 light:border-zinc-250 pb-1.5 tracking-tight">
-            {trimmed.replace('##', '').trim()}
-          </h2>
-        );
-      }
-
-      // Check for bullet items - render as nice checklists
-      if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
-        const items = trimmed.split('\n').map(li => li.replace(/^[-*]\s+/, '').trim());
-        return (
-          <div key={index} className="my-6 p-4 bg-zinc-900/10 dark:bg-zinc-900/15 light:bg-zinc-100/60 rounded-xl border border-zinc-900 dark:border-zinc-850 light:border-zinc-200/85 shadow-sm">
+      } else if (currentBlock.type === 'table') {
+        const rows = currentBlock.lines.map(line => {
+          const cleanLine = line.trim().replace(/^\||\|$/g, '');
+          return cleanLine.split('|').map(cell => cell.trim());
+        });
+        const contentRows = rows.filter(row => !row.every(cell => /^:?-+:?$/.test(cell)));
+        if (contentRows.length > 0) {
+          const headers = contentRows[0];
+          const dataRows = contentRows.slice(1);
+          elements.push(
+            <InteractiveTable key={key} headers={headers} dataRows={dataRows} />
+          );
+        }
+      } else if (currentBlock.type === 'list') {
+        const items = currentBlock.lines.map(li => li.trim().replace(/^[-*]\s+/, '').trim());
+        elements.push(
+          <div key={key} className="my-6 p-4 bg-zinc-900/10 dark:bg-zinc-900/15 light:bg-zinc-100/60 rounded-xl border border-zinc-900 dark:border-zinc-850 light:border-zinc-200/85 shadow-sm">
             <div className="flex items-center justify-between mb-3 pb-2 border-b border-zinc-900/50 dark:border-zinc-850/40 light:border-zinc-200">
               <span className="font-mono text-[9px] uppercase tracking-wider text-amber-500 light:text-amber-600 font-bold flex items-center gap-1.5">
                 <CheckSquare className="w-3.5 h-3.5 text-amber-500" />
@@ -418,10 +737,9 @@ export default function Blogs({ onBack, blogPosts = DEFAULT_BLOG_POSTS, initialS
             </div>
             <ul className="space-y-2.5 pl-1">
               {items.map((item, i) => {
-                const itemKey = `${selectedPost?.slug}-${index}-${i}`;
+                const itemKey = `${selectedPost?.slug}-${key}-${i}`;
                 const isChecked = !!checkedItems[itemKey];
 
-                // Check if starting with custom brackets [ ] or [x]
                 let isExplicitChecklist = false;
                 let isExplicitChecked = false;
                 let cleanItem = item;
@@ -435,10 +753,8 @@ export default function Blogs({ onBack, blogPosts = DEFAULT_BLOG_POSTS, initialS
                   cleanItem = item.substring(3).trim();
                 }
 
-                // If explicit check state not set in checkedItems, use explicit checked status
                 const activeChecked = checkedItems[itemKey] !== undefined ? isChecked : (isExplicitChecklist ? isExplicitChecked : false);
 
-                // Extract bold prefix like "Bold Text:" or "**Bold Text**:"
                 let prefix = '';
                 let restText = cleanItem;
 
@@ -487,15 +803,127 @@ export default function Blogs({ onBack, blogPosts = DEFAULT_BLOG_POSTS, initialS
             </ul>
           </div>
         );
+      } else {
+        // Normal paragraph - split by lines or process paragraphs
+        const paragraphs = trimmedText.split('\n').filter(p => p.trim());
+        paragraphs.forEach((pText, pIdx) => {
+          const pTrimmed = pText.trim();
+          if (pTrimmed.startsWith('###')) {
+            elements.push(
+              <h3 key={`${key}-${pIdx}`} className="text-sm sm:text-base font-bold font-display text-zinc-100 light:text-zinc-900 mt-6 mb-3 tracking-tight flex items-center gap-2">
+                <span className="w-1.5 h-3 bg-amber-500 rounded-sm"></span>
+                {pTrimmed.replace('###', '').trim()}
+              </h3>
+            );
+          } else if (pTrimmed.startsWith('##')) {
+            elements.push(
+              <h2 key={`${key}-${pIdx}`} className="text-base sm:text-lg font-bold font-display text-zinc-100 light:text-zinc-900 mt-8 mb-4 border-b border-zinc-800 dark:border-zinc-800/60 light:border-zinc-250 pb-1.5 tracking-tight">
+                {pTrimmed.replace('##', '').trim()}
+              </h2>
+            );
+          } else {
+            elements.push(
+              <p key={`${key}-${pIdx}`} className="text-xs sm:text-sm text-zinc-300 light:text-zinc-700 leading-relaxed mb-4">
+                {renderInlineMathAndFormatting(pTrimmed)}
+              </p>
+            );
+          }
+        });
       }
 
-      // Default paragraph, split and check for inline math ($...$) and inline bold (**...**)
-      return (
-        <p key={index} className="text-xs sm:text-sm text-zinc-300 light:text-zinc-700 leading-relaxed mb-4">
-          {renderInlineMathAndFormatting(trimmed)}
-        </p>
-      );
-    });
+      currentBlock = null;
+    };
+
+    let inCodeBlock = false;
+    let inFormulaBlock = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const trimmedLine = line.trim();
+
+      // Check code blocks
+      if (trimmedLine.startsWith('```')) {
+        if (inCodeBlock) {
+          commitBlock(i);
+          inCodeBlock = false;
+        } else {
+          commitBlock(i);
+          inCodeBlock = true;
+          currentBlock = { type: 'code', lines: [] };
+        }
+        continue;
+      }
+
+      if (inCodeBlock) {
+        currentBlock?.lines.push(line);
+        continue;
+      }
+
+      // Check formulas
+      if (trimmedLine.startsWith('$$')) {
+        if (inFormulaBlock) {
+          commitBlock(i);
+          inFormulaBlock = false;
+        } else {
+          commitBlock(i);
+          if (trimmedLine.endsWith('$$') && trimmedLine.length > 2) {
+            // single-line formula block
+            currentBlock = { type: 'formula', lines: [trimmedLine.slice(2, -2)] };
+            commitBlock(i);
+          } else {
+            inFormulaBlock = true;
+            currentBlock = { type: 'formula', lines: [] };
+          }
+        }
+        continue;
+      }
+
+      if (inFormulaBlock) {
+        currentBlock?.lines.push(line);
+        continue;
+      }
+
+      // Check tables
+      if (trimmedLine.startsWith('|')) {
+        if (currentBlock && currentBlock.type !== 'table') {
+          commitBlock(i);
+        }
+        if (!currentBlock) {
+          currentBlock = { type: 'table', lines: [] };
+        }
+        currentBlock.lines.push(line);
+        continue;
+      }
+
+      // Check lists (bullet points)
+      if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ')) {
+        if (currentBlock && currentBlock.type !== 'list') {
+          commitBlock(i);
+        }
+        if (!currentBlock) {
+          currentBlock = { type: 'list', lines: [] };
+        }
+        currentBlock.lines.push(line);
+        continue;
+      }
+
+      // Empty lines or paragraphs/headings
+      if (trimmedLine === '') {
+        commitBlock(i);
+      } else {
+        if (currentBlock && currentBlock.type !== 'paragraph') {
+          commitBlock(i);
+        }
+        if (!currentBlock) {
+          currentBlock = { type: 'paragraph', lines: [] };
+        }
+        currentBlock.lines.push(line);
+      }
+    }
+
+    commitBlock(lines.length);
+
+    return elements;
   };
 
   return (

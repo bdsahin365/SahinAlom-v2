@@ -260,7 +260,7 @@ export default function Admin({ onSync }: AdminProps) {
     loadData();
   }, []);
 
-  const loadData = () => {
+  const loadData = async () => {
     // Stats
     const storedStats = localStorage.getItem('sahin_admin_stats');
     if (storedStats) {
@@ -383,6 +383,70 @@ export default function Admin({ onSync }: AdminProps) {
       setAppSettings(DEFAULT_APP_SETTINGS);
       localStorage.setItem('sahin_portfolio_settings', JSON.stringify(DEFAULT_APP_SETTINGS));
     }
+
+    // Live MongoDB Fetch Synchronization
+    try {
+      const statsRes = await fetch('/api/stats');
+      if (statsRes.ok) {
+        const liveStats = await statsRes.json();
+        setStats(liveStats);
+        localStorage.setItem('sahin_admin_stats', JSON.stringify(liveStats));
+      }
+    } catch (e) {}
+
+    try {
+      const msgsRes = await fetch('/api/messages');
+      if (msgsRes.ok) {
+        const liveMsgs = await msgsRes.json();
+        setMessages(liveMsgs);
+        localStorage.setItem('sahin_portfolio_messages', JSON.stringify(liveMsgs));
+      }
+    } catch (e) {}
+
+    try {
+      const homeRes = await fetch('/api/homepage');
+      if (homeRes.ok) {
+        const liveHome = await homeRes.json();
+        setHomepageContent(liveHome);
+        localStorage.setItem('sahin_homepage_content', JSON.stringify(liveHome));
+      }
+    } catch (e) {}
+
+    try {
+      const profileRes = await fetch('/api/profile');
+      if (profileRes.ok) {
+        const liveProfile = await profileRes.json();
+        setProfileForm(liveProfile);
+        localStorage.setItem('sahin_profile_data', JSON.stringify(liveProfile));
+      }
+    } catch (e) {}
+
+    try {
+      const studiesRes = await fetch('/api/case-studies');
+      if (studiesRes.ok) {
+        const liveStudies = await studiesRes.json();
+        setCaseStudies(liveStudies);
+        localStorage.setItem('sahin_case_studies', JSON.stringify(liveStudies));
+      }
+    } catch (e) {}
+
+    try {
+      const blogsRes = await fetch('/api/blog-posts');
+      if (blogsRes.ok) {
+        const liveBlogs = await blogsRes.json();
+        setBlogPosts(liveBlogs);
+        localStorage.setItem('sahin_blog_posts', JSON.stringify(liveBlogs));
+      }
+    } catch (e) {}
+
+    try {
+      const settingsRes = await fetch('/api/settings');
+      if (settingsRes.ok) {
+        const liveSettings = await settingsRes.json();
+        setAppSettings(liveSettings);
+        localStorage.setItem('sahin_portfolio_settings', JSON.stringify(liveSettings));
+      }
+    } catch (e) {}
   };
 
   // Login handler
@@ -412,7 +476,7 @@ export default function Admin({ onSync }: AdminProps) {
     triggerQuickAction('Passcode updated successfully!');
   };
 
-  const handleSaveSettings = (updatedSettings: AppSettings) => {
+  const handleSaveSettings = async (updatedSettings: AppSettings) => {
     setAppSettings(updatedSettings);
     localStorage.setItem('sahin_portfolio_settings', JSON.stringify(updatedSettings));
     
@@ -425,11 +489,21 @@ export default function Admin({ onSync }: AdminProps) {
       localStorage.setItem('sahin_portfolio_theme', 'dark');
     }
 
+    try {
+      await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedSettings)
+      });
+    } catch (err) {
+      console.warn("Failed to sync settings with MongoDB Atlas server:", err);
+    }
+
     if (onSync) onSync();
     triggerQuickAction('Console parameters updated & integrated.');
   };
 
-  const handleResetFactoryDefaults = () => {
+  const handleResetFactoryDefaults = async () => {
     if (window.confirm('Are you absolutely sure you want to reset all custom text, posts, blogs, and CV records to factory defaults? This is non-reversible.')) {
       localStorage.removeItem('sahin_homepage_content');
       localStorage.removeItem('sahin_profile_data');
@@ -439,25 +513,54 @@ export default function Admin({ onSync }: AdminProps) {
       localStorage.removeItem('sahin_admin_stats');
       localStorage.removeItem('sahin_portfolio_settings');
       localStorage.removeItem('sahin_portfolio_theme');
-      loadData();
+
+      try {
+        await fetch('/api/reset-factory-defaults', { method: 'POST' });
+      } catch (err) {
+        console.warn("Failed to reset live MongoDB Atlas database:", err);
+      }
+
+      await loadData();
       if (onSync) onSync();
-      triggerQuickAction('System cleared. Default EE matrices loaded from flash memory.');
+      triggerQuickAction('System cleared. Default Electrical Engineering portfolio values loaded from database.');
     }
   };
 
   // Homepage Editor handles
-  const handleSaveHomepage = (e: React.FormEvent) => {
+  const handleSaveHomepage = async (e: React.FormEvent) => {
     e.preventDefault();
     localStorage.setItem('sahin_homepage_content', JSON.stringify(homepageContent));
+
+    try {
+      await fetch('/api/homepage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(homepageContent)
+      });
+    } catch (err) {
+      console.warn("Failed to sync homepage with MongoDB Atlas server:", err);
+    }
+
     if (onSync) onSync();
     triggerQuickAction('Homepage sections serialized & deployed successfully! Live on site.');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // CV Profile Editor handles
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     localStorage.setItem('sahin_profile_data', JSON.stringify(profileForm));
+
+    try {
+      await fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(profileForm)
+      });
+    } catch (err) {
+      console.warn("Failed to sync profile with MongoDB Atlas server:", err);
+    }
+
     if (onSync) onSync();
     triggerQuickAction('CV & Marriage Biodata synchronization complete.');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -499,7 +602,7 @@ export default function Admin({ onSync }: AdminProps) {
   };
 
   // Case Studies / Posts handles
-  const handleSavePost = (e: React.FormEvent) => {
+  const handleSavePost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!postForm.title || !postForm.slug || !postForm.category) {
       alert('Title, slug, and category are required fields.');
@@ -524,17 +627,39 @@ export default function Admin({ onSync }: AdminProps) {
 
     setCaseStudies(updatedList);
     localStorage.setItem('sahin_case_studies', JSON.stringify(updatedList));
+
+    try {
+      await fetch('/api/case-studies', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedList)
+      });
+    } catch (err) {
+      console.warn("Failed to sync case studies with MongoDB Atlas server:", err);
+    }
+
     if (onSync) onSync();
     
     // Clear / Reset Editor
     handleCancelPostEdit();
   };
 
-  const handleDeletePost = (slug: string) => {
+  const handleDeletePost = async (slug: string) => {
     if (window.confirm('Delete this case study/blog post permanently?')) {
       const updatedList = caseStudies.filter(item => item.slug !== slug);
       setCaseStudies(updatedList);
       localStorage.setItem('sahin_case_studies', JSON.stringify(updatedList));
+
+      try {
+        await fetch('/api/case-studies', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedList)
+        });
+      } catch (err) {
+        console.warn("Failed to sync case study deletion with MongoDB Atlas server:", err);
+      }
+
       if (onSync) onSync();
       triggerQuickAction('Post deleted from local matrices.');
     }
@@ -619,7 +744,7 @@ export default function Admin({ onSync }: AdminProps) {
   };
 
   // Blog Post CMS handlers
-  const handleSaveBlogPost = (e: React.FormEvent) => {
+  const handleSaveBlogPost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!blogForm.title || !blogForm.slug || !blogForm.category) {
       alert('Title, slug, and category are required fields.');
@@ -648,16 +773,38 @@ export default function Admin({ onSync }: AdminProps) {
 
     setBlogPosts(updatedList);
     localStorage.setItem('sahin_blog_posts', JSON.stringify(updatedList));
+
+    try {
+      await fetch('/api/blog-posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedList)
+      });
+    } catch (err) {
+      console.warn("Failed to sync blog posts with MongoDB Atlas server:", err);
+    }
+
     if (onSync) onSync();
     
     handleCancelBlogEdit();
   };
 
-  const handleDeleteBlogPost = (slug: string) => {
+  const handleDeleteBlogPost = async (slug: string) => {
     if (window.confirm('Delete this blog post permanently?')) {
       const updatedList = blogPosts.filter(item => item.slug !== slug);
       setBlogPosts(updatedList);
       localStorage.setItem('sahin_blog_posts', JSON.stringify(updatedList));
+
+      try {
+        await fetch('/api/blog-posts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedList)
+        });
+      } catch (err) {
+        console.warn("Failed to sync blog post deletion with MongoDB Atlas server:", err);
+      }
+
       if (onSync) onSync();
       triggerQuickAction('Blog post removed from local memory.');
     }
@@ -721,7 +868,7 @@ export default function Admin({ onSync }: AdminProps) {
   };
 
   // Messages operations
-  const handleDeleteMessage = (id: string) => {
+  const handleDeleteMessage = async (id: string) => {
     if (window.confirm('Permanently delete this message?')) {
       const filtered = messages.filter(msg => msg.id !== id);
       setMessages(filtered);
@@ -731,6 +878,14 @@ export default function Admin({ onSync }: AdminProps) {
       const updatedStats = { ...stats, contactRequests: Math.max(0, stats.contactRequests - 1) };
       setStats(updatedStats);
       localStorage.setItem('sahin_admin_stats', JSON.stringify(updatedStats));
+
+      try {
+        await fetch(`/api/messages/${id}`, {
+          method: 'DELETE'
+        });
+      } catch (err) {
+        console.warn("Failed to delete message from MongoDB Atlas server:", err);
+      }
 
       if (selectedMessage?.id === id) {
         setSelectedMessage(null);

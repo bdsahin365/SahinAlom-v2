@@ -194,14 +194,36 @@ async function seedDatabase() {
 
     const caseCount = await CaseStudyModel.countDocuments();
     if (caseCount === 0) {
-      await CaseStudyModel.insertMany(CASE_STUDIES);
+      await CaseStudyModel.insertMany(CASE_STUDIES as any);
       console.log(`Database Seed: ${CASE_STUDIES.length} default industrial case studies initialized.`);
+    } else {
+      // Sync and update default case studies
+      for (const study of CASE_STUDIES) {
+        const exists = await CaseStudyModel.findOne({ slug: study.slug } as any);
+        if (!exists) {
+          await CaseStudyModel.create(study as any);
+          console.log(`Database Seed Sync: Missing case study "${study.title}" inserted into MongoDB.`);
+        } else {
+          await CaseStudyModel.updateOne({ slug: study.slug } as any, { $set: study as any });
+        }
+      }
     }
 
     const blogCount = await BlogPostModel.countDocuments();
     if (blogCount === 0) {
-      await BlogPostModel.insertMany(DEFAULT_BLOG_POSTS);
+      await BlogPostModel.insertMany(DEFAULT_BLOG_POSTS as any);
       console.log(`Database Seed: ${DEFAULT_BLOG_POSTS.length} engineering blog articles initialized.`);
+    } else {
+      // Sync and update default blog posts
+      for (const post of DEFAULT_BLOG_POSTS) {
+        const exists = await BlogPostModel.findOne({ slug: post.slug } as any);
+        if (!exists) {
+          await BlogPostModel.create(post as any);
+          console.log(`Database Seed Sync: Missing blog post "${post.title}" inserted into MongoDB.`);
+        } else {
+          await BlogPostModel.updateOne({ slug: post.slug } as any, { $set: post as any });
+        }
+      }
     }
 
     const statsCount = await AdminStats.countDocuments();
@@ -293,7 +315,7 @@ app.get("/api/case-studies", async (req, res) => {
   try {
     let studies = await CaseStudyModel.find().sort({ createdAt: -1 });
     if (studies.length === 0) {
-      await CaseStudyModel.insertMany(CASE_STUDIES);
+      await CaseStudyModel.insertMany(CASE_STUDIES as any);
       studies = await CaseStudyModel.find().sort({ createdAt: -1 });
     }
     res.json(studies);
@@ -306,7 +328,7 @@ app.get("/api/case-studies", async (req, res) => {
 app.post("/api/case-studies", async (req, res) => {
   try {
     await CaseStudyModel.deleteMany({});
-    const studies = await CaseStudyModel.insertMany(req.body);
+    const studies = await CaseStudyModel.insertMany(req.body as any);
     res.json(studies);
   } catch (err: any) {
     console.error("POST /api/case-studies Error:", err);
@@ -319,7 +341,7 @@ app.get("/api/blog-posts", async (req, res) => {
   try {
     let blogs = await BlogPostModel.find().sort({ createdAt: -1 });
     if (blogs.length === 0) {
-      await BlogPostModel.insertMany(DEFAULT_BLOG_POSTS);
+      await BlogPostModel.insertMany(DEFAULT_BLOG_POSTS as any);
       blogs = await BlogPostModel.find().sort({ createdAt: -1 });
     }
     res.json(blogs);
@@ -332,7 +354,7 @@ app.get("/api/blog-posts", async (req, res) => {
 app.post("/api/blog-posts", async (req, res) => {
   try {
     await BlogPostModel.deleteMany({});
-    const blogs = await BlogPostModel.insertMany(req.body);
+    const blogs = await BlogPostModel.insertMany(req.body as any);
     res.json(blogs);
   } catch (err: any) {
     console.error("POST /api/blog-posts Error:", err);
@@ -366,6 +388,26 @@ app.post("/api/messages", async (req, res) => {
     res.json(msg);
   } catch (err: any) {
     console.error("POST /api/messages Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE Contact Message
+app.delete("/api/messages/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    await ContactMessageModel.deleteOne({ id });
+    
+    // Decrement contact requests counter in stats
+    let stats = await AdminStats.findOne();
+    if (stats) {
+      stats.contactRequests = Math.max(0, (stats.contactRequests || 0) - 1);
+      await stats.save();
+    }
+    
+    res.json({ success: true, message: `Message ${id} deleted successfully.` });
+  } catch (err: any) {
+    console.error("DELETE /api/messages Error:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -443,8 +485,8 @@ app.post("/api/reset-factory-defaults", async (req, res) => {
 
     await Homepage.create(DEFAULT_HOMEPAGE_CONTENT);
     await Profile.create(DEFAULT_PROFILE_DATA);
-    await CaseStudyModel.insertMany(CASE_STUDIES);
-    await BlogPostModel.insertMany(DEFAULT_BLOG_POSTS);
+    await CaseStudyModel.insertMany(CASE_STUDIES as any);
+    await BlogPostModel.insertMany(DEFAULT_BLOG_POSTS as any);
     await AdminStats.create(INITIAL_ADMIN_STATS);
     await AppSettingsModel.create(DEFAULT_APP_SETTINGS);
 

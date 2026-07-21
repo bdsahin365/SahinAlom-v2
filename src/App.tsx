@@ -164,6 +164,16 @@ export default function App() {
     } catch (err) {
       console.warn("Could not retrieve settings from MongoDB Atlas, using cache.");
     }
+
+    try {
+      const profileRes = await fetch('/api/profile');
+      if (profileRes.ok) {
+        const data = await profileRes.json();
+        localStorage.setItem('sahin_profile_data', JSON.stringify(data));
+      }
+    } catch (err) {
+      console.warn("Could not retrieve profile from MongoDB Atlas, using cache.");
+    }
   };
 
   // Load editable contents
