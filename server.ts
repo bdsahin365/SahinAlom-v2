@@ -13,6 +13,13 @@ import {
   DEFAULT_APP_SETTINGS 
 } from "./src/data";
 
+import {
+  User,
+  BlogPost as BlogPostModel,
+  CaseStudy as CaseStudyModel,
+  Settings as AppSettingsModel
+} from "./models";
+
 dotenv.config();
 
 const app = express();
@@ -109,42 +116,6 @@ const ProfileSchema = new mongoose.Schema({
   }
 }, { minimize: false, timestamps: true });
 
-const CaseStudySchema = new mongoose.Schema({
-  slug: { type: String, unique: true, required: true },
-  title: String,
-  category: String,
-  tags: [String],
-  shortDesc: String,
-  problem: String,
-  calculation: String,
-  solution: String,
-  results: [String],
-  imageUrl: String,
-  galleryImages: [String],
-  duration: String,
-  specs: {
-    voltage: String,
-    capacity: String,
-    duration: String,
-    equipment: String,
-    standard: String,
-    sector: String
-  }
-}, { minimize: false, timestamps: true });
-
-const BlogPostSchema = new mongoose.Schema({
-  slug: { type: String, unique: true, required: true },
-  title: String,
-  category: String,
-  date: String,
-  readTime: String,
-  summary: String,
-  content: String,
-  tags: [String],
-  imageUrl: String,
-  published: Boolean
-}, { minimize: false, timestamps: true });
-
 const ContactMessageSchema = new mongoose.Schema({
   id: String,
   name: String,
@@ -161,19 +132,11 @@ const AdminStatsSchema = new mongoose.Schema({
   avgReadTime: { type: String, default: "5 min" }
 }, { minimize: false, timestamps: true });
 
-const AppSettingsSchema = new mongoose.Schema({
-  showBottomNav: Boolean,
-  defaultTheme: String
-}, { minimize: false, timestamps: true });
-
 // Register Models
 const Homepage = mongoose.models.Homepage || mongoose.model("Homepage", HomepageSchema);
 const Profile = mongoose.models.Profile || mongoose.model("Profile", ProfileSchema);
-const CaseStudyModel = mongoose.models.CaseStudy || mongoose.model("CaseStudy", CaseStudySchema);
-const BlogPostModel = mongoose.models.BlogPost || mongoose.model("BlogPost", BlogPostSchema);
 const ContactMessageModel = mongoose.models.ContactMessage || mongoose.model("ContactMessage", ContactMessageSchema);
 const AdminStats = mongoose.models.AdminStats || mongoose.model("AdminStats", AdminStatsSchema);
-const AppSettingsModel = mongoose.models.AppSettings || mongoose.model("AppSettings", AppSettingsSchema);
 
 // Database Seeder Function
 async function seedDatabase() {
@@ -360,6 +323,82 @@ app.post("/api/blog-posts", async (req, res) => {
     console.error("POST /api/blog-posts Error:", err);
     res.status(500).json({ error: err.message });
   }
+});
+
+// GET /sitemap.xml - Dynamic XML Sitemap for SEO Crawlers & AI search bots
+app.get("/sitemap.xml", async (req, res) => {
+  try {
+    const blogs = await BlogPostModel.find({ published: true } as any);
+    const caseStudies = await CaseStudyModel.find();
+    
+    // Construct the root origin dynamically based on request host
+    const origin = `${req.protocol}://${req.get("host")}`;
+
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+    xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+
+    // 1. Home page
+    xml += `  <url>\n`;
+    xml += `    <loc>${origin}/</loc>\n`;
+    xml += `    <changefreq>weekly</changefreq>\n`;
+    xml += `    <priority>1.0</priority>\n`;
+    xml += `  </url>\n`;
+
+    // 2. Main Sections
+    const sections = ["work", "expertise", "contact", "admin"];
+    for (const section of sections) {
+      xml += `  <url>\n`;
+      xml += `    <loc>${origin}/#${section}</loc>\n`;
+      xml += `    <changefreq>monthly</changefreq>\n`;
+      xml += `    <priority>0.8</priority>\n`;
+      xml += `  </url>\n`;
+    }
+
+    // 3. Blog articles
+    for (const blog of blogs) {
+      xml += `  <url>\n`;
+      xml += `    <loc>${origin}/#/blog/${blog.slug}</loc>\n`;
+      // Use fallback if updatedAt is missing
+      const rawDate = (blog as any).updatedAt || (blog as any).createdAt || new Date();
+      xml += `    <lastmod>${new Date(rawDate).toISOString().split('T')[0]}</lastmod>\n`;
+      xml += `    <changefreq>monthly</changefreq>\n`;
+      xml += `    <priority>0.9</priority>\n`;
+      xml += `  </url>\n`;
+    }
+
+    // 4. Case Studies
+    for (const cs of caseStudies) {
+      xml += `  <url>\n`;
+      xml += `    <loc>${origin}/#/work/${cs.slug}</loc>\n`;
+      const rawDate = (cs as any).updatedAt || (cs as any).createdAt || new Date();
+      xml += `    <lastmod>${new Date(rawDate).toISOString().split('T')[0]}</lastmod>\n`;
+      xml += `    <changefreq>monthly</changefreq>\n`;
+      xml += `    <priority>0.9</priority>\n`;
+      xml += `  </url>\n`;
+    }
+
+    xml += `</urlset>`;
+
+    res.header("Content-Type", "application/xml");
+    res.status(200).send(xml);
+  } catch (err: any) {
+    console.error("GET /sitemap.xml Error:", err);
+    res.status(500).send("<error>Failed to generate sitemap</error>");
+  }
+});
+
+// GET /robots.txt - Rulebook for search engines and AI scraper bots
+app.get("/robots.txt", (req, res) => {
+  const origin = `${req.protocol}://${req.get("host")}`;
+  let txt = `User-agent: *\n`;
+  txt += `Allow: /\n`;
+  txt += `Disallow: /api/messages\n`; // Prevent scrapers from stealing user messages
+  txt += `Disallow: /api/reset-factory-defaults\n`;
+  txt += `\n`;
+  txt += `Sitemap: ${origin}/sitemap.xml\n`;
+  
+  res.header("Content-Type", "text/plain");
+  res.status(200).send(txt);
 });
 
 // GET & POST Contact Messages

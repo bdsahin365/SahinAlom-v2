@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { 
-  ArrowLeft, Zap, Layers, BookOpen, Activity, ChevronRight, Settings
+  ArrowLeft, Zap, Layers, BookOpen, Activity, ChevronRight, Settings, Sun
 } from 'lucide-react';
 import ElectricalSizingTool from './tools/ElectricalSizingTool';
+import IlluminationPlannerTool from './tools/IlluminationPlannerTool';
 
 interface ToolsProps {
   onBack: () => void;
@@ -13,6 +14,10 @@ export default function Tools({ onBack }: ToolsProps) {
 
   if (selectedToolId === 'electrical') {
     return <ElectricalSizingTool onBack={() => setSelectedToolId(null)} />;
+  }
+
+  if (selectedToolId === 'illumination') {
+    return <IlluminationPlannerTool onBack={() => setSelectedToolId(null)} />;
   }
 
   return (
@@ -117,31 +122,39 @@ export default function Tools({ onBack }: ToolsProps) {
             </div>
           </div>
 
-          {/* 3. Illumination Layout */}
-          <div className="relative p-6 bg-zinc-900/10 light:bg-zinc-100/30 border border-zinc-900/40 light:border-zinc-200 rounded-2xl opacity-65 select-none min-h-[220px] flex flex-col justify-between">
+          {/* 3. Illumination Sizing & Lux Planner */}
+          <div 
+            onClick={() => setSelectedToolId('illumination')}
+            className="group relative p-6 bg-zinc-900/40 hover:bg-zinc-900/80 light:bg-white light:hover:bg-zinc-50 border border-zinc-900 hover:border-amber-500/50 light:border-zinc-200 rounded-2xl transition-all duration-300 cursor-pointer shadow-lg overflow-hidden flex flex-col justify-between min-h-[220px]"
+          >
+            {/* Decorative background glow */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl group-hover:bg-amber-500/10 transition-all duration-300" />
+
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <div className="p-2.5 bg-zinc-850 light:bg-zinc-200 rounded-xl text-zinc-500">
-                  <BookOpen className="w-5.5 h-5.5" />
+                <div className="p-2.5 bg-amber-500/10 rounded-xl border border-amber-500/20 text-amber-500 group-hover:scale-110 transition-transform duration-300">
+                  <Sun className="w-5.5 h-5.5" />
                 </div>
-                <span className="px-2.5 py-0.5 text-[9px] font-mono font-bold uppercase rounded-full bg-zinc-800 text-zinc-500">
-                  শীঘ্রই আসছে / Coming Soon
+                <span className="px-2.5 py-0.5 text-[9px] font-mono font-bold uppercase rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 shadow-[0_0_8px_rgba(16,185,129,0.1)]">
+                  প্রস্তুত / Ready to Use
                 </span>
               </div>
               
               <div>
-                <h3 className="font-sans font-bold text-sm text-zinc-400 light:text-zinc-700">
-                  Illumination Sizing & Lux Planner
+                <h3 className="font-sans font-bold text-sm text-zinc-100 light:text-zinc-900 group-hover:text-amber-500 transition-colors">
+                  BNBC 2020 Illumination Sizing & Lux Planner
                 </h3>
-                <p className="text-zinc-500 light:text-zinc-500 text-xs mt-1.5 leading-relaxed">
-                  কারখানা, বাণিজ্যিক অফিস বা বাসাবাড়ির জন্য প্রয়োজনীয় আলোর লাক্স (Lux) লেভেল হিসাব করে এলইডি লাইট বা টিউবের সংখ্যা ও বিন্যাস নির্ধারণ করার ক্যালকুলেটর।
+                <p className="text-zinc-400 light:text-zinc-600 text-xs mt-1.5 leading-relaxed">
+                  BNBC 2020 অনুযায়ী ভবন ও রুমের ধরন অনুযায়ী প্রয়োজনীয় লাক্স (Lux) নির্বাচন, লুমেন মেথড গাণিতিক হিসাব, ২২টি+ এলইডি লাইট সার্চ ও লাইব্রেরি, ২ডি/৩ডি রুম গ্রিড এবং প্রিন্টেবল রিপোর্ট জেনারেটর।
                 </p>
               </div>
             </div>
 
-            <div className="pt-4 flex items-center justify-between border-t border-zinc-900/20 light:border-zinc-150">
-              <span className="text-[10px] font-mono text-zinc-600 uppercase">Category: Lighting Design</span>
-              <span className="text-[10px] font-mono text-zinc-500">Locked</span>
+            <div className="pt-4 flex items-center justify-between border-t border-zinc-900/40 dark:border-zinc-900/40 light:border-zinc-150">
+              <span className="text-[10px] font-mono text-zinc-500 uppercase">Category: Lighting Design</span>
+              <span className="inline-flex items-center text-xs font-mono text-amber-500 font-bold group-hover:translate-x-1.5 transition-transform">
+                Launch Tool <ChevronRight className="w-4 h-4 ml-0.5" />
+              </span>
             </div>
           </div>
 

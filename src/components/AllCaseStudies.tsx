@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { 
-  ArrowLeft, Search, Filter, Layers, LayoutGrid, List, Calendar, Tag, ChevronRight, Calculator, RefreshCw
+  ArrowLeft, Search, Filter, Layers, LayoutGrid, List, Calendar, Tag, ChevronRight, Calculator, RefreshCw, X
 } from 'lucide-react';
 import { CaseStudy } from '../types';
 import { motion } from 'motion/react';
@@ -130,9 +130,19 @@ export default function AllCaseStudies({ onBack, caseStudies, onNavigate }: AllC
                 placeholder="Search by keywords, categories, or technical terms... (e.g. Substation, Transformer)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-50 border border-zinc-850 dark:border-zinc-800 light:border-zinc-250 hover:border-zinc-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/20 text-zinc-100 light:text-zinc-900 text-xs sm:text-sm rounded-lg py-2.5 pl-10 pr-4 outline-none transition-all placeholder:text-zinc-500"
+                className="w-full bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-50 border border-zinc-850 dark:border-zinc-800 light:border-zinc-250 hover:border-zinc-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/20 text-zinc-100 light:text-zinc-900 text-xs sm:text-sm rounded-lg py-2.5 pl-10 pr-9 outline-none transition-all placeholder:text-zinc-500"
                 id="case-study-search-input"
               />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-zinc-500 hover:text-zinc-300 rounded cursor-pointer"
+                  title="Clear search"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
             </div>
 
             {/* Display & View Controls */}
@@ -268,12 +278,21 @@ export default function AllCaseStudies({ onBack, caseStudies, onNavigate }: AllC
                       </span>
                     )}
                     {study.tags.map(tag => (
-                      <span 
+                      <button 
                         key={tag}
-                        className="font-mono text-[9px] text-zinc-500 light:text-zinc-400"
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedTag(selectedTag === tag ? 'All' : tag);
+                        }}
+                        className={`font-mono text-[9px] px-1.5 py-0.5 rounded transition-all cursor-pointer ${
+                          selectedTag === tag 
+                            ? 'bg-amber-500 text-zinc-950 font-bold' 
+                            : 'text-zinc-500 hover:text-amber-400 light:text-zinc-500 bg-zinc-950/40 hover:bg-zinc-900 border border-zinc-850/50'
+                        }`}
                       >
                         #{tag}
-                      </span>
+                      </button>
                     ))}
                   </div>
 

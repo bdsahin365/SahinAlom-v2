@@ -44,44 +44,9 @@ body {
   color: #09090b; /* Zinc 950 */
 }
 
-/* Global Light Mode Specific Enhancements for high-contrast professional styling */
-.light {
-  /* Enforce section and container light backgrounds */
-  .bg-zinc-950, .bg-black, .bg-zinc-950\/95, .bg-zinc-950\/90 {
-    background-color: #fafafa !important; /* Zinc 50 */
-  }
-  
-  .bg-zinc-900, .bg-zinc-900\/30, .bg-zinc-900\/40, .bg-zinc-900\/60, .bg-zinc-900\/80 {
-    background-color: #ffffff !important; /* White for cards */
-  }
-
-  .bg-zinc-950\/40, .bg-zinc-900\/10, .bg-zinc-900\/15 {
-    background-color: #f4f4f5 !important; /* Zinc 100 */
-  }
-  
-  /* Enforce text contrast */
-  .text-zinc-100, .text-zinc-200, .text-zinc-300, .text-zinc-50, .text-zinc-150 {
-    color: #09090b !important; /* Zinc 950 */
-  }
-  
-  .text-zinc-400, .text-zinc-500, .text-zinc-450 {
-    color: #52525b !important; /* Zinc 600 */
-  }
-
-  /* Soften border colors */
-  .border-zinc-900, .border-zinc-800, .border-zinc-850, .border-zinc-950 {
-    border-color: #e4e4e7 !important; /* Zinc 200 */
-  }
-  
-  /* Ensure icons and other zinc elements look proper */
-  .text-zinc-500 {
-    color: #71717a !important; /* Zinc 500 */
-  }
-  
-  /* Specific override for circuit borders to stay elegant and readable */
-  .circuit-border {
-    border-color: #e4e4e7 !important;
-  }
+.light .circuit-border::after,
+.light .circuit-border::before {
+  border-color: var(--color-brand-copper);
 }
 
 /* Blinking dot utility */

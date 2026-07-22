@@ -27,50 +27,84 @@ export default function App() {
   const [homepageContent, setHomepageContent] = useState<HomepageContent>(DEFAULT_HOMEPAGE_CONTENT);
   const [appSettings, setAppSettings] = useState<AppSettings>(DEFAULT_APP_SETTINGS);
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Sync data function
+  // Sync & Load data: Prioritizes live database API fetch, falling back to localStorage and default constants
   const syncFromStorage = async () => {
-    // 1. Immediate local memory load for snappy interface performance
-    const storedCaseStudies = localStorage.getItem('sahin_case_studies');
-    if (storedCaseStudies) {
-      try {
-        const parsed = JSON.parse(storedCaseStudies);
-        if (Array.isArray(parsed)) {
-          setCaseStudies(parsed);
-        } else {
-          setCaseStudies(CASE_STUDIES);
+    setIsLoading(true);
+    // Pre-populate with localStorage cache for instant UI feedback before API fetch resolves
+    try {
+      const storedCaseStudies = localStorage.getItem('sahin_case_studies');
+      if (storedCaseStudies) setCaseStudies(JSON.parse(storedCaseStudies));
+
+      const storedHome = localStorage.getItem('sahin_homepage_content');
+      if (storedHome) setHomepageContent({ ...DEFAULT_HOMEPAGE_CONTENT, ...JSON.parse(storedHome) });
+
+      const storedSettings = localStorage.getItem('sahin_portfolio_settings');
+      if (storedSettings) setAppSettings({ ...DEFAULT_APP_SETTINGS, ...JSON.parse(storedSettings) });
+
+      const storedBlogs = localStorage.getItem('sahin_blog_posts');
+      if (storedBlogs) {
+        try {
+          const parsed = JSON.parse(storedBlogs);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const existingSlugs = new Set(parsed.map(b => b.slug));
+            const missingDefaults = DEFAULT_BLOG_POSTS.filter(d => !existingSlugs.has(d.slug));
+            const merged = [...parsed, ...missingDefaults];
+            setBlogPosts(merged);
+            localStorage.setItem('sahin_blog_posts', JSON.stringify(merged));
+          } else {
+            setBlogPosts(DEFAULT_BLOG_POSTS);
+          }
+        } catch {
+          setBlogPosts(DEFAULT_BLOG_POSTS);
         }
-      } catch (e) {
-        setCaseStudies(CASE_STUDIES);
       }
-    } else {
-      setCaseStudies(CASE_STUDIES);
+    } catch (e) {
+      console.warn("Error reading cached local storage:", e);
     }
 
-    const storedHome = localStorage.getItem('sahin_homepage_content');
-    if (storedHome) {
-      try {
-        const parsed = JSON.parse(storedHome);
-        if (parsed && typeof parsed === 'object') {
-          setHomepageContent({ ...DEFAULT_HOMEPAGE_CONTENT, ...parsed });
-        } else {
-          setHomepageContent(DEFAULT_HOMEPAGE_CONTENT);
-        }
-      } catch (e) {
-        setHomepageContent(DEFAULT_HOMEPAGE_CONTENT);
-      }
-    } else {
-      setHomepageContent(DEFAULT_HOMEPAGE_CONTENT);
-    }
+    // Direct Database API Fetching (Highest Priority)
+    try {
+      const [homeRes, studiesRes, blogsRes, settingsRes, profileRes] = await Promise.allSettled([
+        fetch('/api/homepage'),
+        fetch('/api/case-studies'),
+        fetch('/api/blog-posts'),
+        fetch('/api/settings'),
+        fetch('/api/profile')
+      ]);
 
-    const storedSettings = localStorage.getItem('sahin_portfolio_settings');
-    if (storedSettings) {
-      try {
-        const parsed = JSON.parse(storedSettings) as AppSettings;
-        if (parsed && typeof parsed === 'object') {
-          const merged = { ...DEFAULT_APP_SETTINGS, ...parsed };
+      if (homeRes.status === 'fulfilled' && homeRes.value.ok) {
+        const data = await homeRes.value.json();
+        if (data && Object.keys(data).length > 0) {
+          setHomepageContent(data);
+          localStorage.setItem('sahin_homepage_content', JSON.stringify(data));
+        }
+      }
+
+      if (studiesRes.status === 'fulfilled' && studiesRes.value.ok) {
+        const data = await studiesRes.value.json();
+        if (Array.isArray(data) && data.length > 0) {
+          setCaseStudies(data);
+          localStorage.setItem('sahin_case_studies', JSON.stringify(data));
+        }
+      }
+
+      if (blogsRes.status === 'fulfilled' && blogsRes.value.ok) {
+        const data = await blogsRes.value.json();
+        if (Array.isArray(data) && data.length > 0) {
+          setBlogPosts(data);
+          localStorage.setItem('sahin_blog_posts', JSON.stringify(data));
+        }
+      }
+
+      if (settingsRes.status === 'fulfilled' && settingsRes.value.ok) {
+        const data = await settingsRes.value.json();
+        if (data && typeof data === 'object') {
+          const merged = { ...DEFAULT_APP_SETTINGS, ...data };
           setAppSettings(merged);
-          
+          localStorage.setItem('sahin_portfolio_settings', JSON.stringify(merged));
+
           const storedTheme = localStorage.getItem('sahin_portfolio_theme');
           const themeToApply = storedTheme || merged.defaultTheme;
           if (themeToApply === 'light') {
@@ -82,97 +116,17 @@ export default function App() {
             document.documentElement.classList.remove('light');
             document.documentElement.classList.add('dark');
           }
-        } else {
-          setAppSettings(DEFAULT_APP_SETTINGS);
-        }
-      } catch (e) {
-        setAppSettings(DEFAULT_APP_SETTINGS);
-      }
-    } else {
-      setAppSettings(DEFAULT_APP_SETTINGS);
-    }
-
-    const storedBlogs = localStorage.getItem('sahin_blog_posts');
-    if (storedBlogs) {
-      try {
-        const parsed = JSON.parse(storedBlogs);
-        if (Array.isArray(parsed)) {
-          setBlogPosts(parsed);
-        } else {
-          setBlogPosts(DEFAULT_BLOG_POSTS);
-        }
-      } catch (e) {
-        setBlogPosts(DEFAULT_BLOG_POSTS);
-      }
-    } else {
-      setBlogPosts(DEFAULT_BLOG_POSTS);
-    }
-
-    // 2. Fetch live values asynchronously from MongoDB Atlas database
-    try {
-      const homeRes = await fetch('/api/homepage');
-      if (homeRes.ok) {
-        const data = await homeRes.json();
-        setHomepageContent(data);
-        localStorage.setItem('sahin_homepage_content', JSON.stringify(data));
-      }
-    } catch (err) {
-      console.warn("Could not retrieve homepage from MongoDB Atlas, using cache.");
-    }
-
-    try {
-      const studiesRes = await fetch('/api/case-studies');
-      if (studiesRes.ok) {
-        const data = await studiesRes.json();
-        setCaseStudies(data);
-        localStorage.setItem('sahin_case_studies', JSON.stringify(data));
-      }
-    } catch (err) {
-      console.warn("Could not retrieve case studies from MongoDB Atlas, using cache.");
-    }
-
-    try {
-      const blogsRes = await fetch('/api/blog-posts');
-      if (blogsRes.ok) {
-        const data = await blogsRes.json();
-        setBlogPosts(data);
-        localStorage.setItem('sahin_blog_posts', JSON.stringify(data));
-      }
-    } catch (err) {
-      console.warn("Could not retrieve blog posts from MongoDB Atlas, using cache.");
-    }
-
-    try {
-      const settingsRes = await fetch('/api/settings');
-      if (settingsRes.ok) {
-        const data = await settingsRes.json();
-        setAppSettings(data);
-        localStorage.setItem('sahin_portfolio_settings', JSON.stringify(data));
-        
-        const storedTheme = localStorage.getItem('sahin_portfolio_theme');
-        const themeToApply = storedTheme || data.defaultTheme;
-        if (themeToApply === 'light') {
-          setDarkMode(false);
-          document.documentElement.classList.add('light');
-          document.documentElement.classList.remove('dark');
-        } else {
-          setDarkMode(true);
-          document.documentElement.classList.remove('light');
-          document.documentElement.classList.add('dark');
         }
       }
-    } catch (err) {
-      console.warn("Could not retrieve settings from MongoDB Atlas, using cache.");
-    }
 
-    try {
-      const profileRes = await fetch('/api/profile');
-      if (profileRes.ok) {
-        const data = await profileRes.json();
+      if (profileRes.status === 'fulfilled' && profileRes.value.ok) {
+        const data = await profileRes.value.json();
         localStorage.setItem('sahin_profile_data', JSON.stringify(data));
       }
     } catch (err) {
-      console.warn("Could not retrieve profile from MongoDB Atlas, using cache.");
+      console.warn("Could not retrieve live data from database API, using cache or defaults.", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -345,6 +299,63 @@ export default function App() {
       }
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-zinc-950 light:bg-zinc-50 text-zinc-100 light:text-zinc-900 transition-colors duration-300 flex flex-col justify-between">
+        {/* Skeleton Header */}
+        <header className="border-b border-zinc-900 light:border-zinc-200 px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-lg bg-zinc-850 light:bg-zinc-200 animate-pulse" />
+            <div className="w-40 h-5 bg-zinc-850 light:bg-zinc-200 rounded animate-pulse" />
+          </div>
+          <div className="hidden md:flex items-center space-x-6">
+            <div className="w-16 h-4 bg-zinc-850 light:bg-zinc-200 rounded animate-pulse" />
+            <div className="w-16 h-4 bg-zinc-850 light:bg-zinc-200 rounded animate-pulse" />
+            <div className="w-16 h-4 bg-zinc-850 light:bg-zinc-200 rounded animate-pulse" />
+            <div className="w-20 h-8 bg-zinc-850 light:bg-zinc-200 rounded-lg animate-pulse" />
+          </div>
+        </header>
+
+        {/* Skeleton Content Area */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full space-y-12 my-auto">
+          {/* Hero Section Skeleton */}
+          <div className="space-y-4 max-w-3xl">
+            <div className="w-36 h-6 bg-amber-500/20 rounded-full animate-pulse" />
+            <div className="w-full sm:w-3/4 h-10 bg-zinc-850 light:bg-zinc-200 rounded-lg animate-pulse" />
+            <div className="w-2/3 h-10 bg-zinc-850 light:bg-zinc-200 rounded-lg animate-pulse" />
+            <div className="w-full h-4 bg-zinc-850/60 light:bg-zinc-300/60 rounded animate-pulse mt-4" />
+            <div className="w-4/5 h-4 bg-zinc-850/60 light:bg-zinc-300/60 rounded animate-pulse" />
+            <div className="flex space-x-4 pt-4">
+              <div className="w-36 h-11 bg-amber-500/30 rounded-lg animate-pulse" />
+              <div className="w-32 h-11 bg-zinc-850 light:bg-zinc-200 rounded-lg animate-pulse" />
+            </div>
+          </div>
+
+          {/* Cards Grid Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-8 border-t border-zinc-900 light:border-zinc-200">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-zinc-900/50 light:bg-white p-6 rounded-xl border border-zinc-850 light:border-zinc-200 space-y-4 animate-pulse">
+                <div className="w-full h-40 bg-zinc-850 light:bg-zinc-200 rounded-lg" />
+                <div className="w-24 h-4 bg-amber-500/20 rounded" />
+                <div className="w-3/4 h-6 bg-zinc-850 light:bg-zinc-200 rounded" />
+                <div className="w-full h-12 bg-zinc-850/50 light:bg-zinc-100 rounded" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Skeleton Footer */}
+        <footer className="border-t border-zinc-900 light:border-zinc-200 py-6 px-6 flex items-center justify-between text-xs text-zinc-500">
+          <div className="flex items-center space-x-2">
+            <Zap className="w-4 h-4 text-amber-500 animate-pulse" />
+            <span className="font-mono text-zinc-400">Synchronizing Engineers Enterprise Systems & API...</span>
+          </div>
+          <span className="font-mono text-zinc-600 hidden sm:inline">Engineers Enterprise CMS</span>
+        </footer>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen transition-colors duration-300">

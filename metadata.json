@@ -1,6 +1,8 @@
 {
   "name": "Sahin Alom - Electrical Engineer Portfolio",
   "description": "Professional portfolio of Sahin Alom, an industrial electrical engineer in Dhaka, Bangladesh, specialized in factory power maintenance.",
-  "requestFramePermissions": [],
+  "requestFramePermissions": [
+    "microphone"
+  ],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

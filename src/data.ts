@@ -1,10 +1,10 @@
-import { CaseStudy, TimelineStep, ReadingItem, AdminStats, ProfileData, HomepageContent, AppSettings, BlogPost } from './types';
+import { CaseStudy, TimelineStep, ReadingItem, AdminStats, ProfileData, HomepageContent, AppSettings, BlogPost, QuickFieldNote } from './types';
 
 export const CASE_STUDIES: CaseStudy[] = [
   {
     slug: 'substation-sld-analysis',
     title: 'Substation SLD Analysis & Protection Coordination',
-    category: 'Substation & Distribution',
+    category: 'সাবস্টেশন ও পাওয়ার ডিস্ট্রিবিউশন',
     tags: ['Substation', 'SLD', 'Protection', 'BNBC Compliance'],
     shortDesc: 'Read and interpreted SLDs for 11kV/0.4kV distribution substations, identifying protection coordination gaps and load flow paths.',
     problem: 'The factory experienced frequent total blackouts due to a lack of selectivity between the downstream sub-distribution boards and the upstream Substation Main Air Circuit Breaker (ACB). A localized fault in a knitting line motor was cascading up, tripping the entire facility.',
@@ -47,7 +47,7 @@ Main ACB Trip Settings:
   {
     slug: 'industrial-load-distribution',
     title: 'Industrial Load Distribution & Main Feeder Sizing',
-    category: 'Power Systems & Cables',
+    category: 'ক্যাবল সাইজিং ও লোড ক্যালকুলেশন',
     tags: ['Load Calc', 'Cable Sizing', 'IEC Standards', 'Thermal Protection'],
     shortDesc: 'Calculated total connected load and demand load for an industrial facility. Sized cables and selected appropriate circuit breakers per IEC standards.',
     problem: 'The sub-feeder cable running to the 45kW circular knitting machine sector was running excessively hot (above 85°C), leading to insulation degradation. The cable layout was routed through a ceiling ladder tray with tight grouping, accelerating thermal breakdown.',
@@ -94,7 +94,7 @@ Previous Cable: 4-Core 25 mm² NYY (Rated for 95A in free air; derated rating = 
   {
     slug: 'earthing-system-inspection',
     title: 'Earthing System Inspection, Testing & Optimization',
-    category: 'Earthing & Safety',
+    category: 'বিএনবিসি কোড ও ইলেকট্রিক্যাল সেফটি',
     tags: ['Earthing', 'Safety', 'Testing', 'Soil Resistivity'],
     shortDesc: 'Performed earth resistance testing and verified continuity of protective conductors across MDB and SDB panels in a commercial building.',
     problem: 'Operators on the factory floor reported receiving mild electrical shocks when touching the metallic chassis of the high-speed knitting machines. Additionally, sensitive micro-controller units on the machines were reset sporadically due to transient ground loops.',
@@ -134,7 +134,7 @@ We require 2 new chemical ground electrodes to reach under 1.0 Ω.`,
   {
     slug: 'ips-lighting-troubleshooting',
     title: 'Instant Power Supply (IPS) & Emergency Lighting Optimization',
-    category: 'Industrial Troubleshooting',
+    category: 'লাইটিং ডিজাইন ও ইমার্জেন্সি ব্যাকআপ',
     tags: ['IPS', 'Maintenance', 'Emergency System', 'ATS Design'],
     shortDesc: 'Diagnosed and resolved faults in an integrated power supply system and emergency lighting circuits, restoring full operational status.',
     problem: 'During sudden utility line outages, the factory floor lighting would drop out for up to 15 seconds before the standby diesel generator fully booted. The 3kVA Instant Power Supply (IPS) designed to provide instant battery-backed emergency lighting was failing to switch over, creating safety hazards.',
@@ -215,8 +215,8 @@ export const DEFAULT_PROFILE_DATA: ProfileData = {
   title: "Industrial Electrical Engineer",
   location: "Dhaka, Bangladesh",
   email: "sardershain@gmail.com",
-  phone: "+880 1712-345678",
-  whatsapp: "+880 1712-345678",
+  phone: "+8801760816120",
+  whatsapp: "+8801760816120",
   summary: "Results-driven Industrial Electrical Engineer with over 4 years of hands-on expertise in electrical maintenance, load calculation, distribution substation operation, and advanced troubleshooting for large-scale textile and sweater manufacturing operations. Proven capability in maintaining zero unscheduled downtime, ensuring electrical safety compliance per BNBC and IEC standards, and designing automatic protection and transfer systems.",
   skills: "Substation Maintenance (11kV/0.4kV), SLD Interpretation, Protection Selectivity (ACB/MCCB/VCB), Power Factor Improvement (PFI), Cable & Breaker Sizing, Earth Resistance Testing, Generator Load Matching, Industrial Automation, LOTO Safety Protocols, BNBC & IEC Compliance",
   imageUrl: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=800&auto=format&fit=crop",
@@ -304,7 +304,7 @@ export const DEFAULT_BLOG_POSTS: BlogPost[] = [
   {
     slug: 'bnbc-2020-lighting-design-guide-ch1',
     title: 'BNBC 2020 Lighting Design Guide (বাংলায়) — Chapter 1: Lighting Design কী ও কেন গুরুত্বপূর্ণ',
-    category: 'Lighting Design',
+    category: 'লাইটিং ডিজাইন ও ইমার্জেন্সি ব্যাকআপ',
     date: '2026-07-21',
     readTime: '8 min read',
     summary: 'BNBC 2020 পার্ট ৮ অনুযায়ী লাইটিং ডিজাইন কী, কেন এটি সাধারণ বৈদ্যুতিক ওয়ারিংয়ের চেয়ে আলাদা, এবং কীভাবে এটি মানুষের নিরাপত্তা ও কর্মদক্ষতা নিশ্চিত করে তা বাস্তব উদাহরণসহ বুঝুন।',
@@ -710,7 +710,7 @@ $$\\text{Lux } (lx) = \\frac{\\text{Luminous Flux (Lumen)}}{\\text{Area } (m^2)}
   {
     slug: 'pfi-plant-maintenance-bangladesh',
     title: 'The Ultimate Guide to PFI (Power Factor Improvement) Plant Maintenance in Bangladesh Factories',
-    category: 'Substation Maintenance',
+    category: 'সাবস্টেশন ও পাওয়ার ডিস্ট্রিবিউশন',
     date: '2026-06-15',
     readTime: '6 min read',
     summary: 'A deep-dive technical look at maintaining power factor correction above 0.95 under harsh industrial loads, preventing heavy regulatory penalties from distribution authorities.',
@@ -749,7 +749,7 @@ To ensure 100% reliability and keep your power factor at a comfortable 0.98, imp
   {
     slug: 'bnbc-2020-earthing-guidelines',
     title: 'Understanding BNBC 2020 Earthing and Safety Bonding Guidelines for Industrial Plants',
-    category: 'Electrical Safety',
+    category: 'বিএনবিসি কোড ও ইলেকট্রিক্যাল সেফটি',
     date: '2026-05-28',
     readTime: '5 min read',
     summary: 'An engineer\'s field manual to the latest Bangladesh National Building Code (BNBC) directives on grounding system design, soil resistivity testing, and equipment bonding.',
@@ -787,7 +787,7 @@ This value tells us exactly how deep we need to bore or how many parallel earth 
   {
     slug: 'acb-mccb-relay-selectivity',
     title: 'Demystifying ACB vs MCCB Protective Relay Selectivity & Coordination',
-    category: 'Industrial Protection',
+    category: 'ট্রান্সফরমার ও প্রোটেকশন রিলে',
     date: '2026-04-10',
     readTime: '7 min read',
     summary: 'How to plot IDMT curves and configure micro-processor trip units to prevent minor downstream faults from causing expensive factory-wide blackouts.',
@@ -818,8 +818,637 @@ If a short-circuit fault of 3000A occurs on the motor cable:
     tags: ['Selectivity', 'ACB', 'MCCB', 'Overcurrent Protection', 'LSIG'],
     imageUrl: 'https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&q=80&w=1200',
     published: true
+  },
+  {
+    slug: 'bnbc-2020-lighting-design-guide-ch2',
+    title: 'BNBC 2020 Lighting Design Guide (বাংলায়) — Chapter 2: Lux কী? কোথায় কত Lux লাগবে? BNBC অনুযায়ী Lighting Design-এর প্রথম ধাপ',
+    category: 'লাইটিং ডিজাইন ও ইমার্জেন্সি ব্যাকআপ',
+    date: '2026-07-21',
+    readTime: '9 min read',
+    summary: 'BNBC 2020 পার্ট ৮, চ্যাপ্টার ১ অনুযায়ী কোন রুমে কত লাক্স (Lux) আলো প্রয়োজন, লাক্স এবং ওয়াটের মধ্যকার পার্থক্য এবং ডিজাইন শুরু করার পূর্বে ইঞ্জিনিয়ারিং নিয়মাবলী জানুন।',
+    content: `### BNBC Reference: Part VIII, Chapter 1, Clause 1.2.2 (Illumination Requirements)
+
+আপনি যদি একটি রুমে দাঁড়িয়ে থাকেন এবং হঠাৎ চিন্তা করেন সেখানে লাইটিং ডিজাইন করবেন, আপনার প্রথম পদক্ষেপ কী হওয়া উচিত?
+
+ধরুন আপনি নতুন একটি Office Building-এ গেছেন। Developer আপনাকে বলল, "এই Floor-এর Lighting Design করে দেন।" আপনি প্রথমে কী করবেন?
+অনেকেই বলবেন, "আগে Light Selection করব।" আবার কেউ বলবেন, "আগে LED Panel কিনে ফেলি।" কিন্তু একজন Professional Lighting Designer কখনোই এভাবে কাজ শুরু করেন না। তিনি প্রথমে একটি প্রশ্ন করেন:
+**"এই Room-এ কত Lux দরকার?"**
+কারণ লাইটিং ডিজাইনের পুরো মূল ভিত্তিটাই হলো Lux।
+
+## Lux আসলে কী?
+
+সহজ ভাষায়, **Lux হলো কোনো নির্দিষ্ট জায়গায় বা কাজের তলে কতটুকু কার্যকর আলো পড়ছে তার পরিমাপ** (Illumination Level)।
+
+ধরুন, আপনার হাতে একটি Torch আছে। Torch থেকে অনেক Light বের হচ্ছে (একে Lumen বলে)। কিন্তু সেই আলো যদি ১ বর্গমিটার জায়গায় পড়ে, আর একই আলো যদি ১০ বর্গমিটার জায়গায় ছড়িয়ে যায়, দুই ক্ষেত্রেই কি Brightness এক হবে? অবশ্যই না। এখানেই Lux-এর মূল ধারণা আসে।
+
+### একটা সহজ উদাহরণ (বালতি ও পানির রূপক)
+
+ধরুন আপনার কাছে এক বালতি পানি আছে। আপনি যদি সেই পানি একটি ছোট গ্লাসে ঢালেন, গ্লাস ভরে উপচে যাবে। কিন্তু একই পানি যদি একটি বড় ড্রামে ঢালেন, ড্রাম প্রায় খালিই থাকবে।
+
+Light-ও ঠিক একই রকম। একই পরিমাণ আলো (Lumen) ছোট Room-এ অনেক Bright লাগবে, কিন্তু একই আলো বড় Hall-এ অনেক কম মনে হবে। এই কাজের তলের Brightness বা আলোর ঘনত্বকেই আমরা **Lux (lx)** দিয়ে পরিমাপ করি।
+
+## Lux-এর গাণিতিক Formula
+
+Lux বের করার সবচেয়ে সহজ Formula হলো—
+
+$$\\text{Lux} = \\frac{\\text{Lumen}}{\\text{Area}}$$
+
+এখানে,
+- **Lux (lx)** = Working Surface-এ পড়া আলোর তীব্রতা
+- **Lumen (lm)** = Light Source বা বাল্ব থেকে বের হওয়া মোট আলো (Luminous Flux)
+- **Area (m²)** = যে জায়গায় আলো পড়ছে তার ক্ষেত্রফল (Square Meter)
+
+### বাস্তব হিসাব নিকাশ (Real-world Calculation Node)
+
+ধরুন, একটি LED Panel **3600 Lumens** আলো দেয়। এটি যদি **12 m²** এর একটি ছোট Room-এ ব্যবহার করেন, তাহলে গড়ে কত Lux পাবেন?
+
+$$\\text{Lux} = \\frac{3600}{12} = 300\\text{ Lux}$$
+
+অর্থাৎ, এই Room-এর Average Illumination হবে **300 Lux**।
+
+## Watt বনাম Lux: সবচেয়ে বড় ভুল ধারণা!
+
+অনেকে বলেন, *"এই Room-এ ২০ Watt Light লাগবে"* বা *"৪০ Watt দিলেই যথেষ্ট।"* এভাবে অন্ধকারে ঢিল ছুঁড়ে লাইটিং ডিজাইন করা সম্পূর্ণ ভুল। কারণ—
+- **Watt** কোনো আলোর পরিমাপ নয়। এটি হলো **Electrical Power Consumption** (লাইটটি কতটুকু বিদ্যুৎ শক্তি গ্রহণ করছে)।
+- **Lux** হলো **Light Level** (কাজের টেবিলে কতটুকু কার্যকর আলো এসে পৌঁছাচ্ছে)।
+
+টেকনোলজি পরিবর্তনের সাথে সাথে একই Watt-এর লাইট ভিন্ন Lumen দিতে পারে। যেমন একটি ২০ ওয়াট সাধারণ টিউবলাইট ১০০০ লুমেন দিলে, একটি আধুনিক ২০ ওয়াট এলইডি লাইট ২০০০ লুমেনের বেশি আলো দিতে পারে। তাই ওয়াট দেখে নয়, লাক্স হিসাব করে ডিজাইন করতে হবে।
+
+### Watt, Lumen এবং Lux-এর তুলনামূলক পার্থক্য
+
+| বিষয় | কী বোঝায়? | পরিমাপের একক | উদাহরণ |
+| :--- | :--- | :--- | :--- |
+| **Watt** | লাইটটি চালাতে কতটুকু বিদ্যুৎ শক্তি বা কারেন্ট খরচ হচ্ছে | Watt (W) | 20W LED Panel |
+| **Lumen** | লাইট বাল্বটি সবদিকে মোট কতটুকু আলো ছড়াচ্ছে | Lumen (lm) | 3600 lm output |
+| **Lux** | সেই আলো কাজের নির্দিষ্ট তলে বা টেবিলে কতটুকু এসে পড়ছে | Lux (lx) | 300 lx on table |
+
+## BNBC কেন Lux ব্যবহার করে?
+
+একটি গার্মেন্টস বা Factory-এর কথা চিন্তা করুন। যদি Sewing Machine Operator ঠিকমতো কাপড়ের সুতা দেখতে না পারে, তাহলে—
+- ভুল সেলাই বা Stitch হবে (Productivity হ্রাস পাবে)।
+- সুই আঙুলে ঢুকে Needle Accident হতে পারে (নিরাপত্তা বিঘ্নিত হবে)।
+- কর্মীদের চোখের ও মাথার উপর অতিরিক্ত চাপ পড়বে।
+
+আবার, Hospital-এর Operation Theatre-এ যদি আলো পর্যাপ্ত না থাকে, তবে সেটি সরাসরি মানুষের জীবন-মৃত্যুর প্রশ্ন। এ কারণেই BNBC (Bangladesh National Building Code) কখনো কোনো রুমের জন্য "কত ওয়াট লাইট" লাগবে তা বলে না। বরং আইনগতভাবে বলে দেয়—**রুমের ধরন অনুযায়ী কাজের তলে কত Lux নিশ্চিত করতে হবে**।
+
+## BNBC-এর 150 Lux Golden Rule
+
+BNBC-এর একটি অত্যন্ত গুরুত্বপূর্ণ বেসিক নির্দেশিকা বা রুল হলো—
+**যে কোনো Work Area বা নিয়মিত কাজ করার জায়গায় কমপক্ষে 150 Lux আলো থাকতে হবে।**
+
+কাজের জায়গা বা Work Area বলতে নিচে উল্লিখিত স্থানসমূহকে বোঝায়:
+- [ ] Office Desk (অফিস কাজের টেবিল)
+- [ ] Kitchen Working Area (রান্নাঘর কাটিং/কুকিং এরিয়া)
+- [ ] Engineering Workshop & Labs (ল্যাবরেটরি ও রিডিং রুম)
+- [ ] Factory Production Floor (গার্মেন্টস বা যেকোনো প্রোডাকশন কারখানা)
+- [ ] Reading Desk (পড়ার টেবিল)
+
+যদি কোনো নিয়মিত কর্মক্ষেত্রে বা কাজের জায়গায় ১৫০ লাক্সের কম আলো থাকে, তবে সেটি নিরাপদ ও স্বাস্থ্যকর Working Environment হিসেবে আইনত গ্রহণযোগ্য নয়।
+
+## BNBC অনুযায়ী কোথায় কত Lux লাগবে? (Illumination Tables)
+
+বাস্তবে Bedroom আর Operation Theatre-এর আলোর প্রয়োজন কখনো এক নয়। নিচে BNBC 2020 (Part 8, Chapter 1) এর বিভিন্ন টেবিল থেকে গুরুত্বপূর্ণ কাজের ক্ষেত্রসমূহের Lux সংকলন দেওয়া হলো:
+
+| ভবনের ধরন | নির্দিষ্ট এলাকা (Specific Area) | প্রয়োজনীয় আলো (BNBC Recommended Lux) | টেবিল রেফারেন্স (BNBC Table) |
+| :--- | :--- | :--- | :--- |
+| **Residential (আবাসিক)** | Bedroom (শোবার ঘর) | 70 Lux | Table 8.1.5 |
+| **Residential (আবাসিক)** | Corridor (বারান্দা/হাঁটার পথ) | 70 Lux | Table 8.1.5 |
+| **Residential (আবাসিক)** | Stairs (সিঁড়িঘর) | 100 Lux | Table 8.1.5 |
+| **Residential (আবাসিক)** | Kitchen (রান্নাঘর) | 250 Lux | Table 8.1.5 |
+| **Educational (শিক্ষা প্রতিষ্ঠান)** | Standard Classroom | 300 Lux | Table 8.1.6 |
+| **Educational (শিক্ষা প্রতিষ্ঠান)** | Lecture Theatre | 300 Lux | Table 8.1.6 |
+| **Healthcare (হাসপাতাল)** | General Ward (সাধারণ ওয়ার্ড) | 100 Lux | Table 8.1.7 |
+| **Healthcare (হাসপাতাল)** | Examination Room (পরীক্ষা কক্ষ) | 300 Lux | Table 8.1.7 |
+| **Healthcare (হাসপাতাল)** | Operation Theatre (ওটি টেবিল) | 10000 Lux | Table 8.1.7 |
+| **Commercial (অফিস/বাণিজ্যিক)** | General Office Desk | 300 Lux | Table 8.1.9 |
+| **Commercial (অফিস/বাণিজ্যিক)** | Conference Room (মিটিং রুম) | 300 Lux | Table 8.1.9 |
+| **Commercial (অফিস/বাণিজ্যিক)** | Drawing Board (নকশা টেবিল) | 450 Lux | Table 8.1.9 |
+| **Industrial (কারখানা/ইন্ডাস্ট্রি)** | General Assembly Line | 300 Lux | Table 8.1.10 |
+| **Industrial (কারখানা/ইন্ডাস্ট্রি)** | Fine Precision Work (সূক্ষ্ম কাজ) | 1500 Lux | Table 8.1.10 |
+
+## যদি BNBC অনুযায়ী Lux না মেনে ডিজাইন করেন?
+
+ধরুন, একটি অফিসের জন্য ৩০০ লাক্স দরকার। কিন্তু আপনি নামমাত্র কয়েকটি লাইট দিয়ে ডিজাইন করলেন মাত্র **১২০ লাক্স**। এর ফলে কী সমস্যা হবে?
+- কম্পিউটার স্ক্রিন ঝাপসা লাগবে ও মাথা ঘুরবে।
+- কর্মীদের কাজের গতি বা প্রোডাক্টিভিটি মারাত্মকভাবে কমে যাবে।
+- গ্রাহক বা ক্লায়েন্ট অসন্তুষ্ট হয়ে কমপ্লেইন করবে।
+
+আবার অতিরিক্ত ভেবে যদি সেই একই রুমে **৭০০ লাক্স** লাইটিং করে দেন, তাহলে:
+- ক্লায়েন্টের বিদ্যুৎ বিল দ্বিগুণ আসবে।
+- অতিরিক্ত লাইট কেনার জন্য ইনিশিয়াল কস্টিং বা বাজেট অনেক বেড়ে যাবে।
+- তীব্র আলোর গ্লেয়ারে চোখ ব্যথা করবে।
+
+## একজন Professional Engineer-এর প্রথম ৪টি কাজ
+
+আমি যখনই কোনো লাইটিং ডিজাইনের প্রজেক্ট হাতে পাই, তখন সরাসরি কোনো লাইট না কিনে প্রথমে এই ৪টি প্রশ্ন নিজে সমাধান করি:
+- [ ] এই Room-টির আসল ব্যবহার বা ফাংশন কী? (যেমন: এটি কি অফিস নাকি সিঁড়ি?)
+- [ ] BNBC 2020 অনুযায়ী এই কাজের জন্য নির্দিষ্ট কত Lux প্রয়োজন?
+- [ ] রুমটির মোট ক্ষেত্রফল (Area in m²) কত?
+- [ ] প্রয়োজনীয় লুমেন কত? এরপর Lumen Method বা Dialux ব্যবহার করে মোট কয়টি লাইট লাগবে তা হিসাব করা।
+
+## Chapter Summary & Takeaways
+
+- **Lux** হলো কাজের তলে এসে পড়া কার্যকরী আলোর ঘনত্ব।
+- **Lux এবং Watt সম্পূর্ণ ভিন্ন বিষয়**; ওয়াট কেবল বিদ্যুৎ খরচ নির্দেশ করে।
+- **BNBC Lighting Design** করার একমাত্র ভিত্তি হলো লাক্স লেভেল নিশ্চিত করা।
+- কর্মক্ষেত্রের যেকোনো ওয়ার্কিং টেবিলে কমপক্ষে **১৫০ লাক্স** লাইট বাধ্যতামূলক (Golden Rule)।
+- ভিন্ন ভিন্ন রুমের প্রয়োজনের উপর ভিত্তি করে লাক্স নির্ধারণ করা হয়েছে (Tables 8.1.5 - 8.1.10)।
+- আগে লাক্স নিশ্চিত করুন, তারপর ওয়াট বা ফিক্সচার নির্বাচন করুন।
+
+---
+
+### লেখকের নোট (Author's Operational Note)
+
+আমি যখন কেরিয়ারের শুরুতে প্রথম লাইটিং ডিজাইন শিখছিলাম, তখন আমিও সাধারণ মানুষের মতো ওয়াট নিয়েই চিন্তা করতাম—"এখানে কি ২০ ওয়াট দেবো নাকি ৪০ ওয়াট?" কিন্তু BNBC গভীরভাবে পড়ার পর বুঝতে পারলাম, একজন প্রফেশনাল ইঞ্জিনিয়ার কখনোই ওয়াট দিয়ে কাজ শুরু করেন না। কাজের প্রথম এবং প্রধান ভিত্তিই হলো Lux। এই লাক্স বুঝতে পারলে লুমেন মেথড এবং ফিক্সচার সিলেকশন আপনার জন্য পানির মতো সহজ হয়ে যাবে!`,
+    tags: ['BNBC 2020', 'Lighting Design', 'Lux Levels', 'Lumen Method'],
+    imageUrl: 'https://images.unsplash.com/photo-1565538810844-1e1194116c67?auto=format&fit=crop&q=80&w=1200',
+    published: true
+  },
+  {
+    slug: 'bnbc-2020-lighting-design-guide-ch3',
+    title: 'BNBC 2020 Lighting Design Guide (বাংলায়) — Chapter 3: Lumen Method – কতগুলো Light লাগবে? Step-by-Step Calculation শিখুন (BNBC 2020)',
+    category: 'লাইটিং ডিজাইন ও ইমার্জেন্সি ব্যাকআপ',
+    date: '2026-07-22',
+    readTime: '10 min read',
+    summary: 'BNBC 2020 অনুযায়ী একটি রুমে নির্দিষ্ট Lux পাওয়ার জন্য কতগুলো LED Light Fixture লাগবে তা Lumen Method দিয়ে Step-by-Step গাণিতিক উপায়ে বের করতে শিখুন।',
+    content: `### BNBC Reference: Part VIII, Chapter 1 (Lighting Design Method) — Lumen Method Design Approach
+
+## Introduction
+
+এখন পর্যন্ত আমরা দুটি গুরুত্বপূর্ণ বিষয় শিখেছি।
+প্রথমে জেনেছি **Lighting Design কী** এবং কেন এটি Electrical Engineering-এর একটি গুরুত্বপূর্ণ অংশ।
+এরপর শিখেছি **Lux কী** এবং BNBC 2020 অনুযায়ী কোন Room-এ কত Lux প্রয়োজন।
+
+কিন্তু এখন সবচেয়ে বড় প্রকৌশলগত প্রশ্ন হলো—
+> **"যদি আমি জানি একটি Office-এ 300 Lux লাগবে, তাহলে কতগুলো LED Panel লাইট লাগাব?"**
+
+এটাই Lighting Design-এর সবচেয়ে গুরুত্বপূর্ণ Calculation। এবং এই কাজের জন্য পৃথিবীর প্রায় সব Electrical & Lighting Engineer যে গাণিতিক পদ্ধতিটি ব্যবহার করেন, সেটির নাম হলো **Lumen Method**।
+
+---
+
+## Lumen Method কী?
+
+সহজ ভাষায়, **Lumen Method হলো এমন একটি Calculation Method, যার মাধ্যমে কোনো Room-এ নির্দিষ্ট Lux পাওয়ার জন্য মোট কতগুলো Light Fixture লাগবে তা গাণিতিকভাবে নির্ণয় করা হয়।**
+
+Lighting Design-এর প্রায় সব Manual Calculation এবং প্রাথমিক লেআউট ডিজাইন এই Method দিয়েই শুরু হয়।
+
+### কেন আন্দাজে লাইটিং ডিজাইন করা নিষিদ্ধ?
+
+ধরুন, আপনি ১,৫০০ Square Feet-এর একটি Corporate Office-এর Lighting Design করছেন। আপনি কি আন্দাজে বলবেন— *"এখানে ২০টা লাইট লাগিয়ে দিন, হয়ে যাবে"*?
+
+**অবশ্যই না!** 
+কারণ Electrical & Illumination Engineering কখনো আন্দাজের ওপর চলে না। 
+- বেশি লাইট লাগালে অতিরিক্ত বিদ্যুৎ বিল ও অপ্রয়োজনীয় বাজেটিং হবে।
+- কম লাইট লাগালে চোখের ক্ষতি হবে এবং BNBC 2020 স্ট্যান্ডার্ড অমান্য হবে।
+- প্রতিটি Fixture-এর সঠিক সংখ্যা ও স্পেসিং গাণিতিক সূত্র দিয়ে হিসাব করে বের করতে হয়।
+
+---
+
+## Lumen (lm) কী?
+
+Chapter 2-এ আমরা **Lux (lx)** সম্পর্কে বিস্তারিত জেনেছি। এখন **Lumen (lm)** ভালোভাবে বুঝতে হবে।
+
+> **Lumen (lm) হলো একটি Light Source বা বাল্ব থেকে প্রতি সেকেন্ডে চারদিকে মোট কতটুকু আলো উৎপন্ন হচ্ছে তার পরিমাপ (Luminous Flux)।**
+
+ধরুন, একটি LED Panel-এর প্যাকেজিংয়ে লেখা আছে— **3600 Lumens**। 
+এর মানে হলো, এই LED Panel-টি চালিত হলে মোট ৩,৬০০ লুমেন পরিমাণ আলো ছড়ায়।
+
+### Lux এবং Lumen-এর মধ্যকার সুনির্দিষ্ট পার্থক্য
+
+| বিষয় | Lumen (lm) | Lux (lx) |
+| :--- | :--- | :--- |
+| **সংজ্ঞা** | লাইট সোর্স থেকে উৎপন্ন **মোট আলোর পরিমাণ** | কাজের তলে এসে পড়া **আলোর তীব্রতা** |
+| **স্থান নির্ভরশীলতা** | রুমের সাইজ যাই হোক, লাইটের Lumen অপরিবর্তিত থাকে | রুমের সাইজ বড় হলে Lux কমে যায় |
+| **রূপক তুলনা** | ট্যাংকে রাখা পানির মোট পরিমাণ | মাটিতে ভিজা পানির ঘনত্ব |
+
+### 💡 পানির ট্যাংক ও বাগানের রূপক উদাহরণ
+
+ধরুন আপনার পানির ট্যাংকে **১,০০০ লিটার পানি** আছে। এটি হলো **Lumen** (উৎপন্ন মোট আলো)।
+এখন সেই ১,০০০ লিটার পানি যদি একটি ছোট বাগানে ছিটান, বাগান অনেক বেশি ভিজে যাবে (High Lux)।
+কিন্তু একই ১,০০০ লিটার পানি যদি বিশাল ১ একরের মাঠে ছিটান, মাঠ কিন্তু খুব একটা ভিজবে না (Low Lux)।
+
+> - **Lumen = মোট উৎপন্ন আলো**
+> - **Lux = নির্দিষ্ট কাজের তলে পৌঁছানো আলো**
+
+---
+
+## Lumen Method Formula (মূল গাণিতিক সমীকরণ)
+
+Lighting Design-এর বিশ্বজুড়ে স্বীকৃত সবচেয়ে পরিচিত ও মানসম্মত Formula হলো:
+
+$$N = \\frac{E \\times A}{F \\times UF \\times MF}$$
+
+এখানে প্রতিটি প্রতীকের পূর্ণরূপ ও অর্থ:
+
+- **N** = Required Number of Light Fixtures (প্রয়োজনীয় মোট লাইট ফিক্সচারের সংখ্যা)
+- **E** = Required Illuminance in Lux (BNBC 2020 নির্দেশিত প্রয়োজনীয় লাক্স)
+- **A** = Room Area in $m^2$ (রুমের দৈর্ঘ্য × প্রস্থ)
+- **F** = Lumen Output of One Fixture (একটি লাইট ফিক্সচারের মোট লুমেন)
+- **UF** = Utilization Factor (ইউটিলাইজেশন ফ্যাক্টর - ০.৬০ থেকে ০.৮০)
+- **MF** = Maintenance Factor (মেইনটেন্যান্স ফ্যাক্টর - সাধারণত ০.৮০)
+
+---
+
+## Formula-এর প্রতিটি অংশের বিশদ ব্যাখ্যা
+
+### ১. E = Required Lux (প্রয়োজনীয় লাক্স)
+এটি আপনাকে সরাসরি **BNBC 2020 (Part 8, Table 8.1.5 - 8.1.10)** থেকে গ্রহণ করতে হবে।
+- **Standard Office Area**: 300 Lux
+- **Classroom / Reading Room**: 300 Lux
+- **Kitchen Working Area**: 250 Lux
+- **Drawing Office / Fine Draft**: 450 Lux
+
+### ২. A = Room Area ($m^2$)
+রুমটির মেঝের দৈর্ঘ্য এবং প্রস্থের গুণফল (মিটারে)।
+> উদাহরণ: দৈর্ঘ্য ১০ মিটার এবং প্রস্থ ৮ মিটার হলে, $\\text{Area} = 10 \\times 8 = 80 \\text{ m}^2$।
+
+### ৩. F = Fixture Lumen (ফিক্সচারের লুমেন)
+এটি লাইট প্রস্তুতকারক কোম্পানির (Catalogue/Datasheet) থেকে পাওয়া যায়।
+> উদাহরণ: একটি ৪০ ওয়াট স্ট্যান্ডার্ড LED Panel প্রায় **3,600 Lumens** আলো দেয়।
+
+### ৪. UF = Utilization Factor (ইউটিলাইজেশন ফ্যাক্টর)
+লাইটের সব আলো কিন্তু সরাসরি মেঝে বা কাজের টেবিলে পড়ে না। কিছু আলো সিলিংয়ে, কিছু দেয়ালে প্রতিফলিত হয়ে নষ্ট হয়, আর কিছু লাইটের ভেতরের ডিফিউজারেই আটকে যায়।
+> **UF নির্দেশ করে লাইটের মোট আলোর কত শতাংশ আসলে কার্যকর Working Plane-এ এসে পৌঁছায়।**
+> সাধারণ অফিসের ক্ষেত্রে UF এর মান সাধারণত **0.60 থেকে 0.80** এর মধ্যে ধরা হয় (যা Room Index ও Reflection Factor-এর ওপর নির্ভর করে)।
+
+### ৫. MF = Maintenance Factor (মেইনটেন্যান্স ফ্যাক্টর)
+নতুন ইনস্টল করা লাইটের আলো আর ৫ বছর ব্যবহার করা লাইটের আলো কখনোই এক থাকে না।
+সময়ের সাথে সাথে:
+1. লাইট বা ডিফিউজারের ওপর ধুলাবালি (Dust Layer) জমে।
+2. LED চিপর কার্যক্ষমতা সময়ের সাথে কিছুটা হ্রাস পায় (Lumen Depreciation)।
+3. দেয়াল ও সিলিংয়ের রঙ মলিন হয়ে রিফ্লেকশন কমে যায়।
+
+> এই আলোর অপচয় বিবেচনা করে ডিজাইনে **Maintenance Factor (MF)** ধরা হয়। ইনডোর পরিষ্কার অফিসের জন্য স্ট্যান্ডার্ড ডিজাইনে **MF = 0.80** ব্যবহার করা হয়।
+
+---
+
+## 📐 চলুন একটি বাস্তব ইঞ্জিনিয়ারিং Calculation করি!
+
+### প্রজেক্ট সিনারিও:
+আপনাকে একটি Corporate Office Room-এর জন্য লাইটিং ডিজাইন করতে বলা হলো।
+
+#### প্রদত্ত উপাত্তসমূহ (Given Data):
+- **Room Dimension**: ১০ মিটার (দৈর্ঘ্য) × ৮ মিটার (প্রস্থ)
+- **Room Area (A)**: $10 \\times 8 = 80 \\text{ m}^2$
+- **Target Lux (E)**: 300 Lux (BNBC 2020 Standard)
+- **Selected Light**: 40W LED Panel ($F = 3600 \\text{ Lumens}$)
+- **Utilization Factor (UF)**: 0.60
+- **Maintenance Factor (MF)**: 0.80
+
+---
+
+### Step-by-Step Calculation:
+
+#### ধাপ ১: লব (Numerator) অংশ বের করি (মোট প্রয়োজনীয় লুমেন)
+$$\\text{Total Required Lumens} = E \\times A = 300 \\text{ Lux} \\times 80 \\text{ m}^2 = 24,000 \\text{ Lumens}$$
+
+#### ধাপ ২: হর (Denominator) অংশ বের করি (একটি ফিক্সচারের কার্যকর লুমেন)
+$$\\text{Effective Lumen per Fixture} = F \\times UF \\times MF = 3600 \\times 0.60 \\times 0.80 = 1,728 \\text{ Lumens}$$
+
+#### ধাপ ৩: প্রয়োজনীয় ফিক্সচার সংখ্যা (N) হিসাব করি
+$$N = \\frac{24,000}{1,728} = 13.88 \\text{ টি}$$
+
+---
+
+### ⚠️ অত্যন্ত গুরুত্বপূর্ণ নিয়মানুযায়ী Rounding Up:
+
+গাণিতিক ফলাফলে এসেছে **13.88 টি** লাইট।
+আপনি বাজারে কখনোই ১৩.৮৮ টি লাইট কিনতে পারবেন না!
+
+> **BNBC Golden Rule:**
+> লাইটিং ডিজাইনে ফিক্সচারের সংখ্যা কখনোই নিচের পূর্ণ সংখ্যায় (Round Down) নামানো যাবে না। **সবসময় পরবর্তী পূর্ণ সংখ্যায় (Round Up) নিতে হবে।**
+
+সুতরাং, **Required Light Fixtures = 14 টি** (১৪টি ৪০ ওয়াটের এলইডি প্যানেল লাগবে)।
+
+---
+
+## 💡 যদি একটি Fixture-এ একাধিক Tube/Lamp থাকে?
+
+অনেক সময় ইন্ডাস্ট্রিতে এমন ফিক্সচার ব্যবহার করা হয় যেখানে ১টি ফিক্সচারের ভেতরে ২টি বা ৩টি টিউবলাইট বা এলইডি মডিউল থাকে।
+
+ধরা যাক, আপনার গণনায় এসেছে মোট **১৬টি ল্যাম্প (Lamp)** লাগবে।
+যদি আপনার নির্বাচিত ফিক্সচারে **প্রতিটিতে ২টি করে ল্যাম্প** থাকে, তবে:
+
+$$\\text{Required Fixtures} = \\frac{16}{2} = 8 \\text{ টি ফিক্সচার}$$
+
+---
+
+## 🚫 নতুন ইঞ্জিনিয়ারদের ৫টি সাধারণ ও মারাত্মক ভুল!
+
+সাইট এবং ডিজাইনিংয়ে নতুন ইঞ্জিনিয়াররা যে ভুলগুলো বারবার করেন:
+
+1. ❌ **Watt দেখে লাইট নির্বাচন করা**: লুমেন না দেখে ওয়াট দিয়ে হিসাব করা সম্পূর্ণ ভুল।
+2. ❌ **UF এবং MF বাদ দেওয়া**: Utilization Factor ও Maintenance Factor না ধরলে বাস্তবে রুমে তীব্র আলোর ঘাটতি হবে।
+3. ❌ **Fixture সংখ্যা Round Down করা**: ১৩.৮৮ কে ১৩টি ধরে ফেললে প্রয়োজনীয় Lux অর্জিত হবে না।
+4. ❌ **রুমের ভুল Area হিসাব করা**: বারান্দা বা পিলারের অতিরিক্ত স্থান ঠিকমতো মাইনাস না করা।
+5. ❌ **Datasheet না দেখা**: আন্দাজে একটি লাইটের লুমেন ধরে নেওয়া।
+
+---
+
+## 🖥️ Lighting Design কি শুধুই এই Formula?
+
+**না!** এটি নতুন ইঞ্জিনিয়ারদের একটি বড় ভুল ধারণা। Formula দিয়ে ফিক্সচারের সংখ্যা বের হওয়া মানে লাইটিং ডিজাইনের কেবল ২০% সম্পন্ন হলো। এরপরও অনেক গুরুত্বপূর্ণ কাজ বাকি থাকে:
+
+- **Fixture Layout & Grid Positioning**: লাইটগুলোর পারস্পরিক দূরত্ব (Spacing) সমান রাখা।
+- **Spacing-to-Height Ratio (SHR)**: ফিক্সচারের উচ্চতা অনুযায়ী দূরত্ব ঠিক রাখা যাতে আলো ওভারল্যাপ হয়।
+- **Uniformity Factor**: পুরো রুমে যেন আলো সমানভাবে ছড়ায়, কোনো কোণে কালো অন্ধকার না থাকে।
+- **Glare Control (UGR)**: মনিটরের গ্লেয়ার কমানো।
+- **DIALux evo Software Verification**: ৩ডি সিমুলেশনের মাধ্যমে ভিজ্যুয়াল আলো পরীক্ষা করা।
+
+> **Lumen Method আপনাকে সঠিক প্রাথমিক দিকনির্দেশনা (Starting Point) দেয়, যা পরবর্তীতে DIALux evo সফটওয়্যারের মাধ্যমে চূড়ান্ত যাচাই করা হয়।**
+
+---
+
+## Chapter Summary & Quick Checklist
+
+- **Lumen Method** হলো নির্দিষ্ট Lux পাওয়ার জন্য প্রয়োজনীয় লাইটের সংখ্যা বের করার প্রধান ম্যানুয়াল সূত্র।
+- **Formula:** $N = \\frac{E \\times A}{F \\times UF \\times MF}$।
+- **Round Up Rule:** ফলাফলে দশমিক আসলে সবসময় পরবর্তী পূর্ণ সংখ্যায় রাউন্ড আপ করতে হবে।
+- **UF & MF Factor:** আলোর ক্ষয় ও ময়লার কারণে ইউটিলাইজেশন ও মেইনটেন্যান্স ফ্যাক্টর ধরা বাধ্যতামূলক।
+- **Next Step:** ফিক্সচার সংখ্যা জানার পর সেটির স্পেসিং ও লেআউট ডিজাইন করতে হয়।
+
+---
+
+### 📝 লেখকের নোট (Author's Operational Note)
+আমি যখন প্রথম কেরিয়ারে Lumen Method নিয়ে কাজ করি, তখন UF আর MF এর হিসাব দেখে কিছুটা কনফিউজড হয়ে যেতাম। কিন্তু পরবর্তীতে প্র্যাক্টিক্যাল প্রজেক্ট করার পর বুঝলাম—এগুলো আসলে আলোর বাস্তব জীবনের অপচয়ের হিসাব! Formula মুখস্থ করার চেয়ে প্রতিটি অক্ষরের বাস্তব প্রকৌশলগত অর্থ বুঝলে লাইটিং ডিজাইন অনেক বেশি আনন্দদায়ক হয়ে ওঠে। আশা করি এই আর্টিকেলের পর Lumen Method নিয়ে আপনাদের সকল দ্বিধা দূর হয়ে যাবে!`,
+    tags: ['BNBC 2020', 'Lighting Design', 'Lumen Method', 'Illumination Calculation', 'BNBC Part 8'],
+    imageUrl: 'https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&q=80&w=1200',
+    published: true
   }
 ];
+
+export const DEFAULT_PRODUCTS: import('./types').ProductItem[] = [
+  {
+    id: 'prod-1',
+    name: '11kV HT/LT Substation Thermal Audit & Safety Inspection',
+    category: 'Substation & Power Systems',
+    unitPrice: 15000,
+    unit: 'Service / Visit',
+    stockStatus: 'ইন স্টক'
+  },
+  {
+    id: 'prod-2',
+    name: 'Earthing System & Soil Resistivity Megger Test (BNBC 2020)',
+    category: 'Earthing & Safety Audit',
+    unitPrice: 8500,
+    unit: 'Point Test',
+    stockStatus: 'ইন স্টক'
+  },
+  {
+    id: 'prod-3',
+    name: 'Industrial PFI Plant Calibration & Power Factor Testing',
+    category: 'PFI & Capacitor Banks',
+    unitPrice: 12000,
+    unit: 'Panel Audit',
+    stockStatus: 'ইন স্টক'
+  },
+  {
+    id: 'prod-4',
+    name: 'BNBC Compliant Industrial Factory Lighting & Lux Level Audit',
+    category: 'Lighting & Energy Audit',
+    unitPrice: 18000,
+    unit: 'Floor Design',
+    stockStatus: 'ইন স্টক'
+  },
+  {
+    id: 'prod-5',
+    name: 'HT/LT Cable Thermal Scanning & Busbar Torquing Inspection',
+    category: 'Cable & Busbar Maintenance',
+    unitPrice: 10000,
+    unit: 'Feeder Audit',
+    stockStatus: 'ইন স্টক'
+  }
+];
+
+export const DEFAULT_CUSTOMERS: import('./types').Customer[] = [
+  {
+    id: 'cust-1',
+    name: 'Gazipur Spinning & Apparels Ltd.',
+    contactPerson: 'Engr. Tanvir Ahmed (DGM Electrical)',
+    phone: '01711223344',
+    whatsapp: '8801711223344',
+    email: 'tanvir@gazipurspinning.com',
+    address: 'Chowrastha, Gazipur, Dhaka',
+    industrySector: 'Textile & RMG',
+    substationCapacity: '11kV / 1000 kVA Substation',
+    status: 'Active Client',
+    notes: '11kV Substation Thermal Audit & PFI Capacitor Bank Maintenance Project',
+    totalOrders: 2,
+    totalSpent: 45000,
+    lastServiceDate: '2026-07-15'
+  },
+  {
+    id: 'cust-2',
+    name: 'Uttara Textile & Knitting Mills',
+    contactPerson: 'Md. Rafiqul Islam (Plant Engineer)',
+    phone: '01819887766',
+    whatsapp: '8801819887766',
+    email: 'rafiq@uttaratextile.com',
+    address: 'Sector 7, Uttara, Dhaka',
+    industrySector: 'Textile & RMG',
+    substationCapacity: '11kV / 630 kVA Substation',
+    status: 'On-Going Contract',
+    notes: 'BNBC 2020 Electrical Safety Audit & Earthing Grid Resistance Test',
+    totalOrders: 1,
+    totalSpent: 28000,
+    lastServiceDate: '2026-06-28'
+  },
+  {
+    id: 'cust-3',
+    name: 'Savar Fabrics Industries Limited',
+    contactPerson: 'Sharif Hossain (Maintenance Head)',
+    phone: '01912345678',
+    whatsapp: '8801912345678',
+    email: 'sharif@savarfabrics.bd',
+    address: 'EPZ Road, Savar, Dhaka',
+    industrySector: 'Textile & RMG',
+    substationCapacity: '33kV / 2500 kVA Substation',
+    status: 'Active Client',
+    notes: 'Factory Floor Lighting Design & Lux Level Measurement Report per BNBC Standards',
+    totalOrders: 3,
+    totalSpent: 62000,
+    lastServiceDate: '2026-07-20'
+  },
+  {
+    id: 'cust-4',
+    name: 'Square Pharmaceuticals Plant 2',
+    contactPerson: 'Dr. Engr. Anisur Rahman (AGM Utilities)',
+    phone: '01730011223',
+    whatsapp: '8801730011223',
+    email: 'anisur@squarepharma.com',
+    address: 'Salna, Gazipur Industrial Belt, Dhaka',
+    industrySector: 'Pharmaceuticals',
+    substationCapacity: '11kV Cleanroom Dual Substation',
+    status: 'Active Client',
+    notes: 'Harmonics Filter & Precision PFI Panel Annual Servicing and Cleanroom Earth Pit Audit',
+    totalOrders: 2,
+    totalSpent: 85000,
+    lastServiceDate: '2026-07-02'
+  },
+  {
+    id: 'cust-5',
+    name: 'Chittagong Steel Re-Rolling Mills (CSRM)',
+    contactPerson: 'Engr. Kamrul Hasan (AGM Plant Operations)',
+    phone: '01844556677',
+    whatsapp: '8801844556677',
+    email: 'kamrul@csrm-steel.com',
+    address: 'Sitakunda Heavy Industrial Area, Chittagong',
+    industrySector: 'Steel & Heavy Metal',
+    substationCapacity: '33kV / 5000 kVA Induction Furnace Substation',
+    status: 'On-Going Contract',
+    notes: 'Heavy Arc Suppression, Vacuum Circuit Breaker (VCB) Calibration, and Busbar Torquing',
+    totalOrders: 4,
+    totalSpent: 140000,
+    lastServiceDate: '2026-07-18'
+  }
+];
+
+export const DEFAULT_ORDERS: import('./types').OrderInvoice[] = [
+  {
+    id: 'ord-101',
+    invoiceNo: 'EE-2026-001',
+    customerName: 'Gazipur Spinning & Apparels Ltd.',
+    customerPhone: '01711223344',
+    customerAddress: 'Chowrastha, Gazipur, Dhaka',
+    date: '21 July 2026',
+    items: [
+      {
+        productId: 'prod-1',
+        productName: '11kV HT/LT Substation Thermal Audit & Safety Inspection',
+        variant: 'General',
+        quantity: 1,
+        unit: 'Service',
+        pricePerUnit: 15000,
+        totalPrice: 15000
+      }
+    ],
+    subtotal: 15000,
+    discount: 1000,
+    grandTotal: 14000,
+    paidAmount: 14000,
+    dueAmount: 0,
+    status: 'সম্পন্ন',
+    createdRole: 'Admin',
+    notes: 'Thermal imaging scan and insulation test report delivered to client.'
+  }
+];
+
+export const DEFAULT_OFFICE_NOTES: import('./types').OfficeNote[] = [
+  {
+    id: 'note-1',
+    title: 'Sign Gazipur Site Earthing Resistance Test Report',
+    content: 'Deliver signed earthing test certificate with engineering seal to client office by 10 AM tomorrow.',
+    date: '21 July 2026',
+    priority: 'জরুরি',
+    isCompleted: false,
+    author: 'Engr. Sahin Alom'
+  },
+  {
+    id: 'note-2',
+    title: 'Review BNBC 2020 Electrical Safety Guidelines Chapter 2',
+    content: 'Verified technical formulas and tables in the newly published article before sharing with factory maintenance managers.',
+    date: '20 July 2026',
+    priority: 'সাধারণ',
+    isCompleted: true,
+    author: 'Engr. Sahin Alom'
+  }
+];
+
+export const DEFAULT_MAINTENANCE_LOGS: import('./types').MaintenanceLog[] = [
+  {
+    id: 'maint-101',
+    equipmentName: '630 kVA HT/LT Power Transformer',
+    equipmentIdTag: 'TR-01-S1',
+    location: 'Substation Yard - Gazipur Plant',
+    category: 'Transformer',
+    status: 'Critical / Overdue',
+    lastServiceDate: '2026-01-10',
+    nextInspectionDueDate: '2026-07-10',
+    technicianInCharge: 'Engr. Sahin Alom',
+    priority: 'Emergency',
+    notes: 'Oil dielectric breakdown voltage (BDV) test and silica gel breather replacement required.'
+  },
+  {
+    id: 'maint-102',
+    equipmentName: '11kV Vacuum Circuit Breaker (VCB Panel)',
+    equipmentIdTag: 'VCB-02-MAIN',
+    location: 'HT Switchgear Room - Narayanganj Textile',
+    category: 'Switchgear',
+    status: 'Requires Attention',
+    lastServiceDate: '2026-02-15',
+    nextInspectionDueDate: '2026-07-25',
+    technicianInCharge: 'Md. Rafiqul Islam (Tech Lead)',
+    priority: 'High',
+    notes: 'Contact resistance test & trip mechanism lubrication scheduled.'
+  },
+  {
+    id: 'maint-103',
+    equipmentName: '450 KVAR Automatic PFI Capacitor Bank',
+    equipmentIdTag: 'PFI-01-BLD2',
+    location: 'Main Distribution Room - Savar Garments',
+    category: 'PFI Plant',
+    status: 'Optimal',
+    lastServiceDate: '2026-05-10',
+    nextInspectionDueDate: '2026-11-10',
+    technicianInCharge: 'Engr. Sahin Alom',
+    priority: 'Routine',
+    notes: 'Power factor holding steady at 0.98. All capacitor stages tested OK.'
+  },
+  {
+    id: 'maint-104',
+    equipmentName: '1250 kVA Prime Diesel Generator Unit 1',
+    equipmentIdTag: 'GEN-01-PWR',
+    location: 'Power House - Chittagong Steel Ltd',
+    category: 'Generator',
+    status: 'In Maintenance',
+    lastServiceDate: '2026-07-01',
+    nextInspectionDueDate: '2026-08-01',
+    technicianInCharge: 'Sharif Ahmed (Staff)',
+    priority: 'High',
+    notes: 'Replacing AVR voltage regulator board and fuel filters during scheduled shutdown.'
+  },
+  {
+    id: 'maint-105',
+    equipmentName: 'Substation Earthing Grid & Neutral Earth Pit',
+    equipmentIdTag: 'EARTH-GRID-01',
+    location: 'Outdoor Switchyard - Manikganj',
+    category: 'Earthing Grid',
+    status: 'Optimal',
+    lastServiceDate: '2026-04-20',
+    nextInspectionDueDate: '2026-10-20',
+    technicianInCharge: 'Engr. Sahin Alom',
+    priority: 'Routine',
+    notes: 'Earthing resistance measured at 0.72 Ω (BNBC standard compliant).'
+  }
+];
+
+export const DEFAULT_QUICK_FIELD_NOTES: QuickFieldNote[] = [
+  {
+    id: 'qfn-101',
+    title: '11kV Substation VCB Contact Resistance & Vacuum Bottle Check',
+    content: 'আজকে সাভার স্পিনিং মিলের ১১ কেভি সাবস্টেশন পরিদর্শন করার সময় VCB প্যানেলের মেগার টেস্ট এবং ভ্যাকুয়াম বোতল ইন্টিগ্রিটি চেক করা হয়েছে। ভ্যাকুয়াম বোতলে কনট্যাক্ট রেজিস্ট্যান্স পাওয়া গেছে ১৮ মাইক্রো-ওহম যা নির্দিষ্ট সীমার মধ্যে রয়েছে। তবে কন্ট্রোল ক্যাবল ট্যার্মিনালে কিছুটা ধুলাবালি জমা ছিল যা পরিষ্কার করে টাইট দেওয়া হয়েছে।',
+    transcriptRaw: 'আজকে সাভার স্পিনিং মিলের ১১ কেভি সাবস্টেশন পরিদর্শন করার সময় VCB প্যানেলের মেগার টেস্ট এবং ভ্যাকুয়াম বোতল ইন্টিগ্রিটি চেক করা হয়েছে। ভ্যাকুয়াম বোতলে কনট্যাক্ট রেজিস্ট্যান্স পাওয়া গেছে ১৮ মাইক্রো-ওহম যা নির্দিষ্ট সীমার মধ্যে রয়েছে। তবে কন্ট্রোল ক্যাবল ট্যার্মিনালে কিছুটা ধুলাবালি জমা ছিল যা পরিষ্কার করে টাইট দেওয়া হয়েছে।',
+    category: 'Electrical Substation',
+    equipmentTag: 'HT VCB Panel - Savar Unit 2',
+    author: 'Engr. Sahin Alom',
+    createdAt: '2026-07-20 14:30',
+    status: 'Saved',
+    language: 'bn-BD'
+  },
+  {
+    id: 'qfn-102',
+    title: '630kVA Transformer Oil Dielectric Breakdown Voltage Test',
+    content: 'Performed oil dielectric breakdown voltage (BDV) test on the 630 kVA oil-immersed distribution transformer. The measured BDV value was 58 kV across a 2.5mm gap, confirming excellent dielectric strength. Moisture content in silica gel breather was normal (blue indicator).',
+    transcriptRaw: 'Performed oil dielectric breakdown voltage test on the 630 kVA oil immersed distribution transformer. Measured BDV value was 58 kV across 2.5 millimeter gap, confirming excellent dielectric strength.',
+    category: 'Transformer & Power Maintenance',
+    equipmentTag: 'XFRM-01 630kVA',
+    author: 'Engr. Sahin Alom',
+    createdAt: '2026-07-18 11:15',
+    status: 'Saved',
+    language: 'en-US'
+  }
+];
+
 
 
 

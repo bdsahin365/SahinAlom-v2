@@ -1974,7 +1974,7 @@ ${isThreePhaseService ? `* Phase Load Balance / ৩-ফেজ বণ্টন:
             <div className="flex items-center space-x-2 text-zinc-200 light:text-zinc-800">
               <BookOpen className="w-4.5 h-4.5 text-amber-500" />
               <span className="text-xs font-bold uppercase tracking-wider">
-                🛠️ Engineering Formulas & Standards / ইঞ্জিনিয়ারিং হিসাব ও বিএনবিসি সূত্র
+                Engineering Formulas & Standards / ইঞ্জিনিয়ারিং হিসাব ও বিএনবিসি সূত্র
               </span>
             </div>
             <div>
@@ -2242,8 +2242,8 @@ ${isThreePhaseService ? `* Phase Load Balance / ৩-ফেজ বণ্টন:
                 <div>Calculated Drop: {cableResults.voltageDrop.toFixed(2)}V ({cableResults.percentageDrop.toFixed(2)}%)</div>
                 <div className="font-extrabold text-zinc-900">
                   {cableResults.selectedSize > cableResults.initialSizeByAmpacity 
-                    ? `⚠️ Size UPGRADE: ${cableResults.initialSizeByAmpacity} mm² → ${cableResults.selectedSize} mm² for drop limits.`
-                    : '✓ Sizing compliant. No voltage drop correction needed.'}
+                    ? `[UPGRADE] Size UPGRADE: ${cableResults.initialSizeByAmpacity} mm² → ${cableResults.selectedSize} mm² for drop limits.`
+                    : 'Sizing compliant. No voltage drop correction needed.'}
                 </div>
               </div>
             </div>

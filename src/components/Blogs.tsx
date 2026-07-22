@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BlogPost } from '../types';
 import { DEFAULT_BLOG_POSTS } from '../data';
-import { Search, Calendar, Clock, ArrowLeft, Tag, BookOpen, Share2, Check, Send, ChevronRight, CheckSquare, Square, Grid, List, HelpCircle, Filter } from 'lucide-react';
+import { Search, Calendar, Clock, ArrowLeft, Tag, BookOpen, Share2, Check, Send, ChevronRight, CheckSquare, Square, Grid, List, HelpCircle, Filter, Copy, Info, Activity, Calculator, X, RefreshCw } from 'lucide-react';
 
 interface InteractiveTableProps {
   headers: string[];
@@ -77,11 +77,11 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({ headers, dataRows }
 
   const getLuxStyle = (luxStr: string) => {
     const val = parseInt(luxStr.replace(/[^0-9]/g, ''), 10);
-    if (isNaN(val)) return { bg: 'bg-zinc-900/60 dark:bg-zinc-900/40 text-zinc-400 border-zinc-800', label: 'বিশেষ' };
-    if (val < 100) return { bg: 'bg-sky-500/10 text-sky-400 border-sky-500/20', label: 'আলোকসজ্জা' };
-    if (val < 300) return { bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', label: 'সাধারণ কাজ' };
-    if (val < 600) return { bg: 'bg-amber-500/10 text-amber-400 border-amber-500/20', label: 'মাঝারি কাজ' };
-    return { bg: 'bg-rose-500/15 text-rose-400 border-rose-500/20', label: 'উচ্চ সূক্ষ্মতা' };
+    if (isNaN(val)) return { bg: 'bg-zinc-900/60 dark:bg-zinc-900/40 light:bg-zinc-100 text-zinc-400 light:text-zinc-650 border-zinc-800 light:border-zinc-250', label: 'বিশেষ' };
+    if (val < 100) return { bg: 'bg-sky-500/10 dark:bg-sky-500/10 light:bg-sky-50 text-sky-400 light:text-sky-700 border-sky-500/20 light:border-sky-200', label: 'আলোকসজ্জা' };
+    if (val < 300) return { bg: 'bg-emerald-500/10 dark:bg-emerald-500/10 light:bg-emerald-50 text-emerald-400 light:text-emerald-700 border-emerald-500/20 light:border-emerald-200', label: 'সাধারণ কাজ' };
+    if (val < 600) return { bg: 'bg-amber-500/10 dark:bg-amber-500/10 light:bg-amber-50 text-amber-400 light:text-amber-700 border-amber-500/20 light:border-amber-200', label: 'মাঝারি কাজ' };
+    return { bg: 'bg-rose-500/15 dark:bg-rose-500/15 light:bg-rose-50 text-rose-400 light:text-rose-700 border-rose-500/20 light:border-rose-200', label: 'উচ্চ সূক্ষ্মতা' };
   };
 
   return (
@@ -103,10 +103,10 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({ headers, dataRows }
           <div className="flex items-center gap-2 self-start sm:self-auto bg-zinc-950 dark:bg-zinc-950/80 light:bg-zinc-100 p-1 rounded-lg border border-zinc-850 dark:border-zinc-850 light:border-zinc-200 text-xs font-mono">
             <button
               onClick={() => setViewMode('card')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-bold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-bold transition-all cursor-pointer ${
                 viewMode === 'card'
                   ? 'bg-emerald-500/15 text-emerald-500 dark:bg-emerald-500/20'
-                  : 'text-zinc-450 light:text-zinc-600 hover:text-zinc-200'
+                  : 'text-zinc-500 light:text-zinc-500 hover:text-zinc-200 light:hover:text-zinc-800'
               }`}
             >
               <List size={14} />
@@ -114,10 +114,10 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({ headers, dataRows }
             </button>
             <button
               onClick={() => setViewMode('grid')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-bold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-bold transition-all cursor-pointer ${
                 viewMode === 'grid'
                   ? 'bg-emerald-500/15 text-emerald-500 dark:bg-emerald-500/20'
-                  : 'text-zinc-455 light:text-zinc-600 hover:text-zinc-200'
+                  : 'text-zinc-500 light:text-zinc-500 hover:text-zinc-200 light:hover:text-zinc-800'
               }`}
             >
               <Grid size={14} />
@@ -163,10 +163,10 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({ headers, dataRows }
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 scrollbar-thin">
               <button
                 onClick={() => setSelectedSection('All')}
-                className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${
+                className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
                   selectedSection === 'All'
                     ? 'bg-emerald-500 text-zinc-950 border-emerald-400'
-                    : 'bg-zinc-950 dark:bg-zinc-950 light:bg-white text-zinc-400 light:text-zinc-600 border-zinc-800 dark:border-zinc-850 light:border-zinc-350 hover:text-zinc-200'
+                    : 'bg-zinc-950 dark:bg-zinc-950 light:bg-white text-zinc-400 light:text-zinc-600 border-zinc-800 dark:border-zinc-850 light:border-zinc-350 hover:text-zinc-200 light:hover:text-zinc-800'
                 }`}
               >
                 সবগুলো ({parsedRows.length})
@@ -177,10 +177,10 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({ headers, dataRows }
                   <button
                     key={sec}
                     onClick={() => setSelectedSection(sec)}
-                    className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${
+                    className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
                       selectedSection === sec
                         ? 'bg-emerald-500 text-zinc-950 border-emerald-400'
-                        : 'bg-zinc-950 dark:bg-zinc-950 light:bg-white text-zinc-400 light:text-zinc-600 border-zinc-800 dark:border-zinc-850 light:border-zinc-350 hover:text-zinc-200'
+                        : 'bg-zinc-950 dark:bg-zinc-950 light:bg-white text-zinc-400 light:text-zinc-600 border-zinc-800 dark:border-zinc-850 light:border-zinc-350 hover:text-zinc-200 light:hover:text-zinc-800'
                     }`}
                   >
                     {sec} ({count})
@@ -213,17 +213,17 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({ headers, dataRows }
                   className={`group relative p-4 rounded-xl border text-left cursor-pointer transition-all ${
                     isChecked
                       ? 'bg-emerald-500/5 border-emerald-500 shadow-md'
-                      : 'bg-zinc-900/30 dark:bg-zinc-900/20 light:bg-zinc-50/50 border-zinc-850 dark:border-zinc-850/60 light:border-zinc-200 hover:bg-zinc-900/60 dark:hover:bg-zinc-900/40 hover:border-zinc-800'
+                      : 'bg-zinc-900/30 dark:bg-zinc-900/20 light:bg-zinc-50/50 border-zinc-850 dark:border-zinc-850/60 light:border-zinc-200 dark:hover:bg-zinc-900/40 light:hover:bg-zinc-100 dark:hover:border-zinc-800 light:hover:border-zinc-300'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 space-y-1.5">
                       {/* Section Badge */}
-                      <span className="inline-block text-[10px] font-bold px-2 py-0.5 bg-zinc-900/80 dark:bg-zinc-950 light:bg-zinc-250 text-zinc-400 light:text-zinc-600 rounded border border-zinc-800 dark:border-zinc-850/60 light:border-zinc-300">
+                      <span className="inline-block text-[10px] font-bold px-2 py-0.5 bg-zinc-900/80 dark:bg-zinc-950 light:bg-zinc-200/60 text-zinc-400 light:text-zinc-700 rounded border border-zinc-800 dark:border-zinc-850/60 light:border-zinc-300">
                         {row.section}
                       </span>
                       {/* Activity Title */}
-                      <h4 className="text-xs sm:text-sm font-bold text-zinc-200 light:text-zinc-850 leading-snug group-hover:text-emerald-400 transition-colors font-sans">
+                      <h4 className="text-xs sm:text-sm font-bold text-zinc-200 light:text-zinc-800 leading-snug dark:group-hover:text-emerald-400 light:group-hover:text-emerald-600 transition-colors font-sans">
                         {row.activity}
                       </h4>
                     </div>
@@ -318,9 +318,9 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({ headers, dataRows }
       </div>
 
       {/* Footer Info */}
-      <div className="px-4 py-2 bg-zinc-900/40 dark:bg-zinc-900/40 light:bg-zinc-100 border-t border-zinc-850 dark:border-zinc-850/60 light:border-zinc-200 text-[10px] text-zinc-500 flex justify-between items-center">
+      <div className="px-4 py-2 bg-zinc-900/40 dark:bg-zinc-900/40 light:bg-zinc-50 border-t border-zinc-850 dark:border-zinc-850/60 light:border-zinc-200 text-[10px] text-zinc-500 light:text-zinc-600 flex justify-between items-center font-mono">
         <span>মোট ফিল্টারকৃত আইটেম: {filteredRows.length}টি</span>
-        <span className="font-mono uppercase tracking-widest text-emerald-500/80">BNBC CODE 2020 COMPLIANT</span>
+        <span className="font-mono uppercase tracking-widest text-emerald-500/80 dark:text-emerald-500/80 light:text-emerald-700 font-bold">BNBC CODE 2020 COMPLIANT</span>
       </div>
     </div>
   );
@@ -351,7 +351,9 @@ export default function Blogs({ onBack, blogPosts = DEFAULT_BLOG_POSTS, initialS
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [copiedBlockKey, setCopiedBlockKey] = useState<string | null>(null);
 
   // Local checklist state to remember checked items interactively
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
@@ -361,6 +363,13 @@ export default function Blogs({ onBack, blogPosts = DEFAULT_BLOG_POSTS, initialS
       ...prev,
       [key]: !prev[key]
     }));
+  };
+
+  const handleCopyBlockText = (text: string, key: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedBlockKey(key);
+      setTimeout(() => setCopiedBlockKey(null), 2000);
+    });
   };
 
   // Helper function to parse fractions in math expressions
@@ -508,6 +517,7 @@ export default function Blogs({ onBack, blogPosts = DEFAULT_BLOG_POSTS, initialS
   const [authorName, setAuthorName] = useState('Sahin Alom');
   const [authorTitle, setAuthorTitle] = useState('Senior Industrial Electrical Maintenance Engineer, Dhaka');
   const [authorImage, setAuthorImage] = useState('https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=800&auto=format&fit=crop');
+  const [whatsappNumber, setWhatsappNumber] = useState('8801760816120');
 
   useEffect(() => {
     // Attempt to load from profile data
@@ -518,6 +528,10 @@ export default function Blogs({ onBack, blogPosts = DEFAULT_BLOG_POSTS, initialS
         if (parsed.name) setAuthorName(parsed.name);
         if (parsed.title) setAuthorTitle(parsed.title);
         if (parsed.imageUrl) setAuthorImage(parsed.imageUrl);
+        if (parsed.whatsapp) {
+          const cleanNum = parsed.whatsapp.replace(/\D/g, '');
+          if (cleanNum) setWhatsappNumber(cleanNum);
+        }
       } catch (e) {}
     }
 
@@ -566,6 +580,138 @@ export default function Blogs({ onBack, blogPosts = DEFAULT_BLOG_POSTS, initialS
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [selectedPost]);
 
+  // Dynamic SEO and AI Crawler Optimization Effect
+  useEffect(() => {
+    // 1. Manage Dynamic Title
+    const originalTitle = document.title;
+    if (selectedPost) {
+      document.title = `${selectedPost.title} | Engr. Sahin Alom Journal`;
+    } else {
+      document.title = `Operations Journal & Technical Logs | Engr. Sahin Alom`;
+    }
+
+    // Helper to safely get or create a meta tag
+    const getOrCreateMeta = (attrName: string, attrVal: string, contentVal: string) => {
+      try {
+        let element = document.querySelector(`meta[${attrName}="${attrVal}"]`);
+        if (!element) {
+          element = document.createElement('meta');
+          element.setAttribute(attrName, attrVal);
+          document.head.appendChild(element);
+        }
+        element.setAttribute('content', contentVal);
+        return element;
+      } catch (e) {
+        console.warn('Could not set meta tag', attrVal, e);
+      }
+    };
+
+    // 2. Manage SEO & Social Media (OG) Meta tags
+    const desc = selectedPost 
+      ? selectedPost.summary 
+      : "Field notes, compliance manuals, and load troubleshooting registers compiled directly from daily factory operations in Dhaka, Bangladesh. Highly specific industrial advice.";
+    
+    const keywords = selectedPost 
+      ? selectedPost.tags.join(', ') + `, ${selectedPost.category}, Sahin Alom, Electrical Engineer, Dhaka`
+      : "Sahin Alom, Electrical Engineering, Bangladesh, Factory Operations, BNBC Compliance, Industrial Lighting, Substation Calibration";
+
+    const imageUrl = selectedPost?.imageUrl || "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=800&auto=format&fit=crop";
+    const pageUrl = window.location.href;
+
+    // Standard SEO tags
+    getOrCreateMeta('name', 'description', desc);
+    getOrCreateMeta('name', 'keywords', keywords);
+    getOrCreateMeta('name', 'author', authorName);
+    
+    // Open Graph (Social & AI Previews)
+    getOrCreateMeta('property', 'og:title', selectedPost ? selectedPost.title : "Operations Journal & Technical Logs");
+    getOrCreateMeta('property', 'og:description', desc);
+    getOrCreateMeta('property', 'og:image', imageUrl);
+    getOrCreateMeta('property', 'og:url', pageUrl);
+    getOrCreateMeta('property', 'og:type', selectedPost ? 'article' : 'website');
+    getOrCreateMeta('property', 'og:site_name', 'Engr. Sahin Alom');
+
+    // Twitter Card
+    getOrCreateMeta('name', 'twitter:card', 'summary_large_image');
+    getOrCreateMeta('name', 'twitter:title', selectedPost ? selectedPost.title : "Operations Journal & Technical Logs");
+    getOrCreateMeta('name', 'twitter:description', desc);
+    getOrCreateMeta('name', 'twitter:image', imageUrl);
+
+    // AI Crawling & Search bots optimization: provide explicit index hints
+    getOrCreateMeta('name', 'robots', 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1');
+    getOrCreateMeta('name', 'googlebot', 'index, follow');
+
+    // 3. Inject Schema.org JSON-LD (Search & AI Agent Structured Data)
+    let jsonLdScript = document.getElementById('seo-json-ld') as HTMLScriptElement | null;
+    if (!jsonLdScript) {
+      jsonLdScript = document.createElement('script');
+      jsonLdScript.id = 'seo-json-ld';
+      jsonLdScript.type = 'application/ld+json';
+      document.head.appendChild(jsonLdScript);
+    }
+
+    const schemaData = selectedPost ? {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": pageUrl
+      },
+      "headline": selectedPost.title,
+      "description": selectedPost.summary,
+      "image": [imageUrl],
+      "datePublished": selectedPost.date,
+      "dateModified": selectedPost.date,
+      "author": {
+        "@type": "Person",
+        "name": authorName,
+        "jobTitle": authorTitle,
+        "image": authorImage
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Engr. Sahin Alom",
+        "logo": {
+          "@type": "ImageObject",
+          "url": authorImage
+        }
+      },
+      "articleSection": selectedPost.category,
+      "keywords": keywords,
+      "articleBody": selectedPost.content
+    } : {
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      "name": "Operations Journal & Technical Logs - Engr. Sahin Alom",
+      "description": "Field notes, compliance manuals, and load troubleshooting registers compiled directly from daily factory operations in Dhaka, Bangladesh.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Engr. Sahin Alom"
+      },
+      "blogPost": posts.map(p => ({
+        "@type": "BlogPosting",
+        "headline": p.title,
+        "description": p.summary,
+        "url": `${window.location.origin}${window.location.pathname}#/blog/${p.slug}`,
+        "datePublished": p.date,
+        "image": p.imageUrl
+      }))
+    };
+
+    jsonLdScript.textContent = JSON.stringify(schemaData);
+
+    return () => {
+      // Revert title on unmount or transition
+      document.title = originalTitle;
+      
+      // Clean up injected script to prevent duplicate tags
+      const scriptToRemove = document.getElementById('seo-json-ld');
+      if (scriptToRemove) {
+        scriptToRemove.remove();
+      }
+    };
+  }, [selectedPost, posts, authorName, authorTitle, authorImage]);
+
   // Reading progress scroll tracker for long-form technical articles
   const [scrollProgress, setScrollProgress] = useState(0);
 
@@ -595,20 +741,30 @@ export default function Blogs({ onBack, blogPosts = DEFAULT_BLOG_POSTS, initialS
     };
   }, [selectedPost]);
 
-  // Extract unique categories
+  // Extract unique categories and tags
   const categories = Array.from(new Set(posts.map(p => p.category)));
+  const allTags = Array.from(new Set(posts.flatMap(p => p.tags || []))).filter(Boolean);
 
-  // Filter posts
+  // Filter posts based on title, summary, content, tags, category, and selected tag
   const filteredPosts = posts.filter(post => {
-    const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          post.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          post.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          post.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
+    const q = searchQuery.trim().toLowerCase();
+    const matchesSearch = !q ||
+                          post.title.toLowerCase().includes(q) ||
+                          post.summary.toLowerCase().includes(q) ||
+                          post.content.toLowerCase().includes(q) ||
+                          (post.tags && post.tags.some(t => t.toLowerCase().includes(q)));
     
     const matchesCategory = selectedCategory ? post.category === selectedCategory : true;
+    const matchesTag = selectedTag ? post.tags && post.tags.includes(selectedTag) : true;
 
-    return matchesSearch && matchesCategory;
+    return matchesSearch && matchesCategory && matchesTag;
   });
+
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setSelectedCategory(null);
+    setSelectedTag(null);
+  };
 
   const handleShare = (post: BlogPost) => {
     const shareUrl = `${window.location.origin}${window.location.pathname}#/blog/${post.slug}`;
@@ -689,23 +845,80 @@ export default function Blogs({ onBack, blogPosts = DEFAULT_BLOG_POSTS, initialS
 
       if (currentBlock.type === 'code') {
         elements.push(
-          <pre key={key} className="p-4 bg-zinc-950 border border-zinc-800 dark:border-zinc-800 light:border-zinc-300 rounded font-mono text-xs text-zinc-300 light:text-zinc-800 overflow-x-auto my-4 leading-relaxed light:bg-zinc-100">
-            {trimmedText}
-          </pre>
+          <div key={key} className="my-6 rounded-xl border border-zinc-800 dark:border-zinc-800 light:border-zinc-250 bg-zinc-950 light:bg-zinc-50 shadow-xl overflow-hidden group">
+            {/* Window Top Bar / Header */}
+            <div className="flex items-center justify-between px-4 py-2.5 bg-zinc-900/80 dark:bg-zinc-900/70 light:bg-zinc-100 border-b border-zinc-850 dark:border-zinc-850/60 light:border-zinc-250">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-rose-500/80 inline-block"></span>
+                <span className="w-2 h-2 rounded-full bg-amber-500/80 inline-block"></span>
+                <span className="w-2 h-2 rounded-full bg-emerald-500/80 inline-block"></span>
+                <span className="ml-2 font-mono text-[9px] uppercase tracking-wider text-zinc-500 light:text-zinc-600 font-bold flex items-center gap-1">
+                  <Copy className="w-3 h-3 text-zinc-550" />
+                  Technical Specification Code
+                </span>
+              </div>
+              <button 
+                onClick={() => handleCopyBlockText(trimmedText, key)}
+                className="text-[10px] font-mono text-zinc-400 hover:text-amber-500 flex items-center gap-1 bg-zinc-950/40 dark:bg-zinc-950/20 light:bg-white border border-zinc-800 light:border-zinc-300 px-2 py-1 rounded transition-colors cursor-pointer"
+              >
+                {copiedBlockKey === key ? (
+                  <>
+                    <Check className="w-3 h-3 text-emerald-500" />
+                    <span className="text-emerald-500 font-bold">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3 h-3" />
+                    <span>Copy</span>
+                  </>
+                )}
+              </button>
+            </div>
+            {/* Code Area */}
+            <div className="relative">
+              <pre className="p-4 font-mono text-[11px] sm:text-xs text-zinc-300 light:text-zinc-800 overflow-x-auto leading-relaxed scrollbar-thin max-h-[450px]">
+                <code>{trimmedText}</code>
+              </pre>
+              <div className="absolute bottom-2 right-4 text-[9px] font-mono text-zinc-600 dark:text-zinc-600 pointer-events-none select-none hidden sm:inline">
+                UTF-8 • UNIX
+              </div>
+            </div>
+            {/* Scroll help indicator for narrow mobile viewports */}
+            <div className="bg-zinc-900/30 dark:bg-zinc-950/40 light:bg-zinc-100/50 px-4 py-1.5 border-t border-zinc-900 dark:border-zinc-850/30 light:border-zinc-200 text-[9px] font-mono text-zinc-500 flex items-center gap-1">
+              <Info className="w-3 h-3 text-zinc-500 shrink-0" />
+              <span>মোবাইল স্ক্রিনে কোড পুরোটা দেখতে বামে-ডানে সুইপ (Swipe) করুন</span>
+            </div>
+          </div>
         );
       } else if (currentBlock.type === 'formula') {
         elements.push(
-          <div key={key} className="my-6 p-5 bg-amber-500/5 border-l-2 border-amber-500 font-mono text-xs sm:text-sm text-amber-500 overflow-x-auto rounded-r-xl shadow-inner flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="flex-1">
-              <span className="block text-[8px] text-zinc-500 uppercase tracking-widest mb-2 font-bold font-mono">
+          <div key={key} className="my-6 p-5 bg-gradient-to-r from-amber-500/5 via-amber-500/[0.02] to-transparent border-l-2 border-amber-500 dark:border-amber-500 light:border-amber-600 rounded-r-xl shadow-md flex flex-col md:flex-row md:items-center md:justify-between gap-4 relative overflow-hidden group">
+            <div className="absolute -top-10 -right-10 w-24 h-24 bg-amber-500/5 rounded-full blur-xl pointer-events-none group-hover:bg-amber-500/10 transition-colors"></div>
+            <div className="flex-1 min-w-0">
+              <span className="inline-flex items-center gap-1.5 text-[9px] text-amber-500 light:text-amber-600 uppercase tracking-widest mb-2.5 font-bold font-mono">
+                <Calculator className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
                 Industrial Calculation Node
               </span>
-              <div className="py-2 text-sm sm:text-base text-zinc-100 light:text-zinc-900 select-all overflow-x-auto leading-relaxed">
+              <div className="py-2.5 text-sm sm:text-base text-zinc-100 light:text-zinc-900 select-all overflow-x-auto leading-relaxed scrollbar-none font-mono">
                 {renderMathSegment(trimmedText)}
               </div>
             </div>
-            <div className="text-[10px] text-zinc-500 font-mono bg-zinc-950/40 p-2 rounded border border-zinc-900 self-start md:self-auto uppercase tracking-wider">
-              Formula Node
+            <div className="flex items-center gap-2 shrink-0 self-start md:self-auto">
+              <div className="text-[10px] text-zinc-450 light:text-zinc-600 font-mono bg-zinc-950/40 dark:bg-zinc-900/30 light:bg-zinc-100 p-2 rounded border border-zinc-850 dark:border-zinc-800/60 light:border-zinc-250 uppercase tracking-wider flex items-center gap-1">
+                <Activity className="w-3.5 h-3.5 text-amber-500" />
+                <span>Formula Node</span>
+              </div>
+              <button
+                onClick={() => handleCopyBlockText(trimmedText, key)}
+                className="p-2 text-zinc-500 hover:text-amber-500 hover:bg-zinc-900/60 light:hover:bg-zinc-200/50 rounded transition-colors border border-transparent hover:border-zinc-800 cursor-pointer"
+                title="Copy math expression"
+              >
+                {copiedBlockKey === key ? (
+                  <Check className="w-4 h-4 text-emerald-500" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )}
+              </button>
             </div>
           </div>
         );
@@ -718,91 +931,196 @@ export default function Blogs({ onBack, blogPosts = DEFAULT_BLOG_POSTS, initialS
         if (contentRows.length > 0) {
           const headers = contentRows[0];
           const dataRows = contentRows.slice(1);
-          elements.push(
-            <InteractiveTable key={key} headers={headers} dataRows={dataRows} />
-          );
+          
+          // Only show complex interactive table for major recommended lux charts, not informational comparison tables
+          const isLuxTable = headers.some(h => {
+            const lower = h.toLowerCase();
+            return (lower.includes('lux') || lower.includes('আলো') || lower.includes('illumination') || lower.includes('তীব্রতা')) && !lower.includes('পার্থক্য');
+          }) && dataRows.length >= 4;
+
+          if (isLuxTable) {
+            elements.push(
+              <div key={key} className="my-8 rounded-xl bg-gradient-to-br from-zinc-950 to-zinc-900 dark:from-zinc-950 dark:to-zinc-900 light:from-zinc-100 light:to-zinc-200/80 border border-zinc-800 dark:border-zinc-800/80 light:border-zinc-300 shadow-2xl light:shadow-md p-0.5 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-3 flex items-center gap-1.5 z-10 select-none pointer-events-none">
+                  <span className="text-[9px] font-mono font-bold text-amber-500/80 dark:text-amber-500/80 light:text-amber-700 uppercase tracking-widest bg-zinc-950/80 dark:bg-zinc-950/80 light:bg-white/90 border border-zinc-850 dark:border-zinc-850 light:border-zinc-300 px-2 py-0.5 rounded-full shadow-sm">
+                    Interactive compliance tool
+                  </span>
+                </div>
+                <InteractiveTable headers={headers} dataRows={dataRows} />
+              </div>
+            );
+          } else {
+            // Render a beautiful, standard data table without interactive filters/cards
+            elements.push(
+              <div key={key} className="my-6 overflow-x-auto rounded-xl border border-zinc-800 dark:border-zinc-850 light:border-zinc-200 bg-zinc-950/20 dark:bg-zinc-950/30 light:bg-white shadow-md">
+                <table className="w-full text-left border-collapse text-xs sm:text-sm">
+                  <thead>
+                    <tr className="bg-zinc-900/50 dark:bg-zinc-900/30 light:bg-zinc-50 border-b border-zinc-850 dark:border-zinc-800/80 light:border-zinc-200">
+                      {headers.map((h, hIdx) => (
+                        <th key={hIdx} className="px-4 py-3 font-semibold text-zinc-200 dark:text-zinc-200 light:text-zinc-800 font-display">
+                          {renderInlineMathAndFormatting(h)}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-850 dark:divide-zinc-900/20 light:divide-zinc-200">
+                    {dataRows.map((row, rIdx) => (
+                      <tr 
+                        key={rIdx} 
+                        className="hover:bg-zinc-900/10 dark:hover:bg-zinc-900/5 light:hover:bg-zinc-100 transition-colors"
+                      >
+                        {row.map((cell, cIdx) => (
+                          <td key={cIdx} className="px-4 py-2.5 text-zinc-350 dark:text-zinc-400 light:text-zinc-700 leading-relaxed">
+                            {renderInlineMathAndFormatting(cell)}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
+          }
         }
       } else if (currentBlock.type === 'list') {
         const items = currentBlock.lines.map(li => li.trim().replace(/^[-*]\s+/, '').trim());
-        elements.push(
-          <div key={key} className="my-6 p-4 bg-zinc-900/10 dark:bg-zinc-900/15 light:bg-zinc-100/60 rounded-xl border border-zinc-900 dark:border-zinc-850 light:border-zinc-200/85 shadow-sm">
-            <div className="flex items-center justify-between mb-3 pb-2 border-b border-zinc-900/50 dark:border-zinc-850/40 light:border-zinc-200">
-              <span className="font-mono text-[9px] uppercase tracking-wider text-amber-500 light:text-amber-600 font-bold flex items-center gap-1.5">
-                <CheckSquare className="w-3.5 h-3.5 text-amber-500" />
-                Operations Checklist / Guidelines
-              </span>
-              <span className="font-mono text-[9px] text-zinc-500 uppercase tracking-widest">
-                Interactive Check
-              </span>
-            </div>
-            <ul className="space-y-2.5 pl-1">
-              {items.map((item, i) => {
-                const itemKey = `${selectedPost?.slug}-${key}-${i}`;
-                const isChecked = !!checkedItems[itemKey];
+        
+        // Check if list contains any checkbox syntax
+        const hasCheckboxes = items.some(item => item.startsWith('[ ]') || item.startsWith('[x]'));
 
-                let isExplicitChecklist = false;
-                let isExplicitChecked = false;
-                let cleanItem = item;
+        if (hasCheckboxes) {
+          // Real-time progress calculations for interactive list blocks!
+          const totalItems = items.length;
+          const checkedCount = items.filter((item, i) => {
+            const itemKey = `${selectedPost?.slug}-${key}-${i}`;
+            
+            let isExplicitChecklist = false;
+            let isExplicitChecked = false;
+            if (item.startsWith('[ ]')) {
+              isExplicitChecklist = true;
+            } else if (item.startsWith('[x]')) {
+              isExplicitChecklist = true;
+              isExplicitChecked = true;
+            }
+            
+            const isChecked = !!checkedItems[itemKey];
+            return checkedItems[itemKey] !== undefined ? isChecked : (isExplicitChecklist ? isExplicitChecked : false);
+          }).length;
+          
+          const completionPercent = totalItems > 0 ? Math.round((checkedCount / totalItems) * 100) : 0;
 
-                if (item.startsWith('[ ]')) {
-                  isExplicitChecklist = true;
-                  cleanItem = item.substring(3).trim();
-                } else if (item.startsWith('[x]')) {
-                  isExplicitChecklist = true;
-                  isExplicitChecked = true;
-                  cleanItem = item.substring(3).trim();
-                }
+          elements.push(
+            <div key={key} className="my-6 p-4 sm:p-5 bg-gradient-to-b from-zinc-900/20 to-zinc-900/5 dark:from-zinc-900/15 dark:to-zinc-950/10 light:from-zinc-100/80 light:to-zinc-50/50 rounded-xl border border-zinc-900 dark:border-zinc-850 light:border-zinc-250 shadow-md">
+              {/* List Header with compliance progress status */}
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-4 pb-3 border-b border-zinc-900/50 dark:border-zinc-850/40 light:border-zinc-200">
+                <span className="font-mono text-[9px] uppercase tracking-wider text-amber-500 light:text-amber-600 font-bold flex items-center gap-1.5">
+                  <CheckSquare className="w-3.5 h-3.5 text-amber-500" />
+                  Operations Checklist & Standard Guidelines
+                </span>
+                
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-[9px] text-zinc-500 uppercase tracking-widest">
+                    Interactive Check
+                  </span>
+                  {completionPercent > 0 && (
+                    <span className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 font-mono font-bold text-[9px] rounded-full animate-pulse">
+                      {completionPercent}% Completed
+                    </span>
+                  )}
+                </div>
+              </div>
 
-                const activeChecked = checkedItems[itemKey] !== undefined ? isChecked : (isExplicitChecklist ? isExplicitChecked : false);
+              {/* Interactive Visual Progress bar */}
+              {totalItems > 1 && (
+                <div className="w-full h-1 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-200 rounded-full mb-4 overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-amber-500 to-emerald-500 transition-all duration-500 ease-out"
+                    style={{ width: `${completionPercent}%` }}
+                  ></div>
+                </div>
+              )}
 
-                let prefix = '';
-                let restText = cleanItem;
+              {/* Items Render list */}
+              <ul className="space-y-2 pl-0.5">
+                {items.map((item, i) => {
+                  const itemKey = `${selectedPost?.slug}-${key}-${i}`;
+                  const isChecked = !!checkedItems[itemKey];
 
-                const boldMatch = cleanItem.match(/^(\*\*([^*]+)\*\*|([^:]+)):(.*)$/);
-                if (boldMatch) {
-                  prefix = boldMatch[2] || boldMatch[3];
-                  restText = boldMatch[4].trim();
-                }
+                  let isExplicitChecklist = false;
+                  let isExplicitChecked = false;
+                  let cleanItem = item;
 
-                return (
-                  <li 
-                    key={i} 
-                    onClick={() => toggleCheck(itemKey)}
-                    className={`group flex items-start gap-3 cursor-pointer select-none text-xs sm:text-sm leading-relaxed p-2 rounded-lg transition-all ${
-                      activeChecked 
-                        ? 'text-zinc-500 line-through decoration-zinc-700/50 bg-zinc-900/10 dark:bg-zinc-950/20 light:bg-zinc-200/30' 
-                        : 'text-zinc-300 light:text-zinc-700 hover:bg-zinc-900/30 dark:hover:bg-zinc-900/10 light:hover:bg-zinc-200/50'
-                    }`}
-                  >
-                    <button 
-                      className={`mt-0.5 flex-shrink-0 transition-colors focus:outline-none ${
-                        activeChecked ? 'text-amber-500' : 'text-zinc-600 group-hover:text-amber-500/80'
+                  if (item.startsWith('[ ]')) {
+                    isExplicitChecklist = true;
+                    cleanItem = item.substring(3).trim();
+                  } else if (item.startsWith('[x]')) {
+                    isExplicitChecklist = true;
+                    isExplicitChecked = true;
+                    cleanItem = item.substring(3).trim();
+                  }
+
+                  const activeChecked = checkedItems[itemKey] !== undefined ? isChecked : (isExplicitChecklist ? isExplicitChecked : false);
+
+                  let prefix = '';
+                  let restText = cleanItem;
+
+                  const boldMatch = cleanItem.match(/^(\*\*([^*]+)\*\*|([^:]+)):(.*)$/);
+                  if (boldMatch) {
+                    prefix = boldMatch[2] || boldMatch[3];
+                    restText = boldMatch[4].trim();
+                  }
+
+                  return (
+                    <li 
+                      key={i} 
+                      onClick={() => toggleCheck(itemKey)}
+                      className={`group flex items-start gap-3 cursor-pointer select-none text-xs sm:text-sm leading-relaxed p-2.5 rounded-lg transition-all border border-transparent ${
+                        activeChecked 
+                          ? 'text-zinc-500 line-through decoration-zinc-700/50 bg-zinc-900/10 dark:bg-zinc-950/20 light:bg-zinc-200/30 border-zinc-900/20' 
+                          : 'text-zinc-300 light:text-zinc-700 hover:bg-zinc-900/30 dark:hover:bg-zinc-900/10 light:hover:bg-zinc-200/50 hover:border-zinc-850/50'
                       }`}
                     >
-                      {activeChecked ? (
-                        <CheckSquare className="w-4 h-4" />
-                      ) : (
-                        <Square className="w-4 h-4" />
-                      )}
-                    </button>
-                    <div className="flex-1">
-                      {prefix && (
-                        <strong className={`font-bold transition-colors block sm:inline mr-1 ${
-                          activeChecked ? 'text-zinc-600' : 'text-zinc-100 light:text-zinc-900 font-display'
-                        }`}>
-                          {prefix}:
-                        </strong>
-                      )}
-                      <span>
-                        {renderInlineMathAndFormatting(restText)}
-                      </span>
-                    </div>
-                  </li>
-                );
-              })}
+                      <button 
+                        className={`mt-0.5 flex-shrink-0 transition-colors focus:outline-none ${
+                          activeChecked ? 'text-emerald-500' : 'text-zinc-600 group-hover:text-amber-500'
+                        }`}
+                      >
+                        {activeChecked ? (
+                          <CheckSquare className="w-4 h-4 text-emerald-500" />
+                        ) : (
+                          <Square className="w-4 h-4" />
+                        )}
+                      </button>
+                      <div className="flex-1">
+                        {prefix && (
+                          <strong className={`font-bold transition-colors block sm:inline mr-1 ${
+                            activeChecked ? 'text-zinc-600' : 'text-zinc-100 light:text-zinc-900 font-display'
+                          }`}>
+                            {prefix}:
+                          </strong>
+                        )}
+                        <span>
+                          {renderInlineMathAndFormatting(restText)}
+                        </span>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          );
+        } else {
+          // Render a simple bullet point list with clean formatting and no interactivity
+          elements.push(
+            <ul key={key} className="my-5 pl-5 sm:pl-6 space-y-2 list-disc text-zinc-350 dark:text-zinc-400 light:text-zinc-700 text-xs sm:text-sm">
+              {items.map((item, i) => (
+                <li key={i} className="leading-relaxed marker:text-amber-500 light:marker:text-amber-600">
+                  {renderInlineMathAndFormatting(item)}
+                </li>
+              ))}
             </ul>
-          </div>
-        );
+          );
+        }
       } else {
         // Normal paragraph - split by lines or process paragraphs
         const paragraphs = trimmedText.split('\n').filter(p => p.trim());
@@ -811,13 +1129,13 @@ export default function Blogs({ onBack, blogPosts = DEFAULT_BLOG_POSTS, initialS
           if (pTrimmed.startsWith('###')) {
             elements.push(
               <h3 key={`${key}-${pIdx}`} className="text-sm sm:text-base font-bold font-display text-zinc-100 light:text-zinc-900 mt-6 mb-3 tracking-tight flex items-center gap-2">
-                <span className="w-1.5 h-3 bg-amber-500 rounded-sm"></span>
+                <span className="w-1.5 h-3.5 bg-amber-500 rounded-sm"></span>
                 {pTrimmed.replace('###', '').trim()}
               </h3>
             );
           } else if (pTrimmed.startsWith('##')) {
             elements.push(
-              <h2 key={`${key}-${pIdx}`} className="text-base sm:text-lg font-bold font-display text-zinc-100 light:text-zinc-900 mt-8 mb-4 border-b border-zinc-800 dark:border-zinc-800/60 light:border-zinc-250 pb-1.5 tracking-tight">
+              <h2 key={`${key}-${pIdx}`} className="text-base sm:text-lg font-bold font-display text-zinc-100 light:text-zinc-900 mt-8 mb-4 border-l-4 border-amber-500 pl-3 py-1 bg-zinc-900/20 light:bg-zinc-100/50 pr-4 rounded-r tracking-tight">
                 {pTrimmed.replace('##', '').trim()}
               </h2>
             );
@@ -1041,7 +1359,7 @@ export default function Blogs({ onBack, blogPosts = DEFAULT_BLOG_POSTS, initialS
                 </button>
 
                 <a
-                  href={`https://wa.me/8801712345678?text=Hello%20Sahin,%20I%20just%20read%20your%20article%20%22${encodeURIComponent(selectedPost.title)}%22%20and%20wanted%20to%20discuss%20it.`}
+                  href={`https://wa.me/${whatsappNumber}?text=Hello%20Sahin,%20I%20just%20read%20your%20article%20%22${encodeURIComponent(selectedPost.title)}%22%20and%20wanted%20to%20discuss%20it.`}
                   target="_blank"
                   rel="noreferrer"
                   className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-zinc-950 text-xs font-mono font-bold rounded flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
@@ -1089,50 +1407,111 @@ export default function Blogs({ onBack, blogPosts = DEFAULT_BLOG_POSTS, initialS
             </div>
 
             {/* Search and Filters Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-              
-              {/* Search input */}
-              <div className="relative md:col-span-6">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search technical notes, codes, formulas..."
-                  className="w-full pl-9 pr-4 py-2.5 bg-zinc-900 light:bg-zinc-100 border border-zinc-800 light:border-zinc-200 text-xs rounded-lg text-zinc-100 light:text-zinc-900 focus:border-amber-500/50 outline-none transition-colors font-mono"
-                />
-              </div>
-
-              {/* Categories horizontally */}
-              <div className="md:col-span-6 flex overflow-x-auto md:flex-wrap gap-2 justify-start md:justify-end pb-3 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                <button
-                  onClick={() => setSelectedCategory(null)}
-                  className={`px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider rounded-lg border cursor-pointer transition-all shrink-0 ${
-                    selectedCategory === null
-                      ? 'bg-amber-500/10 border-amber-500/30 text-amber-500'
-                      : 'bg-zinc-900 light:bg-zinc-100 border-zinc-800 light:border-zinc-200 text-zinc-400 hover:text-zinc-200'
-                  }`}
-                >
-                  All Categories ({posts.length})
-                </button>
-                {categories.map((cat, i) => {
-                  const count = posts.filter(p => p.category === cat).length;
-                  return (
+            <div className="bg-zinc-900/40 dark:bg-zinc-900/40 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 p-4 sm:p-5 rounded-xl space-y-4 shadow-sm">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                
+                {/* Search input with clear button */}
+                <div className="relative md:col-span-6">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by title, keywords, or tags (e.g. Substation, Transformer)..."
+                    className="w-full pl-9 pr-9 py-2.5 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-50 border border-zinc-800 dark:border-zinc-800 light:border-zinc-250 text-xs rounded-lg text-zinc-100 light:text-zinc-900 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/20 outline-none transition-all font-mono"
+                    id="blog-search-input"
+                  />
+                  {searchQuery && (
                     <button
-                      key={i}
-                      onClick={() => setSelectedCategory(cat)}
-                      className={`px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider rounded-lg border cursor-pointer transition-all shrink-0 ${
-                        selectedCategory === cat
-                          ? 'bg-amber-500/10 border-amber-500/30 text-amber-500'
-                          : 'bg-zinc-900 light:bg-zinc-100 border-zinc-800 light:border-zinc-200 text-zinc-400 hover:text-zinc-200'
-                      }`}
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-zinc-500 hover:text-zinc-300 rounded cursor-pointer"
+                      title="Clear search"
                     >
-                      {cat} ({count})
+                      <X className="w-3.5 h-3.5" />
                     </button>
-                  );
-                })}
+                  )}
+                </div>
+
+                {/* Categories horizontally */}
+                <div className="md:col-span-6 flex overflow-x-auto md:flex-wrap gap-1.5 justify-start md:justify-end pb-2 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                  <button
+                    onClick={() => setSelectedCategory(null)}
+                    className={`px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider rounded-lg border cursor-pointer transition-all shrink-0 ${
+                      selectedCategory === null
+                        ? 'bg-amber-500 border-amber-500 text-zinc-950 font-bold'
+                        : 'bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border-zinc-850 dark:border-zinc-800 light:border-zinc-200 text-zinc-400 hover:text-zinc-200'
+                    }`}
+                  >
+                    All Categories ({posts.length})
+                  </button>
+                  {categories.map((cat, i) => {
+                    const count = posts.filter(p => p.category === cat).length;
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
+                        className={`px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider rounded-lg border cursor-pointer transition-all shrink-0 ${
+                          selectedCategory === cat
+                            ? 'bg-amber-500 border-amber-500 text-zinc-950 font-bold'
+                            : 'bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border-zinc-850 dark:border-zinc-800 light:border-zinc-200 text-zinc-400 hover:text-zinc-200'
+                        }`}
+                      >
+                        {cat} ({count})
+                      </button>
+                    );
+                  })}
+                </div>
+
               </div>
 
+              {/* Tag Filters Row */}
+              {allTags.length > 0 && (
+                <div className="pt-3 border-t border-zinc-850/60 dark:border-zinc-850/60 light:border-zinc-150 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[10px] text-zinc-500 uppercase tracking-wider flex items-center gap-1">
+                      <Tag className="w-3 h-3 text-amber-500" />
+                      Filter by Tag:
+                    </span>
+                    {selectedTag && (
+                      <span className="text-[10px] font-mono text-amber-400">
+                        Active tag: <strong>#{selectedTag}</strong>
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {allTags.map((tag) => (
+                      <button
+                        key={tag}
+                        onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+                        className={`px-2.5 py-1 text-[10px] font-mono rounded-md border transition-all cursor-pointer ${
+                          selectedTag === tag
+                            ? 'bg-amber-500/20 text-amber-400 border-amber-500/40 font-bold'
+                            : 'bg-zinc-950/60 dark:bg-zinc-950/60 light:bg-zinc-100 border-zinc-850 dark:border-zinc-800 light:border-zinc-200 text-zinc-400 hover:text-amber-400 hover:border-amber-500/30'
+                        }`}
+                      >
+                        #{tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Active Filters Summary & Reset */}
+              {(searchQuery || selectedCategory || selectedTag) && (
+                <div className="pt-2 flex items-center justify-between text-xs font-mono border-t border-zinc-850/40">
+                  <span className="text-zinc-400">
+                    Showing <span className="text-amber-400 font-bold">{filteredPosts.length}</span> of <span className="text-zinc-200 font-bold">{posts.length}</span> articles
+                  </span>
+                  <button
+                    onClick={handleResetFilters}
+                    className="inline-flex items-center space-x-1 text-amber-500 hover:text-amber-400 transition-colors font-bold cursor-pointer"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Clear All Filters</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* List Grid */}
@@ -1174,6 +1553,29 @@ export default function Blogs({ onBack, blogPosts = DEFAULT_BLOG_POSTS, initialS
                       <p className="text-zinc-400 light:text-zinc-600 text-xs sm:text-sm mt-2 leading-relaxed line-clamp-3">
                         {post.summary}
                       </p>
+
+                      {/* Tag Badges on Card */}
+                      {post.tags && post.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-3.5 pt-2 border-t border-zinc-850/40">
+                          {post.tags.map((tag, i) => (
+                            <button
+                              key={i}
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedTag(selectedTag === tag ? null : tag);
+                              }}
+                              className={`text-[10px] font-mono px-1.5 py-0.5 rounded transition-all cursor-pointer ${
+                                selectedTag === tag
+                                  ? 'bg-amber-500 text-zinc-950 font-bold'
+                                  : 'text-zinc-400 hover:text-amber-400 bg-zinc-950/40 hover:bg-zinc-900 border border-zinc-850'
+                              }`}
+                            >
+                              #{tag}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     <div className="border-t border-zinc-800/60 dark:border-zinc-800/40 light:border-zinc-100 mt-4 pt-3 flex items-center justify-between">
@@ -1210,7 +1612,7 @@ export default function Blogs({ onBack, blogPosts = DEFAULT_BLOG_POSTS, initialS
                 </p>
               </div>
               <a
-                href="https://wa.me/8801712345678"
+                href={`https://wa.me/${whatsappNumber}`}
                 target="_blank"
                 rel="noreferrer"
                 className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-zinc-950 text-xs font-mono font-bold rounded flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-sm shrink-0"

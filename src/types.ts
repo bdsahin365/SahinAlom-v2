@@ -1,3 +1,14 @@
+export const ELECTRICAL_CATEGORIES = [
+  'Substation & Power Distribution',
+  'BNBC Code & Electrical Safety',
+  'Cable Sizing & Load Calculations',
+  'Transformers & Protection Relays',
+  'Lighting Design & Emergency Power',
+  'Industrial Troubleshooting & PFI'
+] as const;
+
+export type ElectricalCategory = typeof ELECTRICAL_CATEGORIES[number];
+
 export interface CaseStudy {
   slug: string;
   title: string;
@@ -140,6 +151,104 @@ export interface BlogPost {
   imageUrl?: string;
   published: boolean;
 }
+
+export interface Customer {
+  id: string;
+  name: string;
+  contactPerson?: string;
+  phone: string;
+  whatsapp: string;
+  email?: string;
+  address: string;
+  industrySector?: string; // 'Textile & RMG' | 'Pharmaceuticals' | 'Steel & Heavy Metal' | 'Power & Energy' | 'Commercial Complex' | 'Food & Beverage'
+  substationCapacity?: string; // e.g. '11kV / 630 kVA Substation'
+  status?: 'Active Client' | 'On-Going Contract' | 'Lead / Inquiry' | 'Completed Site';
+  notes?: string;
+  totalOrders: number;
+  totalSpent?: number;
+  lastServiceDate?: string;
+}
+
+export interface ProductItem {
+  id: string;
+  name: string;
+  category: string;
+  imageUrl?: string;
+  topPrice?: number;
+  middlePricePerFt?: number;
+  bottomPrice?: number;
+  unitPrice?: number;
+  unit: string; // "পিস", "রানিং ফুট", "টন", "স্কয়ার ফুট", "বস্তা"
+  stockStatus: 'ইন স্টক' | 'স্টক কম' | 'স্টক আউট';
+}
+
+export interface OrderItem {
+  productId: string;
+  productName: string;
+  variant?: 'Top' | 'Middle' | 'Bottom' | 'General';
+  quantity: number;
+  unit: string;
+  pricePerUnit: number;
+  totalPrice: number;
+}
+
+export interface OrderInvoice {
+  id: string;
+  invoiceNo: string;
+  customerName: string;
+  customerPhone: string;
+  customerAddress: string;
+  date: string;
+  items: OrderItem[];
+  subtotal: number;
+  discount: number;
+  grandTotal: number;
+  paidAmount: number;
+  dueAmount: number;
+  status: 'সম্পন্ন' | 'বকেয়া' | 'প্রসেসিং' | 'বাতিল';
+  createdRole: 'Admin' | 'Staff';
+  notes?: string;
+}
+
+export interface OfficeNote {
+  id: string;
+  title: string;
+  content: string;
+  date: string;
+  priority: 'সাধারণ' | 'জরুরি' | 'উচ্চ অগ্রাধিকার';
+  isCompleted: boolean;
+  author: string;
+}
+
+export interface MaintenanceLog {
+  id: string;
+  equipmentName: string;
+  equipmentIdTag: string;
+  location: string;
+  category: string;
+  status: 'Optimal' | 'Requires Attention' | 'Critical / Overdue' | 'In Maintenance';
+  lastServiceDate: string;
+  nextInspectionDueDate: string;
+  technicianInCharge: string;
+  priority: 'Routine' | 'High' | 'Emergency';
+  notes?: string;
+}
+
+export interface QuickFieldNote {
+  id: string;
+  title: string;
+  content: string;
+  transcriptRaw?: string;
+  category: string;
+  equipmentTag?: string;
+  author: string;
+  createdAt: string;
+  status: 'Draft' | 'Saved' | 'ConvertedToBlog' | 'ConvertedToCaseStudy';
+  isAiEnhanced?: boolean;
+  aiEnhancedContent?: string;
+  language?: 'bn-BD' | 'en-US';
+}
+
 
 
 
