@@ -1288,197 +1288,99 @@ export default function IlluminationPlannerTool({ onBack }: IlluminationPlannerT
 
           </div>
 
-          {/* RIGHT COLUMN: SWITCHES BETWEEN ALL-IN-ONE (5 COLS) AND WIZARD PREVIEW (4 COLS) */}
-          {viewMode === 'all' ? (
-              <div className="lg:col-span-5 space-y-6">
-                
-                {/* PRIMARY CALCULATION HERO CARD */}
-                <div className="bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-950 light:from-white light:via-amber-500/5 light:to-amber-500/10 border-2 border-amber-500/40 light:border-amber-500/50 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-36 h-36 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-
-                  <div className="flex items-center justify-between border-b border-zinc-800 light:border-amber-500/20 pb-3 mb-4">
-                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-amber-400 light:text-amber-600 flex items-center gap-1.5">
-                      <Sparkles className="w-4 h-4" /> Lumen Method Output
-                    </span>
-                    <span className="px-2.5 py-0.5 text-[9px] font-mono font-bold bg-amber-500/20 light:bg-amber-500/15 text-amber-300 light:text-amber-700 rounded-full border border-amber-500/30">
-                      BNBC 2020 Compliant
-                    </span>
-                  </div>
-
-                  {/* NUMBER OF FIXTURES (BIG STAT) */}
-                  <div className="text-center py-4 bg-zinc-950/80 light:bg-white/80 rounded-2xl border border-zinc-800 light:border-amber-500/30 shadow-inner mb-5">
-                    <span className="text-[10px] font-mono uppercase text-zinc-400 light:text-zinc-600 tracking-wider">Required Light Fixtures</span>
-                    <div className="text-4xl sm:text-5xl font-black font-mono text-amber-400 light:text-amber-600 mt-1">
-                      {results.roundedFixtureCount} <span className="text-sm font-normal text-zinc-400 light:text-zinc-600">Fixtures</span>
-                    </div>
-                    <p className="text-[11px] font-mono text-zinc-400 light:text-zinc-500 mt-1">
-                      Raw Formula: {results.rawFixtureCount.toFixed(2)} → Round-Up ({results.gridRows} Rows × {results.gridCols} Cols)
-                    </p>
-                  </div>
-
-                  {/* SUMMARY STATS GRID */}
-                  <div className="grid grid-cols-2 gap-3 text-xs">
-                    <div className="p-3 bg-zinc-950/50 light:bg-white rounded-xl border border-zinc-800 light:border-zinc-200 shadow-sm">
-                      <span className="text-[10px] font-mono text-zinc-400 light:text-zinc-500 block">Achieved Lux:</span>
-                      <strong className={`text-base font-mono font-bold ${results.isLuxSufficient ? 'text-emerald-400 light:text-emerald-600' : 'text-amber-400 light:text-amber-600'}`}>
-                        {results.achievedLux} Lux
-                      </strong>
-                      <span className="text-[9px] text-zinc-500 light:text-zinc-500 block">Target: {results.targetLux} Lux</span>
-                    </div>
-
-                    <div className="p-3 bg-zinc-950/50 light:bg-white rounded-xl border border-zinc-800 light:border-zinc-200 shadow-sm">
-                      <span className="text-[10px] font-mono text-zinc-400 light:text-zinc-500 block">Total Power Load:</span>
-                      <strong className="text-base font-mono font-bold text-zinc-100 light:text-zinc-900">
-                        {results.totalPowerWatts} W <span className="text-xs font-normal text-zinc-400 light:text-zinc-600">({results.totalPowerKW.toFixed(2)} kW)</span>
-                      </strong>
-                      <span className="text-[9px] text-zinc-500 light:text-zinc-500 block">Energy Load</span>
-                    </div>
-
-                    <div className="p-3 bg-zinc-950/50 light:bg-white rounded-xl border border-zinc-800 light:border-zinc-200 shadow-sm">
-                      <span className="text-[10px] font-mono text-zinc-400 light:text-zinc-500 block">Lighting Power Density (LPD):</span>
-                      <strong className={`text-sm font-mono font-bold ${results.isLpdCompliant ? 'text-emerald-400 light:text-emerald-600' : 'text-rose-400 light:text-rose-600'}`}>
-                        {results.actualLPD.toFixed(2)} W/m²
-                      </strong>
-                      <span className="text-[9px] text-zinc-500 light:text-zinc-500 block">Limit: {selectedRoomPreset.maxAllowableLPD} W/m²</span>
-                    </div>
-
-                    <div className="p-3 bg-zinc-950/50 light:bg-white rounded-xl border border-zinc-800 light:border-zinc-200 shadow-sm">
-                      <span className="text-[10px] font-mono text-zinc-400 light:text-zinc-500 block">Est. Monthly Bill:</span>
-                      <strong className="text-sm font-mono font-bold text-amber-400 light:text-amber-600">
-                        ৳ {Math.round(results.monthlyCostBDT).toLocaleString('bn-BD')} BDT
-                      </strong>
-                      <span className="text-[9px] text-zinc-500 light:text-zinc-500 block">{advancedParams.dailyOperatingHours} hrs/day @ ৳{advancedParams.electricityTariffBDT}/kWh</span>
-                    </div>
-                  </div>
-
-                  {/* COMPLIANCE CHECK BADGES */}
-                  <div className="mt-4 pt-3 border-t border-zinc-800 light:border-zinc-200 space-y-1.5 text-[11px] font-mono">
-                    <div className="flex items-center justify-between text-emerald-400 light:text-emerald-600">
-                      <span className="flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Illuminance Level ({results.achievedLux} Lux)
-                      </span>
-                      <strong>{results.isLuxSufficient ? 'PASS' : 'MARGINAL'}</strong>
-                    </div>
-
-                    <div className={`flex items-center justify-between ${results.isShrCompliant ? 'text-emerald-400 light:text-emerald-600' : 'text-amber-400 light:text-amber-600'}`}>
-                      <span className="flex items-center gap-1">
-                        <ShieldCheck className="w-3.5 h-3.5" /> Spacing-to-Height Ratio (SHR={results.spacingToHeightRatio.toFixed(2)})
-                      </span>
-                      <strong>{results.isShrCompliant ? 'UNIFORM' : 'HIGH SHR'}</strong>
-                    </div>
-
-                    <div className={`flex items-center justify-between ${results.isLpdCompliant ? 'text-emerald-400 light:text-emerald-600' : 'text-rose-400 light:text-rose-600'}`}>
-                      <span className="flex items-center gap-1">
-                        <Zap className="w-3.5 h-3.5" /> BNBC Energy Conservation Code
-                      </span>
-                      <strong>{results.isLpdCompliant ? 'COMPLIANT' : 'EXCEEDED'}</strong>
-                    </div>
-                  </div>
-
+          {/* RIGHT COLUMN: DESKTOP LIVE PREVIEW SIDEBAR (STEPS 1-4) */}
+          {currentStep < 5 && (
+            <div className="hidden lg:block lg:col-span-4 sticky top-6 space-y-4">
+              <div className="bg-zinc-900/80 light:bg-white border border-zinc-800 light:border-zinc-200 rounded-2xl p-4 shadow-2xl space-y-4">
+                <div className="flex items-center justify-between border-b border-zinc-800 light:border-zinc-200 pb-2.5">
+                  <span className="text-xs font-mono font-bold text-amber-400 light:text-amber-600 flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-amber-500" /> লাইভ সামারি (Live Preview)
+                  </span>
+                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 font-bold">
+                    লাইভ
+                  </span>
                 </div>
 
-                {/* INTERACTIVE 2D/3D ROOM VISUALIZER */}
-                <RoomGridVisualizer
-                  dimensions={dimensions}
-                  fixture={selectedFixture}
-                  result={results}
-                  roomName={selectedRoomPreset.roomName}
-                />
-
-              </div>
-            ) : (
-              /* WIZARD MODE: 4 COLS DESKTOP LIVE PREVIEW SIDEBAR */
-              <div className="hidden lg:block lg:col-span-4 sticky top-6 space-y-4">
-                <div className="bg-zinc-900/80 light:bg-white border border-zinc-800 light:border-zinc-200 rounded-2xl p-4 shadow-2xl space-y-4">
-                  <div className="flex items-center justify-between border-b border-zinc-800 light:border-zinc-200 pb-2.5">
-                    <span className="text-xs font-mono font-bold text-amber-400 light:text-amber-600 flex items-center gap-1.5">
-                      <Sparkles className="w-4 h-4 text-amber-500" /> লাইভ সামারি (Live Preview)
-                    </span>
-                    <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 font-bold">
-                      লাইভ
-                    </span>
+                {/* QUICK FIXTURE COUNT */}
+                <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-center">
+                  <span className="text-[10px] font-mono uppercase text-amber-400 font-bold block">মোট লাইট লাগবে:</span>
+                  <div className="text-3xl font-mono font-black text-amber-400 mt-0.5">
+                    {results.roundedFixtureCount} <span className="text-sm font-bold text-zinc-300">টি</span>
                   </div>
-
-                  {/* QUICK FIXTURE COUNT */}
-                  <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-center">
-                    <span className="text-[10px] font-mono uppercase text-amber-400 font-bold block">মোট লাইট লাগবে:</span>
-                    <div className="text-3xl font-mono font-black text-amber-400 mt-0.5">
-                      {results.roundedFixtureCount} <span className="text-sm font-bold text-zinc-300">টি</span>
-                    </div>
-                    <span className="text-[11px] font-mono text-zinc-300 block mt-1">
-                      লেআউট: <strong>{results.gridCols}টি</strong> কলাম × <strong>{results.gridRows}টি</strong> সারি
-                    </span>
-                  </div>
-
-                  {/* LUX STATUS */}
-                  <div className="space-y-2 text-xs font-mono">
-                    <div className="flex items-center justify-between">
-                      <span className="text-zinc-400">টার্গেট লাক্স:</span>
-                      <strong className="text-amber-400">{results.targetLux} Lux</strong>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-zinc-400">প্রাপ্ত লাক্স:</span>
-                      <strong className={results.isLuxSufficient ? 'text-emerald-400' : 'text-rose-400'}>
-                        {results.achievedLux} Lux {results.isLuxSufficient ? '✓' : '⚠️'}
-                      </strong>
-                    </div>
-                    <div className="w-full bg-zinc-950 rounded-full h-2 overflow-hidden border border-zinc-800">
-                      <div
-                        className={`h-full transition-all ${results.isLuxSufficient ? 'bg-emerald-500' : 'bg-rose-500'}`}
-                        style={{ width: `${Math.min(100, (results.achievedLux / results.targetLux) * 100)}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* POWER & COST */}
-                  <div className="pt-2 border-t border-zinc-800 light:border-zinc-200 grid grid-cols-2 gap-2 text-[11px] font-mono">
-                    <div className="bg-zinc-950 light:bg-zinc-50 p-2 rounded-lg border border-zinc-800">
-                      <span className="text-[10px] text-zinc-400 block">মোট ওয়াট:</span>
-                      <strong className="text-zinc-200">{results.totalPowerWatts} W</strong>
-                    </div>
-                    <div className="bg-zinc-950 light:bg-zinc-50 p-2 rounded-lg border border-zinc-800">
-                      <span className="text-[10px] text-zinc-400 block">মাসিক বিল:</span>
-                      <strong className="text-amber-400">৳{Math.round(results.monthlyCostBDT)}</strong>
-                    </div>
-                  </div>
-
-                  {/* MINI 2D GRID PREVIEW */}
-                  <div className="pt-2 border-t border-zinc-800 light:border-zinc-200">
-                    <span className="text-[10px] font-mono text-zinc-400 block mb-1.5 font-bold">
-                      লাইটিং গ্রিড মিনি রিভিউ ({results.gridCols} × {results.gridRows}):
-                    </span>
-                    <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800 aspect-video flex items-center justify-center relative overflow-hidden">
-                      <div
-                        className="grid gap-2 w-full h-full p-2 border border-amber-500/30 rounded bg-zinc-900/50"
-                        style={{
-                          gridTemplateColumns: `repeat(${results.gridCols}, minmax(0, 1fr))`,
-                          gridTemplateRows: `repeat(${results.gridRows}, minmax(0, 1fr))`
-                        }}
-                      >
-                        {Array.from({ length: results.roundedFixtureCount }).map((_, idx) => (
-                          <div
-                            key={idx}
-                            className="bg-amber-400 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.8)] border border-amber-200 flex items-center justify-center text-[8px] font-bold text-zinc-950"
-                          >
-                            💡
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* JUMP TO STEP 5 BUTTON */}
-                  <button
-                    onClick={() => setCurrentStep(5)}
-                    className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-xs rounded-xl shadow-lg flex items-center justify-center space-x-1.5 cursor-pointer"
-                  >
-                    <span>৩ডি প্ল্যান ও রিপোর্ট দেখুন (Step 5)</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-
+                  <span className="text-[11px] font-mono text-zinc-300 block mt-1">
+                    লেআউট: <strong>{results.gridCols}টি</strong> কলাম × <strong>{results.gridRows}টি</strong> সারি
+                  </span>
                 </div>
+
+                {/* LUX STATUS */}
+                <div className="space-y-2 text-xs font-mono">
+                  <div className="flex items-center justify-between">
+                    <span className="text-zinc-400">টার্গেট লাক্স:</span>
+                    <strong className="text-amber-400">{results.targetLux} Lux</strong>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-zinc-400">প্রাপ্ত লাক্স:</span>
+                    <strong className={results.isLuxSufficient ? 'text-emerald-400' : 'text-rose-400'}>
+                      {results.achievedLux} Lux {results.isLuxSufficient ? '✓' : '⚠️'}
+                    </strong>
+                  </div>
+                  <div className="w-full bg-zinc-950 rounded-full h-2 overflow-hidden border border-zinc-800">
+                    <div
+                      className={`h-full transition-all ${results.isLuxSufficient ? 'bg-emerald-500' : 'bg-rose-500'}`}
+                      style={{ width: `${Math.min(100, (results.achievedLux / results.targetLux) * 100)}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* POWER & COST */}
+                <div className="pt-2 border-t border-zinc-800 light:border-zinc-200 grid grid-cols-2 gap-2 text-[11px] font-mono">
+                  <div className="bg-zinc-950 light:bg-zinc-50 p-2 rounded-lg border border-zinc-800">
+                    <span className="text-[10px] text-zinc-400 block">মোট ওয়াট:</span>
+                    <strong className="text-zinc-200">{results.totalPowerWatts} W</strong>
+                  </div>
+                  <div className="bg-zinc-950 light:bg-zinc-50 p-2 rounded-lg border border-zinc-800">
+                    <span className="text-[10px] text-zinc-400 block">মাসিক বিল:</span>
+                    <strong className="text-amber-400">৳{Math.round(results.monthlyCostBDT)}</strong>
+                  </div>
+                </div>
+
+                {/* MINI 2D GRID PREVIEW */}
+                <div className="pt-2 border-t border-zinc-800 light:border-zinc-200">
+                  <span className="text-[10px] font-mono text-zinc-400 block mb-1.5 font-bold">
+                    লাইটিং গ্রিড মিনি রিভিউ ({results.gridCols} × {results.gridRows}):
+                  </span>
+                  <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800 aspect-video flex items-center justify-center relative overflow-hidden">
+                    <div
+                      className="grid gap-2 w-full h-full p-2 border border-amber-500/30 rounded bg-zinc-900/50"
+                      style={{
+                        gridTemplateColumns: `repeat(${results.gridCols}, minmax(0, 1fr))`,
+                        gridTemplateRows: `repeat(${results.gridRows}, minmax(0, 1fr))`
+                      }}
+                    >
+                      {Array.from({ length: results.roundedFixtureCount }).map((_, idx) => (
+                        <div
+                          key={idx}
+                          className="bg-amber-400 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.8)] border border-amber-200 flex items-center justify-center text-[8px] font-bold text-zinc-950"
+                        >
+                          💡
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* JUMP TO STEP 5 BUTTON */}
+                <button
+                  onClick={() => setCurrentStep(5)}
+                  className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-xs rounded-xl shadow-lg flex items-center justify-center space-x-1.5 cursor-pointer"
+                >
+                  <span>৩ডি প্ল্যান ও রিপোর্ট দেখুন (ধাপ ৫)</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+
               </div>
-            )}
+            </div>
+          )}
 
           </div>
 
