@@ -1,14 +1,19 @@
 import React from 'react';
 import { CASE_STUDIES } from '../data';
 import { ChevronRight, Calculator, CheckSquare, Settings } from 'lucide-react';
-import { CaseStudy } from '../types';
+import { CaseStudy, HomepageContent } from '../types';
 
 interface CaseStudiesProps {
   onNavigate: (view: string, slug?: string) => void;
   caseStudies?: CaseStudy[];
+  homepageContent?: HomepageContent;
 }
 
-export default function CaseStudies({ onNavigate, caseStudies = CASE_STUDIES }: CaseStudiesProps) {
+export default function CaseStudies({ onNavigate, caseStudies = CASE_STUDIES, homepageContent }: CaseStudiesProps) {
+  const tagline = homepageContent?.caseStudiesTagline || "02 — Field Investigations";
+  const heading = homepageContent?.caseStudiesHeading || "Problem → Solve";
+  const desc = homepageContent?.caseStudiesDesc || "Real faults, real calculations, real fixes. Every case follows the same discipline: diagnose first, calculate second, fix third.";
+
   return (
     <section 
       id="work" 
@@ -20,11 +25,11 @@ export default function CaseStudies({ onNavigate, caseStudies = CASE_STUDIES }: 
         <div className="mb-12 flex flex-row items-end justify-between border-b border-zinc-900/60 dark:border-zinc-900/40 light:border-zinc-200 pb-6">
           <div className="space-y-1 flex-1 pr-4">
             <span className="font-mono text-[10px] sm:text-xs text-amber-500 uppercase tracking-widest block">
-              02 — Field Investigations
+              {tagline}
             </span>
             <div className="flex items-center justify-between">
               <h2 className="font-display font-bold text-3xl md:text-4xl text-zinc-100 light:text-zinc-900 tracking-tight">
-                Problem → Solve
+                {heading}
               </h2>
               
               {/* Mobile-only Arrow Button right next to/aligned with Title */}
@@ -38,8 +43,7 @@ export default function CaseStudies({ onNavigate, caseStudies = CASE_STUDIES }: 
               </button>
             </div>
             <p className="text-zinc-400 light:text-zinc-650 max-w-xl text-xs sm:text-sm leading-relaxed mt-2">
-              Real faults, real calculations, real fixes. Every case follows the same discipline: 
-              diagnose first, calculate second, fix third.
+              {desc}
             </p>
           </div>
           

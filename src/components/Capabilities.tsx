@@ -1,11 +1,16 @@
 import React from 'react';
 import { ShieldCheck, Cpu, ClipboardSignature, FileCheck2, UserCheck, ChevronRight } from 'lucide-react';
+import { HomepageContent } from '../types';
 
 interface CapabilitiesProps {
   onNavigate?: (view: string) => void;
+  homepageContent?: HomepageContent;
 }
 
-export default function Capabilities({ onNavigate }: CapabilitiesProps) {
+export default function Capabilities({ onNavigate, homepageContent }: CapabilitiesProps) {
+  const tagline = homepageContent?.expertiseTagline || "03 — Scope of Expertise";
+  const heading = homepageContent?.expertiseHeading || "What I can do for you";
+  const desc = homepageContent?.expertiseDesc || "Organized by who you are and what you need. Not a skills list — a capabilities statement.";
   const categories = [
     {
       num: '01',
@@ -66,13 +71,13 @@ export default function Capabilities({ onNavigate }: CapabilitiesProps) {
         {/* Section Header */}
         <div className="mb-16">
           <span className="font-mono text-xs text-amber-500 uppercase tracking-widest block mb-2">
-            03 — Scope of Expertise
+            {tagline}
           </span>
           <h2 className="font-display font-bold text-3xl md:text-4xl text-zinc-100 light:text-zinc-900 tracking-tight">
-            What I can do for you
+            {heading}
           </h2>
           <p className="text-zinc-400 light:text-zinc-600 mt-2 text-sm md:text-base max-w-xl">
-            Organized by who you are and what you need. Not a skills list — a capabilities statement.
+            {desc}
           </p>
           <div className="h-0.5 w-12 bg-amber-500 mt-4" />
         </div>

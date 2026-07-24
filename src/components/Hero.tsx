@@ -21,7 +21,9 @@ export default function Hero({ onScrollToSection, homepageContent }: HeroProps) 
     heroProfileName: "Sahin Alom",
     heroProfileTitle: "Sahin Alom — Senior EE",
     heroProfileImage: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=800&auto=format&fit=crop",
-    heroProfileVideo: ""
+    heroProfileVideo: "",
+    heroCtaPrimaryText: "Get in touch",
+    heroCtaSecondaryText: "View my work"
   };
 
   return (
@@ -46,7 +48,7 @@ export default function Hero({ onScrollToSection, homepageContent }: HeroProps) 
                 <Zap className="w-2.5 h-2.5 animate-pulse text-amber-500" />
               </div>
               <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-zinc-100 light:text-zinc-800">
-                Electrical Engineer
+                {content.heroTagline || "Electrical Engineer"}
               </span>
             </div>
 
@@ -82,7 +84,7 @@ export default function Hero({ onScrollToSection, homepageContent }: HeroProps) 
                 onClick={() => onScrollToSection('work')}
                 className="flex items-center space-x-2 bg-amber-500 hover:bg-amber-600 text-zinc-950 font-medium px-6 py-3 rounded transition-all group cursor-pointer"
               >
-                <span>View my work</span>
+                <span>{content.heroCtaSecondaryText || "View my work"}</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
               <button
@@ -90,7 +92,7 @@ export default function Hero({ onScrollToSection, homepageContent }: HeroProps) 
                 className="flex items-center space-x-2 border border-zinc-800 dark:border-zinc-800 light:border-zinc-300 hover:border-amber-500/50 hover:bg-zinc-900/20 light:hover:bg-zinc-100 text-zinc-300 light:text-zinc-700 px-6 py-3 rounded transition-all cursor-pointer"
               >
                 <Mail className="w-4 h-4" />
-                <span>Get in touch</span>
+                <span>{content.heroCtaPrimaryText || "Get in touch"}</span>
               </button>
             </div>
           </div>

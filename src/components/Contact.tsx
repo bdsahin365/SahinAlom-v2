@@ -1,14 +1,27 @@
 import React, { useState } from 'react';
 import { Mail, Linkedin, Github, Check, Send, AlertCircle, Sparkles } from 'lucide-react';
-import { ContactMessage } from '../types';
+import { ContactMessage, HomepageContent, ProfileData, AppSettings } from '../types';
 
-export default function Contact() {
+interface ContactProps {
+  homepageContent?: HomepageContent;
+  profileData?: ProfileData;
+  appSettings?: AppSettings;
+}
+
+export default function Contact({ homepageContent, profileData, appSettings }: ContactProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     company: '',
     message: ''
   });
+
+  const displayEmail = homepageContent?.contactEmail || profileData?.email || "sardershain@gmail.com";
+  const displayLinkedin = homepageContent?.contactLinkedin || "https://linkedin.com";
+  const displayGithub = homepageContent?.contactGithub || "https://github.com";
+  const contactTagline = homepageContent?.contactTagline || "04 — Transmission Node";
+  const contactHeading = homepageContent?.contactHeading || "Let's collaborate";
+  const contactDesc = homepageContent?.contactDesc || "Open to project collaborations, technical discussions, and international opportunities in the electrical and power systems space. Let me know what you are looking to build or solve.";
 
   const [errors, setErrors] = useState({
     name: '',
@@ -128,17 +141,16 @@ export default function Contact() {
           <div className="lg:col-span-5 space-y-8">
             <div>
               <span className="font-mono text-xs text-amber-500 uppercase tracking-widest block mb-2">
-                04 — Transmission Node
+                {contactTagline}
               </span>
               <h2 className="font-display font-bold text-3xl md:text-4xl text-zinc-100 light:text-zinc-900 tracking-tight">
-                Let's collaborate
+                {contactHeading}
               </h2>
               <div className="h-0.5 w-12 bg-amber-500 mt-4" />
             </div>
 
             <p className="text-zinc-400 light:text-zinc-600 leading-relaxed text-sm sm:text-base">
-              Open to project collaborations, technical discussions, and international opportunities in the 
-              electrical and power systems space. Let me know what you are looking to build or solve.
+              {contactDesc}
             </p>
 
             {/* Checklist of availability */}
@@ -165,14 +177,14 @@ export default function Contact() {
               </span>
               <div className="flex space-x-3">
                 <a 
-                  href="mailto:sardershain@gmail.com" 
+                  href={`mailto:${displayEmail}`} 
                   className="flex items-center space-x-2 text-xs font-mono text-zinc-400 light:text-zinc-600 hover:text-amber-500 border border-zinc-900 dark:border-zinc-900 light:border-zinc-250 hover:border-amber-500/30 bg-zinc-900/40 light:bg-white px-3 py-2 rounded transition-colors"
                 >
                   <Mail className="w-4 h-4" />
-                  <span>sardershain@gmail.com</span>
+                  <span>{displayEmail}</span>
                 </a>
                 <a 
-                  href="https://linkedin.com" 
+                  href={displayLinkedin} 
                   target="_blank" 
                   rel="noreferrer" 
                   className="p-2 text-zinc-400 light:text-zinc-600 hover:text-amber-500 border border-zinc-900 dark:border-zinc-900 light:border-zinc-250 hover:border-amber-500/30 bg-zinc-900/40 light:bg-white rounded transition-colors"
@@ -181,7 +193,7 @@ export default function Contact() {
                   <Linkedin className="w-4.5 h-4.5" />
                 </a>
                 <a 
-                  href="https://github.com" 
+                  href={displayGithub} 
                   target="_blank" 
                   rel="noreferrer" 
                   className="p-2 text-zinc-400 light:text-zinc-600 hover:text-amber-500 border border-zinc-900 dark:border-zinc-900 light:border-zinc-250 hover:border-amber-500/30 bg-zinc-900/40 light:bg-white rounded transition-colors"

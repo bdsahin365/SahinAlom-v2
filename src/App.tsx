@@ -14,8 +14,8 @@ import Tools from './components/Tools';
 import AllCaseStudies from './components/AllCaseStudies';
 import Blogs from './components/Blogs';
 import { Home, Calculator, Cpu, Mail, Zap, ExternalLink, FileText, Heart } from 'lucide-react';
-import { CASE_STUDIES, DEFAULT_HOMEPAGE_CONTENT, DEFAULT_APP_SETTINGS, DEFAULT_BLOG_POSTS } from './data';
-import { CaseStudy, HomepageContent, AppSettings, BlogPost } from './types';
+import { CASE_STUDIES, DEFAULT_HOMEPAGE_CONTENT, DEFAULT_APP_SETTINGS, DEFAULT_BLOG_POSTS, DEFAULT_PROFILE_DATA } from './data';
+import { CaseStudy, HomepageContent, AppSettings, BlogPost, ProfileData } from './types';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<string>('home'); // 'home' | 'work-detail' | 'admin' | 'resume' | 'biodata'
@@ -26,12 +26,15 @@ export default function App() {
   const [caseStudies, setCaseStudies] = useState<CaseStudy[]>(CASE_STUDIES);
   const [homepageContent, setHomepageContent] = useState<HomepageContent>(DEFAULT_HOMEPAGE_CONTENT);
   const [appSettings, setAppSettings] = useState<AppSettings>(DEFAULT_APP_SETTINGS);
+  const [profileData, setProfileData] = useState<ProfileData>(DEFAULT_PROFILE_DATA);
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Sync & Load data: Prioritizes live database API fetch, falling back to localStorage and default constants
-  const syncFromStorage = async () => {
-    setIsLoading(true);
+  const syncFromStorage = async (showLoadingScreen = false) => {
+    if (showLoadingScreen) {
+      setIsLoading(true);
+    }
     // Pre-populate with localStorage cache for instant UI feedback before API fetch resolves
     try {
       const storedCaseStudies = localStorage.getItem('sahin_case_studies');
@@ -42,6 +45,9 @@ export default function App() {
 
       const storedSettings = localStorage.getItem('sahin_portfolio_settings');
       if (storedSettings) setAppSettings({ ...DEFAULT_APP_SETTINGS, ...JSON.parse(storedSettings) });
+
+      const storedProfile = localStorage.getItem('sahin_profile_data');
+      if (storedProfile) setProfileData({ ...DEFAULT_PROFILE_DATA, ...JSON.parse(storedProfile) });
 
       const storedBlogs = localStorage.getItem('sahin_blog_posts');
       if (storedBlogs) {
@@ -121,18 +127,23 @@ export default function App() {
 
       if (profileRes.status === 'fulfilled' && profileRes.value.ok) {
         const data = await profileRes.value.json();
-        localStorage.setItem('sahin_profile_data', JSON.stringify(data));
+        if (data && typeof data === 'object') {
+          setProfileData(data);
+          localStorage.setItem('sahin_profile_data', JSON.stringify(data));
+        }
       }
     } catch (err) {
       console.warn("Could not retrieve live data from database API, using cache or defaults.", err);
     } finally {
-      setIsLoading(false);
+      if (showLoadingScreen) {
+        setIsLoading(false);
+      }
     }
   };
 
   // Load editable contents
   useEffect(() => {
-    syncFromStorage();
+    syncFromStorage(true);
   }, []);
 
   // Initialize theme from storage
@@ -349,9 +360,9 @@ export default function App() {
         <footer className="border-t border-zinc-900 light:border-zinc-200 py-6 px-6 flex items-center justify-between text-xs text-zinc-500">
           <div className="flex items-center space-x-2">
             <Zap className="w-4 h-4 text-amber-500 animate-pulse" />
-            <span className="font-mono text-zinc-400">Synchronizing Engineers Enterprise Systems & API...</span>
+            <span className="font-mono text-zinc-400">Synchronizing Systems & Data...</span>
           </div>
-          <span className="font-mono text-zinc-600 hidden sm:inline">Engineers Enterprise CMS</span>
+          <span className="font-mono text-zinc-600 hidden sm:inline">Portfolio & Operations Platform</span>
         </footer>
       </div>
     );
@@ -380,19 +391,21 @@ export default function App() {
             <Hero onScrollToSection={scrollToSection} homepageContent={homepageContent} />
 
             {/* Daily Check (About) */}
-            <DailyCheck />
+            {(homepageContent.showDailyCheck ?? true) && (
+              <DailyCheck homepageContent={homepageContent} />
+            )}
 
             {/* Case Studies */}
-            <CaseStudies onNavigate={handleNavigate} caseStudies={caseStudies} />
+            <CaseStudies onNavigate={handleNavigate} caseStudies={caseStudies} homepageContent={homepageContent} />
 
             {/* Featured Blogs */}
-            <FeaturedBlogs onNavigate={handleNavigate} posts={blogPosts} />
+            <FeaturedBlogs onNavigate={handleNavigate} posts={blogPosts} homepageContent={homepageContent} />
 
             {/* Capabilities */}
-            <Capabilities onNavigate={handleNavigate} />
+            <Capabilities onNavigate={handleNavigate} homepageContent={homepageContent} />
 
             {/* Contact */}
-            <Contact />
+            <Contact homepageContent={homepageContent} profileData={profileData} appSettings={appSettings} />
           </>
         )}
 
@@ -413,15 +426,15 @@ export default function App() {
         )}
 
         {currentView === 'admin' && (
-          <Admin onSync={syncFromStorage} />
+          <Admin onSync={() => syncFromStorage(false)} />
         )}
 
         {currentView === 'resume' && (
-          <Resume onBack={() => handleNavigate('home')} />
+          <Resume onBack={() => handleNavigate('home')} profileData={profileData} />
         )}
 
         {currentView === 'biodata' && (
-          <Biodata onBack={() => handleNavigate('home')} />
+          <Biodata onBack={() => handleNavigate('home')} profileData={profileData} />
         )}
 
         {currentView === 'tools' && (
@@ -446,7 +459,9 @@ export default function App() {
                 Sahin Alom — Electrical Engineer, Dhaka
               </span>
               <div className="flex flex-wrap justify-center gap-6 font-mono text-[11px] text-zinc-400">
-                <button onClick={() => handleNavigate('home', undefined, 'daily-check')} className="hover:text-amber-500 cursor-pointer">Daily Check</button>
+                {(homepageContent?.showDailyCheck ?? true) && (
+                  <button onClick={() => handleNavigate('home', undefined, 'daily-check')} className="hover:text-amber-500 cursor-pointer">Daily Check</button>
+                )}
                 <button onClick={() => handleNavigate('home', undefined, 'work')} className="hover:text-amber-500 cursor-pointer">Work</button>
                 <button onClick={() => handleNavigate('home', undefined, 'capabilities')} className="hover:text-amber-500 cursor-pointer">Capabilities</button>
                 <button onClick={() => handleNavigate('home', undefined, 'contact')} className="hover:text-amber-500 cursor-pointer">Contact</button>

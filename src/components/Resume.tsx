@@ -5,21 +5,26 @@ import { Mail, Phone, MapPin, Printer, ArrowLeft, Download, Shield, Briefcase, G
 
 interface ResumeProps {
   onBack: () => void;
+  profileData?: ProfileData;
 }
 
-export default function Resume({ onBack }: ResumeProps) {
-  const [profile, setProfile] = useState<ProfileData>(DEFAULT_PROFILE_DATA);
+export default function Resume({ onBack, profileData }: ResumeProps) {
+  const [profile, setProfile] = useState<ProfileData>(profileData || DEFAULT_PROFILE_DATA);
 
   useEffect(() => {
-    const saved = localStorage.getItem('sahin_profile_data');
-    if (saved) {
-      try {
-        setProfile(JSON.parse(saved));
-      } catch (e) {
-        console.error('Error loading profile data', e);
+    if (profileData) {
+      setProfile(profileData);
+    } else {
+      const saved = localStorage.getItem('sahin_profile_data');
+      if (saved) {
+        try {
+          setProfile(JSON.parse(saved));
+        } catch (e) {
+          console.error('Error loading profile data', e);
+        }
       }
     }
-  }, []);
+  }, [profileData]);
 
   const handlePrint = () => {
     window.print();

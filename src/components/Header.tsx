@@ -126,16 +126,18 @@ export default function Header({
             >
               Home
             </button>
-            <button
-              onClick={() => handleNavClick('daily-check')}
-              className={`font-display text-xs lg:text-sm font-medium tracking-wide transition-colors hover:text-amber-500 ${
-                activeSection === 'daily-check' && currentView === 'home'
-                  ? 'text-amber-500'
-                  : 'text-zinc-400 light:text-zinc-600'
-              }`}
-            >
-              Daily
-            </button>
+            {(homepageContent?.showDailyCheck ?? true) && (
+              <button
+                onClick={() => handleNavClick('daily-check')}
+                className={`font-display text-xs lg:text-sm font-medium tracking-wide transition-colors hover:text-amber-500 ${
+                  activeSection === 'daily-check' && currentView === 'home'
+                    ? 'text-amber-500'
+                    : 'text-zinc-400 light:text-zinc-600'
+                }`}
+              >
+                Daily
+              </button>
+            )}
             <button
               onClick={() => onNavigate('all-work')}
               className={`font-display text-xs lg:text-sm font-medium tracking-wide transition-colors hover:text-amber-500 ${
@@ -263,12 +265,14 @@ export default function Header({
             >
               Home
             </button>
-            <button
-              onClick={() => handleNavClick('daily-check')}
-              className="block w-full text-left py-2 px-3 rounded text-sm text-zinc-400 light:text-zinc-600 hover:bg-zinc-900 dark:hover:bg-zinc-900 light:hover:bg-zinc-100"
-            >
-              Daily
-            </button>
+            {(homepageContent?.showDailyCheck ?? true) && (
+              <button
+                onClick={() => handleNavClick('daily-check')}
+                className="block w-full text-left py-2 px-3 rounded text-sm text-zinc-400 light:text-zinc-600 hover:bg-zinc-900 dark:hover:bg-zinc-900 light:hover:bg-zinc-100"
+              >
+                Daily
+              </button>
+            )}
             <button
               onClick={() => {
                 setMobileMenuOpen(false);

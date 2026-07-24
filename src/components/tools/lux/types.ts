@@ -17,7 +17,8 @@ export type FixtureCategory =
   | 'Flood Light'
   | 'High Bay'
   | 'Tube'
-  | 'Street Light';
+  | 'Street Light'
+  | 'Spotlight';
 
 export interface RoomPreset {
   id: string;

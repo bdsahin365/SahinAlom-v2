@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { compressAndResizeImage, safeLocalStorageSetItem } from '../utils/imageUtils';
 import { 
   Lock, 
@@ -14,6 +14,7 @@ import {
   Trash2, 
   Edit3, 
   Save, 
+  CheckCircle,
   CheckCircle2, 
   AlertCircle, 
   AlertTriangle,
@@ -30,6 +31,9 @@ import {
   Eye, 
   ArrowLeft,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  Sliders,
   Clipboard,
   Award,
   Cpu, 
@@ -74,7 +78,11 @@ import {
   Briefcase,
   Grid,
   List,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Sparkles,
+  RotateCcw,
+  Smartphone,
+  Monitor
 } from 'lucide-react';
 import { CASE_STUDIES, DEFAULT_HOMEPAGE_CONTENT, DEFAULT_PROFILE_DATA, INITIAL_ADMIN_STATS, DEFAULT_APP_SETTINGS, DEFAULT_BLOG_POSTS, DEFAULT_PRODUCTS, DEFAULT_CUSTOMERS, DEFAULT_ORDERS, DEFAULT_OFFICE_NOTES, DEFAULT_MAINTENANCE_LOGS, DEFAULT_QUICK_FIELD_NOTES } from '../data';
 import { CaseStudy, HomepageContent, ProfileData, ContactMessage, AdminStats, AppSettings, BlogPost, ProductItem, Customer, OrderItem, OrderInvoice, OfficeNote, MaintenanceLog, QuickFieldNote, ELECTRICAL_CATEGORIES } from '../types';
@@ -130,7 +138,19 @@ export default function Admin({ onSync }: AdminProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [adminSearchQuery, setAdminSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'customers' | 'blog' | 'notes' | 'maintenance' | 'pages' | 'posts' | 'resume' | 'messages' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'customers' | 'blog' | 'notes' | 'maintenance' | 'pages' | 'posts' | 'resume' | 'messages' | 'settings'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('sahin_admin_active_tab');
+      if (saved && ['dashboard', 'products', 'orders', 'customers', 'blog', 'notes', 'maintenance', 'pages', 'posts', 'resume', 'messages', 'settings'].includes(saved)) {
+        return saved as any;
+      }
+    }
+    return 'dashboard';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('sahin_admin_active_tab', activeTab);
+  }, [activeTab]);
 
   const [localDarkMode, setLocalDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -161,8 +181,9 @@ export default function Admin({ onSync }: AdminProps) {
   const [caseStudies, setCaseStudies] = useState<CaseStudy[]>(CASE_STUDIES);
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [appSettings, setAppSettings] = useState<AppSettings>(DEFAULT_APP_SETTINGS);
+  const [showAdvancedSettings, setShowAdvancedSettings] = useState<boolean>(false);
 
-  // Business Data States (Engineers Enterprise)
+  // Business Data States (Md. Sahin Alom Operations)
   const [products, setProducts] = useState<ProductItem[]>(DEFAULT_PRODUCTS);
   const [customers, setCustomers] = useState<Customer[]>(DEFAULT_CUSTOMERS);
   const [orders, setOrders] = useState<OrderInvoice[]>(DEFAULT_ORDERS);
@@ -283,7 +304,19 @@ export default function Admin({ onSync }: AdminProps) {
   const [maintenanceSearchQuery, setMaintenanceSearchQuery] = useState('');
   const [maintenanceStatusFilter, setMaintenanceStatusFilter] = useState<string>('All');
   const [maintenanceCategoryFilter, setMaintenanceCategoryFilter] = useState<string>('All');
-  const [maintenanceSubTab, setMaintenanceSubTab] = useState<'equipment' | 'logbook'>('equipment');
+  const [maintenanceSubTab, setMaintenanceSubTab] = useState<'equipment' | 'logbook'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('sahin_admin_maint_subtab');
+      if (saved && ['equipment', 'logbook'].includes(saved)) {
+        return saved as any;
+      }
+    }
+    return 'equipment';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('sahin_admin_maint_subtab', maintenanceSubTab);
+  }, [maintenanceSubTab]);
   const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
   const [editingMaintenanceLog, setEditingMaintenanceLog] = useState<MaintenanceLog | null>(null);
   const [maintenanceForm, setMaintenanceForm] = useState<Partial<MaintenanceLog>>({
@@ -316,6 +349,22 @@ export default function Admin({ onSync }: AdminProps) {
   const [chartPeriod, setChartPeriod] = useState<'weekly' | 'monthly'>('weekly');
   const [activeCardIndex, setActiveCardIndex] = useState<number>(0);
   const [hoveredDataPoint, setHoveredDataPoint] = useState<number | null>(null);
+
+  // Homepage Editor UX States & SubTabs
+  const [homepageSubTab, setHomepageSubTab] = useState<'hero' | 'stats' | 'media' | 'dailyCheck' | 'sections' | 'logo'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('sahin_admin_homepage_subtab');
+      if (saved && ['hero', 'stats', 'media', 'dailyCheck', 'sections', 'logo'].includes(saved)) {
+        return saved as any;
+      }
+    }
+    return 'hero';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('sahin_admin_homepage_subtab', homepageSubTab);
+  }, [homepageSubTab]);
+  const [logoIconSearch, setLogoIconSearch] = useState<string>('');
 
   // Post / Case Study Editor States
   const [editingPostSlug, setEditingPostSlug] = useState<string | null>(null); // null means creating new
@@ -770,7 +819,7 @@ export default function Admin({ onSync }: AdminProps) {
     triggerQuickAction('Console parameters updated & integrated.');
   };
 
-  // --- BUSINESS HANDLERS (Engineers Enterprise) ---
+  // --- BUSINESS HANDLERS (Md. Sahin Alom Operations) ---
 
   // Product CRUD
   const handleSaveProduct = (e: React.FormEvent) => {
@@ -1475,7 +1524,7 @@ export default function Admin({ onSync }: AdminProps) {
     if (editingBlogSlug) {
       // Edit
       updatedList = updatedList.map(item => item.slug === editingBlogSlug ? finalForm : item);
-      triggerQuickAction(`Blog article "${blogForm.title}" updated successfully.`);
+      triggerQuickAction(`ব্লগ নিবন্ধ "${blogForm.title}" ও ছবি ডাটাবেজে সফলভাবে সংরক্ষিত হয়েছে!`);
     } else {
       // Check duplicate slug
       if (blogPosts.some(item => item.slug === blogForm.slug)) {
@@ -1484,7 +1533,7 @@ export default function Admin({ onSync }: AdminProps) {
       }
       // Create new
       updatedList.unshift(finalForm);
-      triggerQuickAction(`New blog article "${blogForm.title}" published & live.`);
+      triggerQuickAction(`নতুন ব্লগ নিবন্ধ "${blogForm.title}" ও ছবি ডাটাবেজে সফলভাবে প্রকাশিত হয়েছে!`);
     }
 
     setBlogPosts(updatedList);
@@ -1571,13 +1620,35 @@ export default function Admin({ onSync }: AdminProps) {
     }));
   };
 
+  const contentImageInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleInsertBlogContentImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const compressedBase64 = await compressAndResizeImage(file, 950, 650, 0.75);
+        const imgTitle = file.name.replace(/\.[^/.]+$/, "") || "Diagram";
+        const markdownImg = `\n\n![${imgTitle}](${compressedBase64})\n\n`;
+        setBlogForm(prev => ({
+          ...prev,
+          content: (prev.content || '') + markdownImg
+        }));
+        triggerQuickAction('Article body image attached! Click "Save Changes / Publish Article" to store permanently in MongoDB Atlas database.');
+      } catch (err) {
+        alert('Failed to process article content image.');
+      } finally {
+        if (e.target) e.target.value = '';
+      }
+    }
+  };
+
   const handleBlogBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       try {
-        const compressedBase64 = await compressAndResizeImage(file, 1200, 800, 0.78);
+        const compressedBase64 = await compressAndResizeImage(file, 1000, 650, 0.75);
         setBlogForm(prev => ({ ...prev, imageUrl: compressedBase64 }));
-        triggerQuickAction('Banner cover image optimized & uploaded successfully.');
+        triggerQuickAction('Banner cover image attached! Click "Save Changes / Publish Article" to store permanently in MongoDB Atlas database.');
       } catch (err) {
         alert('Failed to process blog banner image.');
       }
@@ -2095,9 +2166,47 @@ export default function Admin({ onSync }: AdminProps) {
 
         </header>
 
+        {/* MOBILE-FIRST QUICK TASK SWITCHER BAR */}
+        <div className="md:hidden bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border-b border-zinc-850 dark:border-zinc-850 light:border-zinc-200 px-3 py-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0 z-10">
+          {[
+            { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+            { id: 'orders', label: 'Orders', icon: Receipt, badge: orders.length },
+            { id: 'products', label: 'Catalog', icon: ShoppingBag, badge: products.length },
+            { id: 'maintenance', label: 'Maintenance', icon: Wrench, badge: maintenanceLogs.filter(m => m.status === 'Critical / Overdue' || m.status === 'Requires Attention').length },
+            { id: 'customers', label: 'Clients', icon: Building2, badge: customers.length },
+            { id: 'notes', label: 'Logbook', icon: StickyNote, badge: officeNotes.filter(n => !n.isCompleted).length },
+            { id: 'pages', label: 'Editor', icon: BookOpen },
+            { id: 'settings', label: 'Settings', icon: SettingsIcon }
+          ].map(item => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id as any)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center space-x-1.5 shrink-0 transition-all cursor-pointer ${
+                  isActive
+                    ? 'bg-amber-500 text-zinc-950 shadow-sm'
+                    : 'bg-zinc-900/80 dark:bg-zinc-900 light:bg-white text-zinc-400 light:text-zinc-700 border border-zinc-800 dark:border-zinc-800 light:border-zinc-200 hover:text-zinc-200'
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span>{item.label}</span>
+                {item.badge !== undefined && item.badge > 0 && (
+                  <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-mono ${
+                    isActive ? 'bg-zinc-950 text-amber-400' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                  }`}>
+                    {item.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
         {/* WORKSPACE MAIN SCROLL CONTAINER */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-          <div className="max-w-7xl mx-auto w-full pb-12">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-5 lg:p-6">
+          <div className="max-w-7xl mx-auto w-full pb-10 space-y-4">
             
             {/* Title banner inside the work area */}
             <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-zinc-900 dark:border-zinc-900 light:border-zinc-200 pb-4 gap-4">
@@ -2122,248 +2231,207 @@ export default function Admin({ onSync }: AdminProps) {
             {/* TAB WORKSPACE CONTENT SWITCHER */}
             {/* 1. DASHBOARD OVERVIEW TAB */}
         {activeTab === 'dashboard' && (() => {
-          // --- Custom SVG Chart Setup ---
-          const width = 640;
-          const height = 190;
-          const paddingLeft = 45;
-          const paddingRight = 20;
-          const paddingTop = 25;
-          const paddingBottom = 30;
+          // Compute summary stats from real state arrays
+          const totalOrdersCount = orders.length;
+          const completedOrders = orders.filter(o => o.status === 'Completed').length;
+          const pendingOrders = orders.filter(o => o.status === 'Pending Due' || o.status === 'Processing').length;
+          const totalRevenue = orders.reduce((sum, o) => sum + (o.netTotal || 0), 0);
 
-          // Define dataset for each of the 3 credit cards, split by Weekly/Monthly
-          const cardDataSets = [
-            {
-              // Card 0: Voltage Grid
-              code: 'GRID CARD',
-              label1: 'L1-L2 Voltage (V AC)',
-              label2: 'L3-Neutral (V AC)',
-              weekly1: [408, 415, 395, 412, 420, 408, 416],
-              weekly2: [232, 240, 226, 238, 242, 235, 239],
-              monthly1: [402, 408, 411, 415],
-              monthly2: [230, 234, 237, 240],
-              suffix: 'V',
-              icon: Zap,
-              color1: '#f59e0b', // Amber
-              color2: '#3b82f6'  // Blue
-            },
-            {
-              // Card 1: Traffic Hits
-              code: 'TELEMETRY',
-              label1: 'Page Views (Hits)',
-              label2: 'Signals Received',
-              weekly1: [1200, 1850, 1420, 2600, 2150, 3120, 2800],
-              weekly2: [2, 4, 1, 6, 3, 9, 5],
-              monthly1: [5200, 7800, 10200, stats.visitors || 12845],
-              monthly2: [12, 19, 15, messages.length || 29],
-              suffix: '',
-              icon: Eye,
-              color1: '#3b82f6', // Blue
-              color2: '#10b981'  // Emerald
-            },
-            {
-              // Card 2: Research & Journal Assets
-              code: 'ASSET DECK',
-              label1: 'Article Views',
-              label2: 'Asset Downloads',
-              weekly1: [210, 340, 280, 450, 390, 520, 480],
-              weekly2: [15, 28, 19, 42, 31, 55, 40],
-              monthly1: [1100, 1450, 1820, 2240],
-              monthly2: [90, 120, 160, 210],
-              suffix: ' DL',
-              icon: BookOpen,
-              color1: '#10b981', // Emerald
-              color2: '#ec4899'  // Pink
-            }
-          ];
+          const totalEquipmentCount = maintenanceLogs.length;
+          const equipmentDue = maintenanceLogs.filter(m => m.status === 'Maintenance Due' || m.status === 'Under Maintenance' || m.status === 'Inspection Overdue').length;
 
-          const activeSet = cardDataSets[activeCardIndex];
-          const activeData = chartPeriod === 'weekly' ? activeSet.weekly1 : activeSet.monthly1;
-          const activeData2 = chartPeriod === 'weekly' ? activeSet.weekly2 : activeSet.monthly2;
-          const activeLabels = chartPeriod === 'weekly' 
-            ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-            : ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+          const totalCustomersCount = customers.length;
+          const activeCustomersCount = customers.filter(c => c.status === 'Active Client' || c.status === 'VIP Client').length;
 
-          // Compute max, min & scale
-          const maxVal = Math.max(...activeData, ...activeData2, 1) * 1.15;
-          const minVal = Math.max(0, Math.min(...activeData, ...activeData2, 0) * 0.85);
-          const range = maxVal - minVal;
-
-          const points1 = activeData.map((val, i) => {
-            const x = paddingLeft + (i / (activeData.length - 1)) * (width - paddingLeft - paddingRight);
-            const y = height - paddingBottom - ((val - minVal) / range) * (height - paddingTop - paddingBottom);
-            return { x, y, val };
-          });
-
-          const points2 = activeData2.map((val, i) => {
-            const x = paddingLeft + (i / (activeData2.length - 1)) * (width - paddingLeft - paddingRight);
-            const y = height - paddingBottom - ((val - minVal) / range) * (height - paddingTop - paddingBottom);
-            return { x, y, val };
-          });
-
-          const pathD1 = points1.reduce((acc, p, i) => i === 0 ? `M ${p.x} ${p.y}` : `${acc} L ${p.x} ${p.y}`, '');
-          const areaD1 = points1.length > 0 
-            ? `${pathD1} L ${points1[points1.length - 1].x} ${height - paddingBottom} L ${points1[0].x} ${height - paddingBottom} Z`
-            : '';
-
-          const pathD2 = points2.reduce((acc, p, i) => i === 0 ? `M ${p.x} ${p.y}` : `${acc} L ${p.x} ${p.y}`, '');
-          const areaD2 = points2.length > 0 
-            ? `${pathD2} L ${points2[points2.length - 1].x} ${height - paddingBottom} L ${points2[0].x} ${height - paddingBottom} Z`
-            : '';
-
-          // Render horizontal grid lines
-          const gridRatios = [0, 0.25, 0.5, 0.75, 1.0];
-          const gridLinesY = gridRatios.map(ratio => {
-            const val = minVal + ratio * range;
-            const y = height - paddingBottom - ratio * (height - paddingTop - paddingBottom);
-            return { y, val: Math.round(val) };
-          });
-
-          // Fallback static mock contacts when messages database is empty
-          const defaultContactsList = [
-            { id: 'm1', name: 'Farhan Ahmed', company: 'DESCO Grid Operations', email: 'f.ahmed@desco.org.bd', message: 'Inquiry regarding substation coupling relay interlocks settings.', date: 'July 19, 2026', initial: 'FA', color: 'from-amber-500 to-yellow-600' },
-            { id: 'm2', name: 'M. Karim', company: 'PGCB Bangladesh', email: 'karim.m@pgcb.gov.bd', message: 'Seeking earth loop impedance data curves for Dhaka Central zone grid.', date: 'July 18, 2026', initial: 'MK', color: 'from-blue-500 to-indigo-600' },
-            { id: 'm3', name: 'Sultana Yeasmin', company: 'Summit Power Ltd', email: 'sultana.y@summit.com.bd', message: 'Consultation request on BNBC 2020 grounding coefficients guidelines.', date: 'July 16, 2026', initial: 'SY', color: 'from-emerald-500 to-teal-600' }
-          ];
-
-          const displayContacts = (Array.isArray(messages) && messages.length > 0)
-            ? messages.slice(0, 3).map((m, idx) => {
-                const name = m?.name || 'Anonymous';
-                const initial = name.split(' ').map(n => n ? n[0] : '').join('').toUpperCase().slice(0, 2) || 'A';
-                return {
-                  id: m?.id || String(idx),
-                  name: name,
-                  company: m?.company || 'Direct Contact',
-                  email: m?.email || '',
-                  message: m?.message || '',
-                  date: m?.date || '',
-                  initial: initial,
-                  color: idx === 0 ? 'from-amber-500 to-yellow-600' : idx === 1 ? 'from-blue-500 to-indigo-600' : 'from-emerald-500 to-teal-600'
-                };
-              })
-            : defaultContactsList;
+          const totalMessagesCount = messages.length;
 
           return (
-            <div className="space-y-8 animate-fade-in text-left">
+            <div className="space-y-4 sm:space-y-6 animate-fade-in text-left">
               
-              {/* TOP HEADER STATUS GREETING */}
-              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center p-5 bg-zinc-900/20 light:bg-zinc-100/40 border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-xl gap-4">
-                <div>
-                  <h2 className="text-lg font-bold text-zinc-100 light:text-zinc-900 flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-                    <span>Control Panel Console Active</span>
-                  </h2>
-                  <p className="text-xs text-zinc-400 light:text-zinc-650 mt-1">
-                    Welcome back, <strong className="text-zinc-200 light:text-zinc-950 font-bold">Sahin Alom</strong>. Manage field research, industrial logs, and bio-data details in real-time.
-                  </p>
-                </div>
-                <div className="flex gap-2 font-mono text-[11px]">
-                  <span className="px-2.5 py-1 rounded bg-zinc-950 dark:bg-zinc-950 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 text-amber-500">
-                    STATION: DHAKA 132/33KV
-                  </span>
-                  <span className="px-2.5 py-1 rounded bg-zinc-950 dark:bg-zinc-950 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 text-emerald-500">
-                    INTERLOCKS: NORMAL
-                  </span>
-                </div>
-              </div>
-
-              {/* SHADCN-STYLE CLEAN METRIC CARDS HEADER */}
-              <div className="space-y-4">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-1 gap-1">
-                  <div>
-                    <h3 className="text-xs font-mono font-bold tracking-widest text-zinc-400 light:text-zinc-500 uppercase">
-                      Console Operational Metrics
-                    </h3>
-                    <p className="text-[10px] text-zinc-500 font-sans">
-                      Select a console card below to route real-time telemetry metrics to the main charting frame
+              {/* TOP MOBILE-FIRST GREETING & STATUS BANNER */}
+              <div className="p-4 sm:p-5 bg-zinc-900/40 dark:bg-zinc-900/40 light:bg-zinc-50 border border-zinc-800 dark:border-zinc-800 light:border-zinc-200 rounded-xl space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                      <h2 className="text-base sm:text-lg font-bold text-zinc-100 dark:text-zinc-100 light:text-zinc-900 leading-snug">
+                        Operational Control — Engr. Md. Sahin Alom
+                      </h2>
+                    </div>
+                    <p className="text-xs text-zinc-400 dark:text-zinc-400 light:text-zinc-650 font-sans">
+                      Industrial Electrical Substation & Power Distribution Consultancy
                     </p>
                   </div>
-                  <span className="text-[10px] font-mono text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full uppercase font-bold">
-                    SELECT METRIC FOR ANALYSIS
-                  </span>
+
+                  <div className="flex items-center gap-2 font-mono text-[11px] shrink-0">
+                    <span className="px-2.5 py-1 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold">
+                      ● SYSTEM NORMAL
+                    </span>
+                    <span className="px-2.5 py-1 rounded bg-zinc-950 dark:bg-zinc-950 light:bg-white border border-zinc-800 text-zinc-400">
+                      DHAKA, BD
+                    </span>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {[
-                    {
-                      index: 0,
-                      label: 'GRID VOLTAGE CONTROL',
-                      value: '415.82 V AC',
-                      subtext: 'Frequency: 50.02 Hz | Cos φ: 0.98',
-                      code: 'GRID VOLTAGE',
-                      icon: Zap,
-                      iconColor: 'text-amber-500'
-                    },
-                    {
-                      index: 1,
-                      label: 'TOTAL TRAFFIC READERS',
-                      value: `${(stats.visitors || 12845).toLocaleString()}`,
-                      subtext: `Inbox Queries: ${messages.length} pending`,
-                      code: 'SERVER HITS',
-                      icon: Eye,
-                      iconColor: 'text-blue-500'
-                    },
-                    {
-                      index: 2,
-                      label: 'FIELD PROJECTS & CASE STUDIES',
-                      value: `${caseStudies.length} Active Reports`,
-                      subtext: `${blogPosts.length} Industrial Journal articles`,
-                      code: 'ASSETS DECK',
-                      icon: BookOpen,
-                      iconColor: 'text-emerald-500'
-                    }
-                  ].map((card) => {
-                    const isSelected = activeCardIndex === card.index;
-                    const IconComponent = card.icon;
-                    return (
-                      <div
-                        key={card.index}
-                        onClick={() => {
-                          setActiveCardIndex(card.index);
-                          triggerQuickAction(`Tapped ${card.code}. Telemetry lines synchronized.`);
-                        }}
-                        className={`relative rounded-xl p-5 border cursor-pointer transition-all duration-250 select-none overflow-hidden group flex flex-col justify-between h-36 ${
-                          isSelected 
-                            ? 'bg-zinc-900/30 dark:bg-zinc-900/30 light:bg-zinc-50/50 border-amber-500/50 dark:border-amber-500/50 ring-1 ring-amber-500/10' 
-                            : 'bg-white dark:bg-zinc-900/20 border-zinc-200 dark:border-zinc-850 hover:bg-zinc-50 dark:hover:bg-zinc-900/40 hover:border-zinc-300 dark:hover:border-zinc-800'
-                        }`}
-                        id={`telemetry-card-${card.index}`}
-                      >
-                        {/* Top block */}
-                        <div className="flex justify-between items-start">
-                          <div className="space-y-0.5">
-                            <span className="block text-[10px] font-mono font-semibold tracking-wider text-zinc-400 dark:text-zinc-500 uppercase">
-                              {card.label}
-                            </span>
-                            <span className="block text-[9px] font-mono text-zinc-500 dark:text-zinc-600">
-                              {card.code}
-                            </span>
-                          </div>
-                          <div className={`p-2 rounded-lg bg-zinc-100 dark:bg-zinc-950/80 border border-zinc-200/50 dark:border-zinc-850 ${isSelected ? 'border-amber-500/30' : ''} transition-all`}>
-                            <IconComponent className={`w-4 h-4 ${card.iconColor}`} />
-                          </div>
-                        </div>
+                {/* Mobile Quick Navigation Shortcuts */}
+                <div className="pt-2 border-t border-zinc-800/80 dark:border-zinc-800/80 light:border-zinc-200 flex flex-wrap gap-2 text-xs font-mono">
+                  <button
+                    onClick={() => {
+                      setOrderForm({
+                        customerName: '',
+                        customerPhone: '',
+                        customerAddress: '',
+                        items: [],
+                        discount: 0,
+                        paidAmount: 0,
+                        notes: '',
+                        status: 'Pending Due'
+                      });
+                      setIsOrderModalOpen(true);
+                      setActiveTab('orders');
+                    }}
+                    className="px-3 py-2 sm:py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold flex items-center gap-1.5 transition-colors cursor-pointer min-h-[38px] sm:min-h-[auto]"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>New Order / Invoice</span>
+                  </button>
 
-                        {/* Value block */}
-                        <div className="mt-1">
-                          <span className="block font-display font-extrabold text-2xl sm:text-3xl text-zinc-900 dark:text-zinc-50 tracking-tight leading-none">
-                            {card.value}
-                          </span>
-                        </div>
+                  <button
+                    onClick={() => setActiveTab('orders')}
+                    className="px-3 py-2 sm:py-1.5 rounded-lg bg-zinc-950 dark:bg-zinc-950 light:bg-white border border-zinc-800 dark:border-zinc-800 light:border-zinc-200 text-zinc-300 light:text-zinc-800 hover:border-amber-500/40 flex items-center gap-1.5 transition-colors cursor-pointer min-h-[38px] sm:min-h-[auto]"
+                  >
+                    <ShoppingBag className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Work Orders ({totalOrdersCount})</span>
+                  </button>
 
-                        {/* Bottom line */}
-                        <div className="border-t border-zinc-100 dark:border-zinc-850/60 pt-2.5 mt-2.5 flex items-center justify-between text-[10px] text-zinc-500 dark:text-zinc-400">
-                          <span className="font-mono truncate max-w-[180px]">{card.subtext}</span>
-                          <span className="font-mono text-[9px] px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-950/60 text-zinc-450 dark:text-zinc-500 uppercase tracking-widest font-bold">
-                            {isSelected ? 'ACTIVE' : 'STANDBY'}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
+                  <button
+                    onClick={() => setActiveTab('maintenance')}
+                    className="px-3 py-2 sm:py-1.5 rounded-lg bg-zinc-950 dark:bg-zinc-950 light:bg-white border border-zinc-800 dark:border-zinc-800 light:border-zinc-200 text-zinc-300 light:text-zinc-800 hover:border-amber-500/40 flex items-center gap-1.5 transition-colors cursor-pointer min-h-[38px] sm:min-h-[auto]"
+                  >
+                    <Wrench className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Equipment ({totalEquipmentCount})</span>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab('customers')}
+                    className="px-3 py-2 sm:py-1.5 rounded-lg bg-zinc-950 dark:bg-zinc-950 light:bg-white border border-zinc-800 dark:border-zinc-800 light:border-zinc-200 text-zinc-300 light:text-zinc-800 hover:border-amber-500/40 flex items-center gap-1.5 transition-colors cursor-pointer min-h-[38px] sm:min-h-[auto]"
+                  >
+                    <Users className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Clients ({totalCustomersCount})</span>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab('messages')}
+                    className="px-3 py-2 sm:py-1.5 rounded-lg bg-zinc-950 dark:bg-zinc-950 light:bg-white border border-zinc-800 dark:border-zinc-800 light:border-zinc-200 text-zinc-300 light:text-zinc-800 hover:border-amber-500/40 flex items-center gap-1.5 transition-colors cursor-pointer min-h-[38px] sm:min-h-[auto]"
+                  >
+                    <Inbox className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Inquiries ({totalMessagesCount})</span>
+                  </button>
                 </div>
               </div>
 
-              {/* VOICE DICTATION & QUICK FIELD NOTES WIDGET */}
+              {/* 4 CORE KPI STAT CARDS GRID */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                
+                {/* 1. Work Orders & Revenue */}
+                <div 
+                  onClick={() => setActiveTab('orders')}
+                  className="p-3.5 sm:p-4 bg-zinc-900/40 dark:bg-zinc-900/40 light:bg-white border border-zinc-800 dark:border-zinc-800 light:border-zinc-200 hover:border-amber-500/50 rounded-xl transition-all cursor-pointer group space-y-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-400 light:text-zinc-600">
+                      Work Orders
+                    </span>
+                    <div className="p-1.5 rounded bg-amber-500/10 text-amber-500">
+                      <ShoppingBag className="w-4 h-4" />
+                    </div>
+                  </div>
+                  <div>
+                    <span className="block text-xl sm:text-2xl font-extrabold text-zinc-100 dark:text-zinc-100 light:text-zinc-900 font-mono">
+                      ৳{totalRevenue.toLocaleString()}
+                    </span>
+                    <span className="block text-[11px] font-mono text-zinc-400 mt-0.5">
+                      {completedOrders} Done | <span className="text-amber-400 font-semibold">{pendingOrders} Pending</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* 2. Maintenance Status */}
+                <div 
+                  onClick={() => setActiveTab('maintenance')}
+                  className="p-3.5 sm:p-4 bg-zinc-900/40 dark:bg-zinc-900/40 light:bg-white border border-zinc-800 dark:border-zinc-800 light:border-zinc-200 hover:border-amber-500/50 rounded-xl transition-all cursor-pointer group space-y-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-400 light:text-zinc-600">
+                      Equipment Log
+                    </span>
+                    <div className="p-1.5 rounded bg-amber-500/10 text-amber-500">
+                      <Wrench className="w-4 h-4" />
+                    </div>
+                  </div>
+                  <div>
+                    <span className="block text-xl sm:text-2xl font-extrabold text-zinc-100 dark:text-zinc-100 light:text-zinc-900 font-mono">
+                      {totalEquipmentCount} Units
+                    </span>
+                    <span className="block text-[11px] font-mono text-zinc-400 mt-0.5">
+                      {equipmentDue > 0 ? (
+                        <span className="text-rose-400 font-bold">{equipmentDue} Service Due</span>
+                      ) : (
+                        <span className="text-emerald-400 font-bold">All Operational</span>
+                      )}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 3. Clients Directory */}
+                <div 
+                  onClick={() => setActiveTab('customers')}
+                  className="p-3.5 sm:p-4 bg-zinc-900/40 dark:bg-zinc-900/40 light:bg-white border border-zinc-800 dark:border-zinc-800 light:border-zinc-200 hover:border-amber-500/50 rounded-xl transition-all cursor-pointer group space-y-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-400 light:text-zinc-600">
+                      Industrial Clients
+                    </span>
+                    <div className="p-1.5 rounded bg-amber-500/10 text-amber-500">
+                      <Users className="w-4 h-4" />
+                    </div>
+                  </div>
+                  <div>
+                    <span className="block text-xl sm:text-2xl font-extrabold text-zinc-100 dark:text-zinc-100 light:text-zinc-900 font-mono">
+                      {totalCustomersCount} Directory
+                    </span>
+                    <span className="block text-[11px] font-mono text-zinc-400 mt-0.5">
+                      {activeCustomersCount} Active Retainers
+                    </span>
+                  </div>
+                </div>
+
+                {/* 4. Inquiries Inbox */}
+                <div 
+                  onClick={() => setActiveTab('messages')}
+                  className="p-3.5 sm:p-4 bg-zinc-900/40 dark:bg-zinc-900/40 light:bg-white border border-zinc-800 dark:border-zinc-800 light:border-zinc-200 hover:border-amber-500/50 rounded-xl transition-all cursor-pointer group space-y-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-400 light:text-zinc-600">
+                      Inquiries Inbox
+                    </span>
+                    <div className="p-1.5 rounded bg-amber-500/10 text-amber-500">
+                      <Inbox className="w-4 h-4" />
+                    </div>
+                  </div>
+                  <div>
+                    <span className="block text-xl sm:text-2xl font-extrabold text-zinc-100 dark:text-zinc-100 light:text-zinc-900 font-mono">
+                      {totalMessagesCount} Messages
+                    </span>
+                    <span className="block text-[11px] font-mono text-amber-400 font-semibold mt-0.5">
+                      Direct Consultations
+                    </span>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* COMPACT VOICE & FIELD NOTES WIDGET */}
               <QuickFieldNotesWidget
                 fieldNotes={quickFieldNotes}
                 setFieldNotes={setQuickFieldNotes}
@@ -2372,552 +2440,170 @@ export default function Admin({ onSync }: AdminProps) {
                 onConvertToCaseStudy={handleConvertFieldNoteToCaseStudy}
               />
 
-              {/* BENTO GRID DOUBLE-COLUMN LAYOUT */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {/* REAL DATA OVERVIEW PANELS (2 COLUMNS) */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-start">
                 
-                {/* LEFT BENTO PANELS (CHARTS & HUD) */}
-                <div className="lg:col-span-8 space-y-6">
-                  
-                  {/* MAIN CHART PANEL: "YOUR BALANCE SUMMARY" */}
-                  <div className="p-5 bg-zinc-900/40 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-xl">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-zinc-850 dark:border-zinc-800/50 light:border-zinc-100 pb-4 mb-4 gap-3">
-                      <div>
-                        <span className="font-mono text-[9px] text-zinc-500 uppercase tracking-wider block">
-                          Core Live Telemetry Link
-                        </span>
-                        <h4 className="font-display font-bold text-sm text-zinc-100 light:text-zinc-900 uppercase">
-                          {activeSet.code} — Telemetry Metrics Summary
-                        </h4>
-                      </div>
-                      
-                      {/* Controls: Period Select & Legend */}
-                      <div className="flex items-center gap-3">
-                        <div className="flex rounded-md bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 p-0.5 border border-zinc-850 dark:border-zinc-850 light:border-zinc-200 text-[10px] font-mono">
-                          <button
-                            onClick={() => setChartPeriod('weekly')}
-                            className={`px-2.5 py-1 rounded-sm transition-colors ${
-                              chartPeriod === 'weekly' 
-                                ? 'bg-amber-500 text-zinc-950 font-bold' 
-                                : 'text-zinc-400 light:text-zinc-650'
-                            }`}
-                          >
-                            Weekly
-                          </button>
-                          <button
-                            onClick={() => setChartPeriod('monthly')}
-                            className={`px-2.5 py-1 rounded-sm transition-colors ${
-                              chartPeriod === 'monthly' 
-                                ? 'bg-amber-500 text-zinc-950 font-bold' 
-                                : 'text-zinc-400 light:text-zinc-650'
-                            }`}
-                          >
-                            Monthly
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* SVG GRAPH PLOTTING CONTAINER */}
-                    <div className="relative">
-                      {/* Chart Legend */}
-                      <div className="flex gap-4 font-mono text-[10px] mb-3 justify-end px-2">
-                        <span className="flex items-center gap-1.5">
-                          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: activeSet.color1 }} />
-                          <span className="text-zinc-300 light:text-zinc-700">{activeSet.label1}</span>
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: activeSet.color2 }} />
-                          <span className="text-zinc-300 light:text-zinc-700">{activeSet.label2}</span>
-                        </span>
-                      </div>
-
-                      <div className="w-full overflow-x-auto select-none">
-                        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto">
-                          <defs>
-                            {/* Gradients */}
-                            <linearGradient id="gradient1" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor={activeSet.color1} stopOpacity="0.25" />
-                              <stop offset="100%" stopColor={activeSet.color1} stopOpacity="0.0" />
-                            </linearGradient>
-                            <linearGradient id="gradient2" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor={activeSet.color2} stopOpacity="0.25" />
-                              <stop offset="100%" stopColor={activeSet.color2} stopOpacity="0.0" />
-                            </linearGradient>
-                          </defs>
-
-                          {/* Grid lines */}
-                          {gridLinesY.map((line, i) => (
-                            <g key={i}>
-                              <line 
-                                x1={paddingLeft} 
-                                y1={line.y} 
-                                x2={width - paddingRight} 
-                                y2={line.y} 
-                                className="stroke-zinc-800 dark:stroke-zinc-850 light:stroke-zinc-200 stroke-[0.5]" 
-                                strokeDasharray="3 3"
-                              />
-                              <text 
-                                x={paddingLeft - 8} 
-                                y={line.y + 3} 
-                                textAnchor="end" 
-                                className="fill-zinc-500 font-mono text-[8px]"
-                              >
-                                {(line.val || 0).toLocaleString()}
-                              </text>
-                            </g>
-                          ))}
-
-                          {/* Area & Line 2 (Secondary Metric) */}
-                          <path d={areaD2} fill="url(#gradient2)" />
-                          <path 
-                            d={pathD2} 
-                            fill="none" 
-                            stroke={activeSet.color2} 
-                            strokeWidth="1.5" 
-                            strokeLinecap="round" 
-                            strokeLinejoin="round" 
-                          />
-
-                          {/* Area & Line 1 (Primary Metric) */}
-                          <path d={areaD1} fill="url(#gradient1)" />
-                          <path 
-                            d={pathD1} 
-                            fill="none" 
-                            stroke={activeSet.color1} 
-                            strokeWidth="2" 
-                            strokeLinecap="round" 
-                            strokeLinejoin="round" 
-                          />
-
-                          {/* X Axis Labels */}
-                          {activeLabels.map((lbl, i) => {
-                            const x = paddingLeft + (i / (activeLabels.length - 1)) * (width - paddingLeft - paddingRight);
-                            return (
-                              <text 
-                                key={i} 
-                                x={x} 
-                                y={height - 10} 
-                                textAnchor="middle" 
-                                className="fill-zinc-400 font-mono text-[9px]"
-                              >
-                                {lbl}
-                              </text>
-                            );
-                          })}
-
-                          {/* Interaction Nodes (Circles) */}
-                          {points1.map((p, i) => (
-                            <g key={`p1-${i}`}>
-                              <circle 
-                                cx={p.x} 
-                                cy={p.y} 
-                                r={hoveredDataPoint === i ? 5 : 3.5} 
-                                fill="#09090b" 
-                                stroke={activeSet.color1} 
-                                strokeWidth="1.5"
-                                onMouseEnter={() => setHoveredDataPoint(i)}
-                                onMouseLeave={() => setHoveredDataPoint(null)}
-                                className="cursor-pointer transition-all"
-                              />
-                            </g>
-                          ))}
-
-                          {points2.map((p, i) => (
-                            <g key={`p2-${i}`}>
-                              <circle 
-                                cx={p.x} 
-                                cy={p.y} 
-                                r={hoveredDataPoint === i ? 5 : 3} 
-                                fill="#09090b" 
-                                stroke={activeSet.color2} 
-                                strokeWidth="1"
-                                onMouseEnter={() => setHoveredDataPoint(i)}
-                                onMouseLeave={() => setHoveredDataPoint(null)}
-                                className="cursor-pointer transition-all"
-                              />
-                            </g>
-                          ))}
-                        </svg>
-                      </div>
-
-                      {/* Dynamic Live Floating Tooltip */}
-                      {hoveredDataPoint !== null && (
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-zinc-950/95 dark:bg-zinc-950/95 light:bg-white/95 border border-zinc-800 dark:border-zinc-800 light:border-zinc-250 p-3 rounded-lg shadow-xl pointer-events-none font-mono text-[10px] space-y-1.5 min-w-[150px] z-20">
-                          <span className="block font-bold text-zinc-400 light:text-zinc-500 uppercase tracking-wide">
-                            {activeLabels[hoveredDataPoint]} Logs
-                          </span>
-                          <div className="flex justify-between gap-4 border-t border-zinc-850/50 pt-1">
-                            <span className="text-zinc-500">Primary:</span>
-                            <span className="font-bold text-zinc-200 light:text-zinc-900">
-                              {(activeData[hoveredDataPoint] || 0).toLocaleString()}{activeSet.suffix}
-                            </span>
-                          </div>
-                          <div className="flex justify-between gap-4">
-                            <span className="text-zinc-500 font-medium">Secondary:</span>
-                            <span className="font-bold text-zinc-300 light:text-zinc-700">
-                              {(activeData2[hoveredDataPoint] || 0).toLocaleString()}
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Quick operational statistics footer */}
-                    <div className="grid grid-cols-3 gap-2 border-t border-zinc-850 dark:border-zinc-850 light:border-zinc-250 pt-4 mt-3 font-mono text-[10px]">
-                      <div>
-                        <span className="text-zinc-500 block">Peak Metric:</span>
-                        <span className="font-bold text-zinc-200 light:text-zinc-900">
-                          {(Math.max(...(activeData.length ? activeData : [0])) || 0).toLocaleString()}{activeSet.suffix}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-zinc-500 block">Lowest Record:</span>
-                        <span className="font-bold text-zinc-200 light:text-zinc-900">
-                          {(Math.min(...(activeData.length ? activeData : [0])) || 0).toLocaleString()}{activeSet.suffix}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-zinc-500 block">Grid Status Index:</span>
-                        <span className="text-emerald-500 font-bold block">● SECURED / STABLE</span>
-                      </div>
-                    </div>
+                {/* RECENT WORK ORDERS PANEL */}
+                <div className="p-4 sm:p-5 bg-zinc-900/40 dark:bg-zinc-900/40 light:bg-white border border-zinc-800 dark:border-zinc-800 light:border-zinc-200 rounded-xl space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-zinc-800 dark:border-zinc-800 light:border-zinc-200">
+                    <h3 className="text-xs font-mono font-bold text-zinc-100 dark:text-zinc-100 light:text-zinc-900 uppercase tracking-wider flex items-center gap-2">
+                      <ShoppingBag className="w-4 h-4 text-amber-500" />
+                      <span>Recent Work Orders ({orders.length})</span>
+                    </h3>
+                    <button
+                      onClick={() => setActiveTab('orders')}
+                      className="text-[11px] font-mono text-amber-500 hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <span>View All</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
                   </div>
 
-                  {/* DUO PANEL: CONCENTRIC HUD GRAPH & BAR DIAGRAMS */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
-                    {/* Concentric high tech circular rings */}
-                    <div className="p-5 bg-zinc-900/40 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-xl flex flex-col justify-between">
-                      <div>
-                        <span className="font-mono text-[9px] text-zinc-500 block uppercase tracking-wider">
-                          Categories HUD Meter
-                        </span>
-                        <h4 className="font-display font-bold text-xs text-zinc-100 light:text-zinc-900 uppercase">
-                          Industrial Section Distribution
-                        </h4>
-                      </div>
-
-                      {/* Rings display */}
-                      <div className="flex flex-col sm:flex-row items-center gap-6 py-4">
-                        <div className="relative w-28 h-28 flex-shrink-0">
-                          <svg viewBox="0 0 36 36" className="w-full h-full transform -rotate-90">
-                            {/* Inner Circle backing */}
-                            <circle cx="18" cy="18" r="16" fill="none" className="stroke-zinc-800 dark:stroke-zinc-850 light:stroke-zinc-100" strokeWidth="2" />
-                            <circle cx="18" cy="18" r="13" fill="none" className="stroke-zinc-800 dark:stroke-zinc-850 light:stroke-zinc-100" strokeWidth="2" />
-                            <circle cx="18" cy="18" r="10" fill="none" className="stroke-zinc-800 dark:stroke-zinc-850 light:stroke-zinc-100" strokeWidth="2" />
-
-                            {/* Ring 1 (Amber) - Grid Operations (85%) */}
-                            <circle 
-                              cx="18" cy="18" r="16" 
-                              fill="none" 
-                              stroke="#f59e0b" 
-                              strokeWidth="2" 
-                              strokeDasharray="85 100" 
-                              strokeLinecap="round"
-                            />
-                            {/* Ring 2 (Emerald) - Protection Relays (68%) */}
-                            <circle 
-                              cx="18" cy="18" r="13" 
-                              fill="none" 
-                              stroke="#10b981" 
-                              strokeWidth="2" 
-                              strokeDasharray="68 100" 
-                              strokeLinecap="round"
-                            />
-                            {/* Ring 3 (Indigo) - Publications (45%) */}
-                            <circle 
-                              cx="18" cy="18" r="10" 
-                              fill="none" 
-                              stroke="#6366f1" 
-                              strokeWidth="2" 
-                              strokeDasharray="45 100" 
-                              strokeLinecap="round"
-                            />
-                          </svg>
-                          <div className="absolute inset-0 flex items-center justify-center font-mono text-[10px] text-zinc-500">
-                            85% MAX
-                          </div>
-                        </div>
-
-                        {/* Legends */}
-                        <div className="space-y-2.5 font-mono text-[10px] w-full text-left">
-                          <div className="flex justify-between items-center">
-                            <span className="flex items-center gap-1.5">
-                              <span className="w-2 h-2 rounded-full bg-amber-500" />
-                              <span className="text-zinc-400 light:text-zinc-650">Substation Grid (85%)</span>
-                            </span>
-                            <span className="font-bold text-zinc-200 light:text-zinc-950">4.5 kVA</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="flex items-center gap-1.5">
-                              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                              <span className="text-zinc-400 light:text-zinc-650">Relays & Safety (68%)</span>
-                            </span>
-                            <span className="font-bold text-zinc-200 light:text-zinc-950">Active</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="flex items-center gap-1.5">
-                              <span className="w-2 h-2 rounded-full bg-indigo-500" />
-                              <span className="text-zinc-400 light:text-zinc-650">Journal Notes (45%)</span>
-                            </span>
-                            <span className="font-bold text-zinc-200 light:text-zinc-950">Logged</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Bar chart - Peaks per weekday */}
-                    <div className="p-5 bg-zinc-900/40 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-xl flex flex-col justify-between">
-                      <div>
-                        <span className="font-mono text-[9px] text-zinc-500 block uppercase tracking-wider">
-                          Daily Maintenance Logs
-                        </span>
-                        <h4 className="font-display font-bold text-xs text-zinc-100 light:text-zinc-900 uppercase">
-                          Peak Substation Checks
-                        </h4>
-                      </div>
-
-                      <div className="flex justify-between items-end h-28 pt-4 pb-2 px-1">
-                        {[
-                          { day: 'Sun', height: '60%', val: 6 },
-                          { day: 'Mon', height: '80%', val: 8 },
-                          { day: 'Tue', height: '40%', val: 4 },
-                          { day: 'Wed', height: '95%', val: 10, highlight: true },
-                          { day: 'Thu', height: '70%', val: 7 },
-                          { day: 'Fri', height: '30%', val: 3 },
-                          { day: 'Sat', height: '50%', val: 5 }
-                        ].map((bar, idx) => (
-                          <div key={idx} className="flex flex-col items-center gap-1.5 flex-1">
-                            {/* Bar Cylinder */}
-                            <div className="w-2.5 sm:w-3.5 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 h-20 rounded-full flex items-end overflow-hidden relative border border-zinc-850 dark:border-zinc-850 light:border-zinc-200">
-                              <div 
-                                className={`w-full rounded-full transition-all duration-500 ${
-                                  bar.highlight 
-                                    ? 'bg-gradient-to-t from-amber-600 to-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.5)]' 
-                                    : 'bg-gradient-to-t from-zinc-700 to-zinc-500'
-                                }`} 
-                                style={{ height: bar.height }} 
-                              />
+                  {orders.length === 0 ? (
+                    <p className="text-xs font-mono text-zinc-500 text-center py-4">No work orders recorded yet.</p>
+                  ) : (
+                    <div className="space-y-2.5">
+                      {orders.slice(0, 4).map((order) => (
+                        <div
+                          key={order.id}
+                          className="p-3 bg-zinc-950/60 dark:bg-zinc-950/60 light:bg-zinc-50 border border-zinc-800/80 dark:border-zinc-800/80 light:border-zinc-200 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+                        >
+                          <div className="space-y-0.5 text-left">
+                            <div className="flex items-center space-x-2">
+                              <span className="font-mono text-xs font-bold text-zinc-100 dark:text-zinc-100 light:text-zinc-900">
+                                {order.invoiceNo || order.id}
+                              </span>
+                              <span className={`text-[9px] font-mono px-2 py-0.5 rounded font-bold ${
+                                order.status === 'Completed' 
+                                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                                  : order.status === 'Pending Due'
+                                  ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                                  : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                              }`}>
+                                {order.status}
+                              </span>
                             </div>
-                            <span className="font-mono text-[8px] text-zinc-500">{bar.day}</span>
+                            <p className="text-xs text-zinc-300 dark:text-zinc-300 light:text-zinc-800 font-semibold truncate max-w-[220px]">
+                              {order.customerName}
+                            </p>
+                            <p className="text-[10px] font-mono text-zinc-500">
+                              {order.date}
+                            </p>
                           </div>
-                        ))}
-                      </div>
+
+                          <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-zinc-800">
+                            <span className="font-mono text-sm font-bold text-amber-400">
+                              ৳{(order.netTotal || 0).toLocaleString()}
+                            </span>
+                            {order.customerPhone && (
+                              <a
+                                href={`https://wa.me/${order.customerPhone.replace(/[^0-9]/g, '')}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="p-1.5 rounded bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 text-[10px] font-mono flex items-center gap-1 transition-colors"
+                                title="Contact via WhatsApp"
+                              >
+                                <span>WhatsApp</span>
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-
-                  </div>
-
+                  )}
                 </div>
 
-                {/* RIGHT BENTO PANELS (CONTACTS & DYNAMIC CONTROL) */}
-                <div className="lg:col-span-4 space-y-6">
+                {/* EQUIPMENT MAINTENANCE LOGS & RECENT INQUIRIES */}
+                <div className="space-y-4">
                   
-                  {/* DYNAMIC QUICK EDITOR DESK */}
-                  <div className="p-5 bg-zinc-900/40 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-12 h-12 pointer-events-none overflow-hidden">
-                      <div className="bg-amber-500 text-zinc-950 text-[6px] font-mono font-bold text-center py-1 absolute transform rotate-45 top-2 right-[-20px] w-[70px] uppercase tracking-wider">
-                        Quick-Edit
-                      </div>
-                    </div>
-
-                    <h4 className="font-display font-bold text-xs text-zinc-100 light:text-zinc-900 uppercase tracking-wider border-b border-zinc-850 dark:border-zinc-800/50 light:border-zinc-100 pb-3 mb-4 flex items-center gap-2">
-                      <Wrench className="w-3.5 h-3.5 text-amber-500" />
-                      <span>Quick Operations Desk</span>
-                    </h4>
-
-                    {/* Form for rapid parameter modification */}
-                    <div className="space-y-4">
-                      <div className="space-y-1">
-                        <label className="block font-mono text-[9px] text-zinc-400 light:text-zinc-500 uppercase">
-                          Homepage Hero Tagline
-                        </label>
-                        <input 
-                          type="text" 
-                          value={homepageContent.heroTagline}
-                          onChange={e => {
-                            setHomepageContent(prev => ({ ...prev, heroTagline: e.target.value }));
-                          }}
-                          className={`${inputClass} h-8 text-xs font-mono`}
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="block font-mono text-[9px] text-zinc-400 light:text-zinc-500 uppercase">
-                          Hero Main Title
-                        </label>
-                        <input 
-                          type="text" 
-                          value={homepageContent.heroHeading}
-                          onChange={e => {
-                            setHomepageContent(prev => ({ ...prev, heroHeading: e.target.value }));
-                          }}
-                          className={`${inputClass} h-8 text-xs`}
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="block font-mono text-[9px] text-zinc-400 light:text-zinc-500 uppercase">
-                          Designation Credentials
-                        </label>
-                        <input 
-                          type="text" 
-                          value={homepageContent.heroProfileTitle}
-                          onChange={e => {
-                            setHomepageContent(prev => ({ ...prev, heroProfileTitle: e.target.value }));
-                          }}
-                          className={`${inputClass} h-8 text-xs font-mono`}
-                        />
-                      </div>
-
-                      <div className="space-y-2 pt-1">
-                        <span className="block font-mono text-[9px] text-zinc-400 light:text-zinc-500 uppercase">
-                          On-Duty Operator Status
-                        </span>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => {
-                              setHomepageContent(prev => ({ ...prev, heroProfileName: 'Sahin Alom (Active Monitor)' }));
-                              triggerQuickAction('Status updated to Active Monitoring');
-                            }}
-                            className={`flex-1 py-1 px-2 text-[10px] font-mono rounded border transition-all ${
-                              homepageContent.heroProfileName.includes('Active')
-                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500 font-bold'
-                                : 'bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-50 border-zinc-850 text-zinc-400'
-                            }`}
-                          >
-                            Active Monitor
-                          </button>
-                          <button
-                            onClick={() => {
-                              setHomepageContent(prev => ({ ...prev, heroProfileName: 'Sahin Alom' }));
-                              triggerQuickAction('Status reset to Default');
-                            }}
-                            className={`flex-1 py-1 px-2 text-[10px] font-mono rounded border transition-all ${
-                              !homepageContent.heroProfileName.includes('Active')
-                                ? 'bg-zinc-800 border-zinc-700 text-zinc-200 font-bold'
-                                : 'bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-50 border-zinc-850 text-zinc-400'
-                            }`}
-                          >
-                            Default (Off-Line)
-                          </button>
-                        </div>
-                      </div>
-
+                  {/* Equipment Maintenance Panel */}
+                  <div className="p-4 sm:p-5 bg-zinc-900/40 dark:bg-zinc-900/40 light:bg-white border border-zinc-800 dark:border-zinc-800 light:border-zinc-200 rounded-xl space-y-3">
+                    <div className="flex items-center justify-between pb-3 border-b border-zinc-800 dark:border-zinc-800 light:border-zinc-200">
+                      <h3 className="text-xs font-mono font-bold text-zinc-100 dark:text-zinc-100 light:text-zinc-900 uppercase tracking-wider flex items-center gap-2">
+                        <Wrench className="w-4 h-4 text-amber-500" />
+                        <span>Equipment Inspection Status</span>
+                      </h3>
                       <button
-                        onClick={() => {
-                          localStorage.setItem('sahin_homepage_content', JSON.stringify(homepageContent));
-                          if (onSync) onSync();
-                          triggerQuickAction('Homepage parameter serialized & deployed successfully!');
-                        }}
-                        className={`${btnAmberClass} w-full mt-2 h-9`}
+                        onClick={() => setActiveTab('maintenance')}
+                        className="text-[11px] font-mono text-amber-500 hover:underline flex items-center gap-1 cursor-pointer"
                       >
-                        <Save className="w-3.5 h-3.5" />
-                        <span>Commit & Deploy Parameters</span>
+                        <span>Open Logbook</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
                       </button>
                     </div>
-                  </div>
 
-                  {/* CONTACTS LIST (REPRESENTING INCOMING SIGNALS) */}
-                  <div className="p-5 bg-zinc-900/40 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-xl">
-                    <div className="flex justify-between items-center border-b border-zinc-850 dark:border-zinc-800/50 light:border-zinc-100 pb-3 mb-4">
-                      <h4 className="font-display font-bold text-xs text-zinc-100 light:text-zinc-900 uppercase tracking-wider flex items-center gap-2">
-                        <Inbox className="w-3.5 h-3.5 text-amber-500" />
-                        <span>Contacts Transmissions</span>
-                      </h4>
-                      <span className="bg-amber-500 text-zinc-950 text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full">
-                        {messages.length || 3} Inbox
-                      </span>
-                    </div>
-
-                    <div className="space-y-3.5">
-                      {displayContacts.map((contact) => (
-                        <div 
-                          key={contact.id}
-                          onClick={() => {
-                            // Find real message if possible
-                            const realMsg = messages.find(m => m.id === contact.id);
-                            if (realMsg) {
-                              setSelectedMessage(realMsg);
-                            } else {
-                              setSelectedMessage({
-                                id: contact.id,
-                                name: contact.name,
-                                email: contact.email,
-                                company: contact.company,
-                                message: contact.message,
-                                date: contact.date
-                              });
-                            }
-                            setActiveTab('messages');
-                            triggerQuickAction(`Synthesized transmission link for ${contact.name}`);
-                          }}
-                          className="flex items-start justify-between gap-3 p-2.5 rounded-lg bg-zinc-950/50 dark:bg-zinc-950/50 light:bg-zinc-50 border border-zinc-900 dark:border-zinc-900 light:border-zinc-250 hover:border-amber-500/30 cursor-pointer transition-colors group"
+                    <div className="space-y-2">
+                      {maintenanceLogs.slice(0, 3).map((item) => (
+                        <div
+                          key={item.id}
+                          className="p-2.5 bg-zinc-950/60 dark:bg-zinc-950/60 light:bg-zinc-50 border border-zinc-800/80 dark:border-zinc-800/80 light:border-zinc-200 rounded-lg flex items-center justify-between gap-2"
                         >
-                          <div className="flex items-center gap-3">
-                            {/* Colorful avatar ring */}
-                            <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${contact.color} text-zinc-950 font-bold font-mono text-[11px] flex items-center justify-center flex-shrink-0 shadow-md`}>
-                              {contact.initial}
-                            </div>
-                            <div className="text-left">
-                              <span className="block text-xs font-semibold text-zinc-200 light:text-zinc-900 group-hover:text-amber-500 transition-colors">
-                                {contact.name}
-                              </span>
-                              <span className="block text-[9px] font-mono text-zinc-500 leading-none truncate max-w-[140px] mt-0.5">
-                                {contact.company}
-                              </span>
-                            </div>
+                          <div className="space-y-0.5 text-left">
+                            <span className="font-mono text-xs font-bold text-zinc-200 dark:text-zinc-200 light:text-zinc-900 block">
+                              {item.equipmentName}
+                            </span>
+                            <span className="text-[10px] font-mono text-zinc-500 block">
+                              {item.category} • {item.location}
+                            </span>
                           </div>
-
-                          <span className="font-mono text-[8px] text-zinc-600 dark:text-zinc-500 uppercase mt-0.5 whitespace-nowrap">
-                            {contact.date.split(',')[0]}
+                          <span className={`text-[9px] font-mono px-2 py-0.5 rounded font-bold shrink-0 ${
+                            item.status === 'Operational' || item.status === 'Pass'
+                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                              : 'bg-rose-500/10 text-rose-400 border border-rose-500/20 animate-pulse'
+                          }`}>
+                            {item.status}
                           </span>
                         </div>
                       ))}
                     </div>
-
-                    <button 
-                      onClick={() => setActiveTab('messages')}
-                      className="w-full text-center mt-4 text-[10px] font-mono text-amber-500 uppercase hover:underline block"
-                    >
-                      View all incoming transmission traffic
-                    </button>
                   </div>
 
-                  {/* SAFETY SYSTEM LOGS DIAGNOSTIC */}
-                  <div className="p-5 bg-zinc-900/40 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-xl">
-                    <div className="flex items-center justify-between border-b border-zinc-850 dark:border-zinc-800/50 light:border-zinc-100 pb-3 mb-3">
-                      <div className="flex items-center space-x-2">
-                        <Activity className="w-3.5 h-3.5 text-emerald-500" />
-                        <h4 className="font-display font-bold text-xs text-zinc-100 light:text-zinc-900 uppercase">
-                          Relay Diagnostics
-                        </h4>
-                      </div>
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    </div>
-
-                    <div className="space-y-3 font-mono text-[10px]">
-                      <p className="text-zinc-400 light:text-zinc-600 text-xs leading-relaxed">
-                        Execute ground loop continuity scan sequence compliant with safety codes.
-                      </p>
-                      
-                      <button 
-                        onClick={runRelayDiagnostic}
-                        disabled={simulationActive}
-                        className="w-full py-1.5 rounded bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border border-zinc-850 hover:border-emerald-500/50 font-mono text-[10px] text-emerald-500 transition-colors flex items-center justify-center space-x-1.5 cursor-pointer font-bold"
+                  {/* Latest Inquiries Transmissions */}
+                  <div className="p-4 sm:p-5 bg-zinc-900/40 dark:bg-zinc-900/40 light:bg-white border border-zinc-800 dark:border-zinc-800 light:border-zinc-200 rounded-xl space-y-3">
+                    <div className="flex items-center justify-between pb-3 border-b border-zinc-800 dark:border-zinc-800 light:border-zinc-200">
+                      <h3 className="text-xs font-mono font-bold text-zinc-100 dark:text-zinc-100 light:text-zinc-900 uppercase tracking-wider flex items-center gap-2">
+                        <Inbox className="w-4 h-4 text-amber-500" />
+                        <span>Client Inquiries ({messages.length})</span>
+                      </h3>
+                      <button
+                        onClick={() => setActiveTab('messages')}
+                        className="text-[11px] font-mono text-amber-500 hover:underline cursor-pointer"
                       >
-                        <RefreshCw className={`w-3 h-3 ${simulationActive ? 'animate-spin' : ''}`} />
-                        <span>{simulationActive ? 'Executing Diagnostic...' : 'Run Earth Continuity Scan'}</span>
+                        Inbox
                       </button>
-
-                      <div className="p-2.5 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-50 border border-zinc-900 rounded text-[9px] text-zinc-500 text-left leading-normal overflow-hidden max-h-[80px]">
-                        {simLog}
-                      </div>
                     </div>
+
+                    {messages.length === 0 ? (
+                      <p className="text-xs font-mono text-zinc-500 text-center py-2">No incoming messages.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {messages.slice(0, 2).map((msg) => (
+                          <div
+                            key={msg.id}
+                            onClick={() => {
+                              setSelectedMessage(msg);
+                              setActiveTab('messages');
+                            }}
+                            className="p-2.5 bg-zinc-950/60 dark:bg-zinc-950/60 light:bg-zinc-50 border border-zinc-800/80 dark:border-zinc-800/80 light:border-zinc-200 rounded-lg hover:border-amber-500/40 cursor-pointer transition-colors space-y-1 text-left"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold text-xs text-amber-400">{msg.name}</span>
+                              <span className="font-mono text-[9px] text-zinc-500">{msg.date}</span>
+                            </div>
+                            <p className="text-xs text-zinc-300 dark:text-zinc-300 light:text-zinc-700 line-clamp-1 font-mono">
+                              {msg.message}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                 </div>
 
               </div>
+
             </div>
           );
         })()}
@@ -3263,7 +2949,7 @@ export default function Admin({ onSync }: AdminProps) {
 
                           {order.customerPhone && (
                             <a
-                              href={`https://wa.me/88${order.customerPhone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Greetings from Engineers Enterprise. Your work order invoice #${order.invoiceNo} is ready. Total: BDT ${order.grandTotal}, Paid: BDT ${order.paidAmount}, Due: BDT ${order.dueAmount}. Thank you!`)}`}
+                              href={`https://wa.me/88${order.customerPhone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Greetings from Engr. Md. Sahin Alom. Your work order invoice #${order.invoiceNo} is ready. Total: BDT ${order.grandTotal}, Paid: BDT ${order.paidAmount}, Due: BDT ${order.dueAmount}. Thank you!`)}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-mono flex items-center space-x-1 cursor-pointer shrink-0"
@@ -3695,7 +3381,7 @@ export default function Admin({ onSync }: AdminProps) {
                               onClick={() => {
                                 setWhatsAppModalCustomer(customer);
                                 setCustomWaTemplate('inspection_report');
-                                setCustomWaText(`Dear Sir, Greetings from Engineers Enterprise regarding substation maintenance and safety inspection support for ${customer.name}.`);
+                                setCustomWaText(`Dear Sir, Greetings from Engr. Md. Sahin Alom regarding substation maintenance and safety inspection support for ${customer.name}.`);
                               }}
                               className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[11px] font-bold font-mono flex items-center space-x-1 transition-colors shadow-sm cursor-pointer"
                               title="1-Click WhatsApp Message Builder"
@@ -3815,7 +3501,7 @@ export default function Admin({ onSync }: AdminProps) {
                                 onClick={() => {
                                   setWhatsAppModalCustomer(customer);
                                   setCustomWaTemplate('inspection_report');
-                                  setCustomWaText(`Dear Sir, Greetings from Engineers Enterprise regarding substation maintenance and safety inspection support for ${customer.name}.`);
+                                  setCustomWaText(`Dear Sir, Greetings from Engr. Md. Sahin Alom regarding substation maintenance and safety inspection support for ${customer.name}.`);
                                 }}
                                 className="px-2 py-1 bg-emerald-600 text-white rounded text-[10px] font-bold font-mono hover:bg-emerald-500 transition-colors"
                               >
@@ -3948,154 +3634,485 @@ export default function Admin({ onSync }: AdminProps) {
           </div>
         )}
 
-        {/* 2. PAGES EDIT TAB (Hero, subtitles, etc) */}
+        {/* 2. PAGES EDIT TAB (Advanced Homepage Editor) */}
         {activeTab === 'pages' && (
-          <form onSubmit={handleSaveHomepage} className="space-y-6 animate-fade-in text-left">
+          <form onSubmit={handleSaveHomepage} className="space-y-6 animate-fade-in text-left pb-16">
             
-            {/* HERO SECTION EDITS */}
-            <div className="p-5 bg-zinc-900/40 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-lg space-y-4">
-              <div className="flex items-center space-x-2 border-b border-zinc-850 dark:border-zinc-800/50 light:border-zinc-100 pb-3 mb-4">
-                <FileText className="w-4 h-4 text-amber-500" />
-                <h3 className="font-display font-bold text-sm text-zinc-100 light:text-zinc-900 uppercase">
-                  Hero Section Text, Titles & Media Assets
-                </h3>
-              </div>
+            {/* TOP HEADER */}
+            <div className="p-3.5 sm:p-5 bg-zinc-900/60 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-xl shadow-sm">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center space-x-2">
+                  <FileText className="w-5 h-5 text-amber-500 shrink-0" />
+                  <div className="hidden sm:block">
+                    <div className="flex items-center space-x-2">
+                      <h2 className="font-display font-bold text-base text-zinc-100 light:text-zinc-900 tracking-tight">
+                        Homepage Content & Layout Manager
+                      </h2>
+                      <span className="inline-block px-2 py-0.5 text-[10px] font-mono font-bold bg-amber-500/10 text-amber-500 border border-amber-500/30 rounded-full">
+                        Live Sync
+                      </span>
+                    </div>
+                    <p className="text-xs text-zinc-400 light:text-zinc-600 mt-1 font-sans">
+                      সহজে মোবাইল ও ডেক্সটপ দুই ভার্সনের জন্যই হোমপেজের ব্যানার, মেট্রিক্স, মিডিয়া ও টেক্সট কাস্টমাইজ করুন।
+                    </p>
+                  </div>
+                </div>
 
-              <div className="space-y-3">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Hero Tagline</label>
+                <div className="flex items-center space-x-2 shrink-0">
+                  <button
+                    type="submit"
+                    className={`${btnAmberClass} h-9 px-3 sm:px-4 text-xs shadow-md font-bold`}
+                  >
+                    <Save className="w-4 h-4 text-zinc-950" />
+                    <span className="hidden sm:inline">Save</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* RESPONSIVE SUBTAB NAVIGATION CHIPS */}
+            <div className="flex items-center space-x-1 overflow-x-auto pb-2 scrollbar-none border-b border-zinc-850 dark:border-zinc-850 light:border-zinc-200">
+              <button
+                type="button"
+                onClick={() => setHomepageSubTab('hero')}
+                className={`px-3.5 py-2 rounded-lg text-xs font-mono font-medium transition-all whitespace-nowrap cursor-pointer flex items-center space-x-1.5 ${
+                  homepageSubTab === 'hero'
+                    ? 'bg-amber-500 text-zinc-950 font-bold shadow-sm'
+                    : 'bg-zinc-900/60 light:bg-zinc-100 text-zinc-400 light:text-zinc-600 hover:bg-zinc-800 dark:hover:bg-zinc-800 light:hover:bg-zinc-200'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>1. Hero Banner Text</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setHomepageSubTab('stats')}
+                className={`px-3.5 py-2 rounded-lg text-xs font-mono font-medium transition-all whitespace-nowrap cursor-pointer flex items-center space-x-1.5 ${
+                  homepageSubTab === 'stats'
+                    ? 'bg-amber-500 text-zinc-950 font-bold shadow-sm'
+                    : 'bg-zinc-900/60 light:bg-zinc-100 text-zinc-400 light:text-zinc-600 hover:bg-zinc-800 dark:hover:bg-zinc-800 light:hover:bg-zinc-200'
+                }`}
+              >
+                <Activity className="w-3.5 h-3.5" />
+                <span>2. Stats & Metrics</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setHomepageSubTab('media')}
+                className={`px-3.5 py-2 rounded-lg text-xs font-mono font-medium transition-all whitespace-nowrap cursor-pointer flex items-center space-x-1.5 ${
+                  homepageSubTab === 'media'
+                    ? 'bg-amber-500 text-zinc-950 font-bold shadow-sm'
+                    : 'bg-zinc-900/60 light:bg-zinc-100 text-zinc-400 light:text-zinc-600 hover:bg-zinc-800 dark:hover:bg-zinc-800 light:hover:bg-zinc-200'
+                }`}
+              >
+                <Image className="w-3.5 h-3.5" />
+                <span>3. Media & Photo</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setHomepageSubTab('dailyCheck')}
+                className={`px-3.5 py-2 rounded-lg text-xs font-mono font-medium transition-all whitespace-nowrap cursor-pointer flex items-center space-x-1.5 ${
+                  homepageSubTab === 'dailyCheck'
+                    ? 'bg-amber-500 text-zinc-950 font-bold shadow-sm'
+                    : 'bg-zinc-900/60 light:bg-zinc-100 text-zinc-400 light:text-zinc-600 hover:bg-zinc-800 dark:hover:bg-zinc-800 light:hover:bg-zinc-200'
+                }`}
+              >
+                <CheckCircle className="w-3.5 h-3.5" />
+                <span>4. Daily Check Routine</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setHomepageSubTab('sections')}
+                className={`px-3.5 py-2 rounded-lg text-xs font-mono font-medium transition-all whitespace-nowrap cursor-pointer flex items-center space-x-1.5 ${
+                  homepageSubTab === 'sections'
+                    ? 'bg-amber-500 text-zinc-950 font-bold shadow-sm'
+                    : 'bg-zinc-900/60 light:bg-zinc-100 text-zinc-400 light:text-zinc-600 hover:bg-zinc-800 dark:hover:bg-zinc-800 light:hover:bg-zinc-200'
+                }`}
+              >
+                <Layers className="w-3.5 h-3.5" />
+                <span>5. Section Headings</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setHomepageSubTab('logo')}
+                className={`px-3.5 py-2 rounded-lg text-xs font-mono font-medium transition-all whitespace-nowrap cursor-pointer flex items-center space-x-1.5 ${
+                  homepageSubTab === 'logo'
+                    ? 'bg-amber-500 text-zinc-950 font-bold shadow-sm'
+                    : 'bg-zinc-900/60 light:bg-zinc-100 text-zinc-400 light:text-zinc-600 hover:bg-zinc-800 dark:hover:bg-zinc-800 light:hover:bg-zinc-200'
+                }`}
+              >
+                <Cpu className="w-3.5 h-3.5" />
+                <span>6. Brand Logo Icon</span>
+              </button>
+            </div>
+
+            {/* TAB 1: HERO TEXT */}
+            {homepageSubTab === 'hero' && (
+              <div className="p-5 bg-zinc-900/40 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-xl space-y-4">
+                <div className="flex items-center justify-between border-b border-zinc-850 dark:border-zinc-800/50 light:border-zinc-100 pb-3 mb-2">
+                  <div className="flex items-center space-x-2">
+                    <FileText className="w-4.5 h-4.5 text-amber-500" />
+                    <h3 className="font-display font-bold text-sm text-zinc-100 light:text-zinc-900 uppercase">
+                      Hero Section Main Content
+                    </h3>
+                  </div>
+                  <span className="text-[10px] font-mono text-zinc-500">PRIMARY BANNER</span>
+                </div>
+
+                <div className="space-y-4">
+                  {/* HERO TAGLINE */}
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">
+                        Hero Tagline (Top Badge Label)
+                      </label>
+                      <span className={`text-[10px] font-mono ${
+                        homepageContent.heroTagline.length > 70 ? 'text-amber-500' : 'text-zinc-500'
+                      }`}>
+                        {homepageContent.heroTagline.length} / 70 chars
+                      </span>
+                    </div>
                     <input 
                       type="text" 
                       value={homepageContent.heroTagline}
                       onChange={e => setHomepageContent({ ...homepageContent, heroTagline: e.target.value })}
+                      placeholder="e.g. Md. Sahin Alom • Electrical Engineering & Substation Solutions"
                       className={inputClass}
                       id="page-hero-tagline"
                     />
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      <span className="text-[10px] text-zinc-500 font-mono self-center">Suggestions:</span>
+                      <button
+                        type="button"
+                        onClick={() => setHomepageContent({ ...homepageContent, heroTagline: 'Md. Sahin Alom • Electrical Engineering & Substation Solutions' })}
+                        className="text-[9px] font-mono bg-zinc-950 border border-zinc-800 hover:border-amber-500/50 text-zinc-400 hover:text-amber-500 px-2 py-0.5 rounded cursor-pointer transition-colors"
+                      >
+                        EE Standard
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setHomepageContent({ ...homepageContent, heroTagline: '11kV/33kV Substation Commissioning & Protection Relay Testing' })}
+                        className="text-[9px] font-mono bg-zinc-950 border border-zinc-800 hover:border-amber-500/50 text-zinc-400 hover:text-amber-500 px-2 py-0.5 rounded cursor-pointer transition-colors"
+                      >
+                        Substation & HT
+                      </button>
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Hero Main Heading</label>
+
+                  {/* HERO HEADING */}
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">
+                        Main Display Title (H1 Banner Heading)
+                      </label>
+                      <span className={`text-[10px] font-mono ${
+                        homepageContent.heroHeading.length > 90 ? 'text-amber-500' : 'text-zinc-500'
+                      }`}>
+                        {homepageContent.heroHeading.length} / 90 chars
+                      </span>
+                    </div>
                     <input 
                       type="text" 
                       value={homepageContent.heroHeading}
                       onChange={e => setHomepageContent({ ...homepageContent, heroHeading: e.target.value })}
-                      className={inputClass}
+                      placeholder="e.g. Power System Engineering, HT Substation & Industrial Automation"
+                      className={`${inputClass} font-bold text-sm`}
                       id="page-hero-heading"
                     />
                   </div>
+
+                  {/* HERO SUBHEADING */}
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">
+                        Subheading Description Paragraph
+                      </label>
+                      <span className="text-[10px] font-mono text-zinc-500">
+                        {homepageContent.heroSubheading.length} chars
+                      </span>
+                    </div>
+                    <textarea 
+                      rows={3}
+                      value={homepageContent.heroSubheading}
+                      onChange={e => setHomepageContent({ ...homepageContent, heroSubheading: e.target.value })}
+                      placeholder="Specialized Electrical Power Distribution, Transformer Maintenance, High Voltage Testing, and BNBC 2020 Compliance Services in Bangladesh."
+                      className={textareaClass}
+                      id="page-hero-subheading"
+                    />
+                  </div>
+
+                  {/* PROFILE BADGE DETAILS */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-zinc-850 dark:border-zinc-850 light:border-zinc-200 pt-3">
+                    <div className="space-y-1">
+                      <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">
+                        Operator / Profile Card Name
+                      </label>
+                      <input 
+                        type="text" 
+                        value={homepageContent.heroProfileName}
+                        onChange={e => setHomepageContent({ ...homepageContent, heroProfileName: e.target.value })}
+                        placeholder="e.g. Engr. Sahin Alom"
+                        className={inputClass}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">
+                        Designation / Sub-Title
+                      </label>
+                      <input 
+                        type="text" 
+                        value={homepageContent.heroProfileTitle}
+                        onChange={e => setHomepageContent({ ...homepageContent, heroProfileTitle: e.target.value })}
+                        placeholder="e.g. Lead Electrical Engineer"
+                        className={inputClass}
+                      />
+                    </div>
+                  </div>
+
+                  {/* HERO CALL TO ACTION BUTTONS */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-zinc-850 dark:border-zinc-850 light:border-zinc-200 pt-3">
+                    <div className="space-y-1">
+                      <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">
+                        Primary CTA Button Text (Contact / Action)
+                      </label>
+                      <input 
+                        type="text" 
+                        value={homepageContent.heroCtaPrimaryText ?? 'Get in touch'}
+                        onChange={e => setHomepageContent({ ...homepageContent, heroCtaPrimaryText: e.target.value })}
+                        placeholder="e.g. Contact Me / Get in touch"
+                        className={inputClass}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">
+                        Secondary CTA Button Text (Explore / Portfolio)
+                      </label>
+                      <input 
+                        type="text" 
+                        value={homepageContent.heroCtaSecondaryText ?? 'View my work'}
+                        onChange={e => setHomepageContent({ ...homepageContent, heroCtaSecondaryText: e.target.value })}
+                        placeholder="e.g. View my work / Explore Field Studies"
+                        className={inputClass}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: STATS & METRICS */}
+            {homepageSubTab === 'stats' && (
+              <div className="p-5 bg-zinc-900/40 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-xl space-y-4">
+                <div className="flex items-center justify-between border-b border-zinc-850 dark:border-zinc-800/50 light:border-zinc-100 pb-3 mb-2">
+                  <div className="flex items-center space-x-2">
+                    <Activity className="w-4.5 h-4.5 text-amber-500" />
+                    <h3 className="font-display font-bold text-sm text-zinc-100 light:text-zinc-900 uppercase">
+                      Hero Key Statistics & Experience Metrics
+                    </h3>
+                  </div>
+                  <span className="text-[10px] font-mono text-zinc-500">3 BADGES</span>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Hero Paragraph (Subheading)</label>
-                  <textarea 
-                    rows={3}
-                    value={homepageContent.heroSubheading}
-                    onChange={e => setHomepageContent({ ...homepageContent, heroSubheading: e.target.value })}
-                    className={textareaClass}
-                    id="page-hero-subheading"
-                  />
+                <div className="space-y-4">
+                  <p className="text-xs text-zinc-400 light:text-zinc-600 font-sans">
+                    হোমপেজের ব্যানার নিচে প্রদর্শিত ৩টি প্রধান অভিজ্ঞতা বা সার্ভিসের সংখ্যা সেট করুন।
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* STAT 1 */}
+                    <div className="p-3.5 bg-zinc-950/60 light:bg-zinc-50 border border-zinc-850 dark:border-zinc-850 light:border-zinc-200 rounded-lg space-y-2">
+                      <span className="text-[10px] font-mono text-amber-500 font-bold uppercase block">Metric 1</span>
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[9px] text-zinc-500 uppercase">Value</label>
+                        <input 
+                          type="text" 
+                          value={homepageContent.heroStat1Val}
+                          onChange={e => setHomepageContent({ ...homepageContent, heroStat1Val: e.target.value })}
+                          placeholder="10+ Yrs"
+                          className={`${inputClass} font-bold text-amber-500`}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[9px] text-zinc-500 uppercase">Label / Description</label>
+                        <input 
+                          type="text" 
+                          value={homepageContent.heroStat1Label}
+                          onChange={e => setHomepageContent({ ...homepageContent, heroStat1Label: e.target.value })}
+                          placeholder="Field Engineering Exp."
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+
+                    {/* STAT 2 */}
+                    <div className="p-3.5 bg-zinc-950/60 light:bg-zinc-50 border border-zinc-850 dark:border-zinc-850 light:border-zinc-200 rounded-lg space-y-2">
+                      <span className="text-[10px] font-mono text-amber-500 font-bold uppercase block">Metric 2</span>
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[9px] text-zinc-500 uppercase">Value</label>
+                        <input 
+                          type="text" 
+                          value={homepageContent.heroStat2Val}
+                          onChange={e => setHomepageContent({ ...homepageContent, heroStat2Val: e.target.value })}
+                          placeholder="150+"
+                          className={`${inputClass} font-bold text-amber-500`}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[9px] text-zinc-500 uppercase">Label / Description</label>
+                        <input 
+                          type="text" 
+                          value={homepageContent.heroStat2Label}
+                          onChange={e => setHomepageContent({ ...homepageContent, heroStat2Label: e.target.value })}
+                          placeholder="Substation Sites Served"
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+
+                    {/* STAT 3 */}
+                    <div className="p-3.5 bg-zinc-950/60 light:bg-zinc-50 border border-zinc-850 dark:border-zinc-850 light:border-zinc-200 rounded-lg space-y-2">
+                      <span className="text-[10px] font-mono text-amber-500 font-bold uppercase block">Metric 3</span>
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[9px] text-zinc-500 uppercase">Value</label>
+                        <input 
+                          type="text" 
+                          value={homepageContent.heroStat3Val}
+                          onChange={e => setHomepageContent({ ...homepageContent, heroStat3Val: e.target.value })}
+                          placeholder="100%"
+                          className={`${inputClass} font-bold text-amber-500`}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[9px] text-zinc-500 uppercase">Label / Description</label>
+                        <input 
+                          type="text" 
+                          value={homepageContent.heroStat3Label}
+                          onChange={e => setHomepageContent({ ...homepageContent, heroStat3Label: e.target.value })}
+                          placeholder="BNBC & Safety Compliance"
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* QUICK FILL CHIPS */}
+                  <div className="pt-2 border-t border-zinc-850 dark:border-zinc-850 light:border-zinc-200">
+                    <span className="text-[10px] font-mono text-zinc-500 block mb-1.5">Quick Fill Presets:</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setHomepageContent({
+                          ...homepageContent,
+                          heroStat1Val: '10+ Yrs',
+                          heroStat1Label: 'Field Engineering Exp.',
+                          heroStat2Val: '150+',
+                          heroStat2Label: 'Substation Sites Served',
+                          heroStat3Val: '100%',
+                          heroStat3Label: 'BNBC & Safety Compliance'
+                        })}
+                        className="px-2.5 py-1 text-[10px] font-mono bg-zinc-950 border border-zinc-800 hover:border-amber-500/50 text-zinc-300 hover:text-amber-500 rounded cursor-pointer transition-colors"
+                      >
+                        Substation & Field
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setHomepageContent({
+                          ...homepageContent,
+                          heroStat1Val: '33kV / 11kV',
+                          heroStat1Label: 'High Voltage Systems',
+                          heroStat2Val: '200+ MVA',
+                          heroStat2Label: 'Total Power Managed',
+                          heroStat3Val: '24/7',
+                          heroStat3Label: 'Emergency Dispatch'
+                        })}
+                        className="px-2.5 py-1 text-[10px] font-mono bg-zinc-950 border border-zinc-800 hover:border-amber-500/50 text-zinc-300 hover:text-amber-500 rounded cursor-pointer transition-colors"
+                      >
+                        High Voltage & MVA
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setHomepageContent({
+                          ...homepageContent,
+                          heroStat1Val: '0.99 PFI',
+                          heroStat1Label: 'Target Power Factor',
+                          heroStat2Val: '300+',
+                          heroStat2Label: 'Safety Audits Done',
+                          heroStat3Val: 'Zero',
+                          heroStat3Label: 'Unplanned Downtime'
+                        })}
+                        className="px-2.5 py-1 text-[10px] font-mono bg-zinc-950 border border-zinc-800 hover:border-amber-500/50 text-zinc-300 hover:text-amber-500 rounded cursor-pointer transition-colors"
+                      >
+                        PFI & Industrial
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 3: MEDIA & PHOTO */}
+            {homepageSubTab === 'media' && (
+              <div className="p-5 bg-zinc-900/40 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-xl space-y-4">
+                <div className="flex items-center justify-between border-b border-zinc-850 dark:border-zinc-800/50 light:border-zinc-100 pb-3 mb-2">
+                  <div className="flex items-center space-x-2">
+                    <Image className="w-4.5 h-4.5 text-amber-500" />
+                    <h3 className="font-display font-bold text-sm text-zinc-100 light:text-zinc-900 uppercase">
+                      Hero Profile Image & Video Assets
+                    </h3>
+                  </div>
+                  <span className="text-[10px] font-mono text-zinc-500">MEDIA MANAGER</span>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-1">
-                    <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Stat 1 Value</label>
-                    <input 
-                      type="text" 
-                      value={homepageContent.heroStat1Val}
-                      onChange={e => setHomepageContent({ ...homepageContent, heroStat1Val: e.target.value })}
-                      className={inputClass}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Stat 1 Label</label>
-                    <input 
-                      type="text" 
-                      value={homepageContent.heroStat1Label}
-                      onChange={e => setHomepageContent({ ...homepageContent, heroStat1Label: e.target.value })}
-                      className={inputClass}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Stat 2 Value</label>
-                    <input 
-                      type="text" 
-                      value={homepageContent.heroStat2Val}
-                      onChange={e => setHomepageContent({ ...homepageContent, heroStat2Val: e.target.value })}
-                      className={inputClass}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-1">
-                    <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Stat 2 Label</label>
-                    <input 
-                      type="text" 
-                      value={homepageContent.heroStat2Label}
-                      onChange={e => setHomepageContent({ ...homepageContent, heroStat2Label: e.target.value })}
-                      className={inputClass}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Stat 3 Value</label>
-                    <input 
-                      type="text" 
-                      value={homepageContent.heroStat3Val}
-                      onChange={e => setHomepageContent({ ...homepageContent, heroStat3Val: e.target.value })}
-                      className={inputClass}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Stat 3 Label</label>
-                    <input 
-                      type="text" 
-                      value={homepageContent.heroStat3Label}
-                      onChange={e => setHomepageContent({ ...homepageContent, heroStat3Label: e.target.value })}
-                      className={inputClass}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-zinc-850 dark:border-zinc-850 light:border-zinc-200 pt-3 mt-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {/* DRAG & DROP ZONE */}
                   <div className="space-y-2">
                     <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase flex items-center space-x-1">
-                      <Image className="w-3 h-3 text-zinc-500" />
-                      <span>Currently On Duty Portrait (Image File / Drag & Drop)</span>
+                      <Image className="w-3.5 h-3.5 text-amber-500" />
+                      <span>On-Duty Photo Upload (Drag & Drop or Browse)</span>
                     </label>
 
-                    {/* Drag and Drop Zone */}
                     <div 
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
                       onDrop={handleDrop}
-                      className={`relative border border-dashed rounded-lg p-4 flex flex-col items-center justify-center text-center transition-all ${
+                      className={`relative border-2 border-dashed rounded-xl p-5 flex flex-col items-center justify-center text-center transition-all ${
                         isDragging 
-                          ? 'border-amber-500 bg-amber-500/10' 
-                          : 'border-zinc-800 dark:border-zinc-800 light:border-zinc-200 bg-zinc-950/50 light:bg-zinc-50'
+                          ? 'border-amber-500 bg-amber-500/10 scale-[1.01]' 
+                          : 'border-zinc-800 dark:border-zinc-800 light:border-zinc-200 bg-zinc-950/60 light:bg-zinc-50'
                       }`}
                     >
                       {homepageContent.heroProfileImage ? (
-                        <div className="relative group w-24 h-24 mb-2 border border-zinc-850 dark:border-zinc-850 light:border-zinc-250 rounded overflow-hidden">
+                        <div className="relative group w-28 h-28 mb-3 border border-amber-500/30 rounded-lg overflow-hidden shadow-md">
                           <img 
                             src={homepageContent.heroProfileImage} 
                             alt="Current Operator Portrait" 
                             className="w-full h-full object-cover"
                             referrerPolicy="no-referrer"
                           />
-                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <span className="text-[9px] font-mono text-zinc-300">Hover view</span>
-                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setHomepageContent({ ...homepageContent, heroProfileImage: '' })}
+                            className="absolute top-1 right-1 p-1 bg-rose-600 text-white rounded-full shadow hover:scale-110 transition-transform cursor-pointer"
+                            title="Remove Photo"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       ) : (
-                        <div className="w-12 h-12 rounded bg-zinc-900 light:bg-zinc-200 flex items-center justify-center text-zinc-500 mb-2">
-                          <Image className="w-5 h-5" />
+                        <div className="w-14 h-14 rounded-full bg-zinc-900 light:bg-zinc-200 flex items-center justify-center text-zinc-500 mb-2">
+                          <Image className="w-6 h-6 text-amber-500" />
                         </div>
                       )}
 
-                      <p className="text-[11px] text-zinc-400 light:text-zinc-600">
-                        Drag and drop your on-duty photo here, or{" "}
-                        <label className="text-amber-500 hover:underline cursor-pointer">
-                          browse files
+                      <p className="text-xs text-zinc-300 light:text-zinc-700 font-sans">
+                        Drag and drop photo here, or{" "}
+                        <label className="text-amber-500 font-bold hover:underline cursor-pointer">
+                          browse computer
                           <input 
                             type="file" 
                             accept="image/*" 
@@ -4104,265 +4121,607 @@ export default function Admin({ onSync }: AdminProps) {
                           />
                         </label>
                       </p>
-                      <span className="block text-[9px] text-zinc-500 font-mono mt-1">
-                        Supports PNG, JPG, WEBP, SVG (Max 2MB)
+                      <span className="block text-[10px] text-zinc-500 font-mono mt-1">
+                        PNG, JPG, WEBP or SVG (Auto-compressed)
                       </span>
                     </div>
 
-                    <div className="space-y-1 mt-2">
-                      <label className="block font-mono text-[9px] text-zinc-500 uppercase">Alternative Image URL</label>
+                    <div className="space-y-1 pt-2">
+                      <label className="block font-mono text-[9px] text-zinc-500 uppercase">Direct Image Web URL</label>
                       <input 
                         type="url" 
                         value={homepageContent.heroProfileImage || ''}
                         onChange={e => setHomepageContent({ ...homepageContent, heroProfileImage: e.target.value })}
-                        placeholder="https://example.com/your-photo.jpg"
+                        placeholder="https://images.unsplash.com/photo-..."
                         className={inputClass}
                         id="page-hero-profile-image"
                       />
-                      <span className="block text-[9px] text-zinc-500 font-mono">You can also paste a public image link directly.</span>
                     </div>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase flex items-center space-x-1">
-                      <Video className="w-3 h-3 text-zinc-500" />
-                      <span>Custom Video Link (Alternative Profile video)</span>
-                    </label>
-                    <input 
-                      type="url" 
-                      value={homepageContent.heroProfileVideo || ''}
-                      onChange={e => setHomepageContent({ ...homepageContent, heroProfileVideo: e.target.value })}
-                      placeholder="https://example.com/your-video.mp4"
-                      className={inputClass}
-                    />
-                    <span className="block text-[9px] text-zinc-500 font-mono">MP4 video URL. If provided, overrides profile image.</span>
-                  </div>
-                </div>
+                  {/* VIDEO ASSET & SETTINGS */}
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase flex items-center space-x-1">
+                        <Video className="w-3.5 h-3.5 text-amber-500" />
+                        <span>Optional MP4 Video Background / Loop Link</span>
+                      </label>
+                      <input 
+                        type="url" 
+                        value={homepageContent.heroProfileVideo || ''}
+                        onChange={e => setHomepageContent({ ...homepageContent, heroProfileVideo: e.target.value })}
+                        placeholder="https://example.com/substation-intro.mp4"
+                        className={inputClass}
+                      />
+                      <p className="text-[10px] text-zinc-500 font-mono">
+                        Direct MP4 link. If set, this video plays as a loop behind the profile badge card instead of the static image.
+                      </p>
+                    </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Profile Panel Name</label>
-                    <input 
-                      type="text" 
-                      value={homepageContent.heroProfileName}
-                      onChange={e => setHomepageContent({ ...homepageContent, heroProfileName: e.target.value })}
-                      className={inputClass}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Profile Panel Designation Title</label>
-                    <input 
-                      type="text" 
-                      value={homepageContent.heroProfileTitle}
-                      onChange={e => setHomepageContent({ ...homepageContent, heroProfileTitle: e.target.value })}
-                      className={inputClass}
-                    />
+                    <div className="p-3 bg-zinc-950/40 border border-zinc-850 rounded-lg space-y-1.5 mt-4">
+                      <span className="text-[10px] font-mono text-amber-500 font-bold uppercase block">Media Display Hint</span>
+                      <p className="text-[11px] text-zinc-400 font-sans leading-relaxed">
+                        The operator profile photo/video is displayed inside the hero badge card on desktop and full-width header on mobile. Ensure high resolution for best appearance.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* SECTIONS & HEADINGS EDITS */}
-            <div className="p-5 bg-zinc-900/40 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-lg space-y-4">
-              <div className="flex items-center space-x-2 border-b border-zinc-850 dark:border-zinc-800/50 light:border-zinc-100 pb-3 mb-4">
-                <FileText className="w-4 h-4 text-amber-500" />
-                <h3 className="font-display font-bold text-sm text-zinc-100 light:text-zinc-900 uppercase">
-                  Landing Section Headers, Decors & Contact Node
-                </h3>
+            {/* TAB 4: DAILY CHECK ROUTINE */}
+            {homepageSubTab === 'dailyCheck' && (
+              <div className="p-5 bg-zinc-900/40 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-xl space-y-5">
+                <div className="flex items-center justify-between border-b border-zinc-850 dark:border-zinc-800/50 light:border-zinc-100 pb-3">
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="w-4.5 h-4.5 text-amber-500" />
+                    <div>
+                      <h3 className="font-display font-bold text-sm text-zinc-100 light:text-zinc-900 uppercase">
+                        Daily Check Routine & Operations Log
+                      </h3>
+                      <p className="text-xs text-zinc-400 light:text-zinc-600 mt-0.5">
+                        হোমপেজের দৈনিক প্ল্যান্ট ইন্সপেকশন, টাইমলাইন এবং ওয়াটার রেজিস্টার সেকশন কাস্টমাইজ বা অন/অফ করুন।
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-mono text-zinc-500">HOMEPAGE SECTION</span>
+                </div>
+
+                <div className="space-y-5">
+                  {/* ENABLE / DISABLE TOGGLE CARD */}
+                  <div className="p-4 bg-zinc-950/80 light:bg-zinc-50 border border-zinc-800 dark:border-zinc-800 light:border-zinc-200 rounded-xl space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs font-mono font-bold text-zinc-200 light:text-zinc-900">
+                            Section Status on Homepage
+                          </span>
+                          <span className={`px-2 py-0.5 text-[10px] font-mono font-bold rounded-full ${
+                            (homepageContent.showDailyCheck ?? true)
+                              ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/30'
+                              : 'bg-rose-500/10 text-rose-500 border border-rose-500/30'
+                          }`}>
+                            {(homepageContent.showDailyCheck ?? true) ? '● ENABLED (VISIBLE)' : '○ DISABLED (HIDDEN)'}
+                          </span>
+                        </div>
+                        <p className="text-xs text-zinc-400 light:text-zinc-600 mt-1">
+                          এই অপশনটি বন্ধ থাকলে হোমপেজ থেকে Daily Check (01 - Operations Journal) সেকশনটি সম্পূর্ণ হাইড হয়ে যাবে।
+                        </p>
+                      </div>
+
+                      <div className="flex items-center space-x-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setHomepageContent({ ...homepageContent, showDailyCheck: true })}
+                          className={`px-3 py-1.5 text-xs font-mono font-bold rounded-lg border transition-all cursor-pointer ${
+                            (homepageContent.showDailyCheck ?? true)
+                              ? 'bg-emerald-500 text-zinc-950 border-emerald-400 shadow-sm'
+                              : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-zinc-200'
+                          }`}
+                        >
+                          Enable
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setHomepageContent({ ...homepageContent, showDailyCheck: false })}
+                          className={`px-3 py-1.5 text-xs font-mono font-bold rounded-lg border transition-all cursor-pointer ${
+                            homepageContent.showDailyCheck === false
+                              ? 'bg-rose-600 text-white border-rose-500 shadow-sm'
+                              : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-zinc-200'
+                          }`}
+                        >
+                          Disable
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* EDITABLE FIELDS */}
+                  <div className="p-4 bg-zinc-950/40 light:bg-zinc-50 border border-zinc-850 dark:border-zinc-850 light:border-zinc-200 rounded-xl space-y-4">
+                    <span className="text-[10px] font-mono font-bold text-amber-500 uppercase block">
+                      Daily Check Content & Display Texts
+                    </span>
+
+                    {/* Tagline / Sub-badge */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-center">
+                        <label className="block font-mono text-[9px] text-zinc-500 uppercase">
+                          Section Tagline / Number Decor
+                        </label>
+                        <span className="text-[10px] font-mono text-zinc-500">
+                          {(homepageContent.dailyCheckTagline || homepageContent.journalTagline || '').length} chars
+                        </span>
+                      </div>
+                      <input 
+                        type="text" 
+                        value={homepageContent.dailyCheckTagline ?? homepageContent.journalTagline ?? '01 — Operations Journal'}
+                        onChange={e => setHomepageContent({ 
+                          ...homepageContent, 
+                          dailyCheckTagline: e.target.value,
+                          journalTagline: e.target.value
+                        })}
+                        placeholder="e.g. 01 — Operations Journal"
+                        className={inputClass}
+                      />
+                    </div>
+
+                    {/* Main Title / Heading */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-center">
+                        <label className="block font-mono text-[9px] text-zinc-500 uppercase">
+                          Main Heading Title
+                        </label>
+                        <span className="text-[10px] font-mono text-zinc-500">
+                          {(homepageContent.dailyCheckTitle || homepageContent.journalHeading || '').length} chars
+                        </span>
+                      </div>
+                      <input 
+                        type="text" 
+                        value={homepageContent.dailyCheckTitle ?? homepageContent.journalHeading ?? 'The daily check'}
+                        onChange={e => setHomepageContent({ 
+                          ...homepageContent, 
+                          dailyCheckTitle: e.target.value,
+                          journalHeading: e.target.value
+                        })}
+                        placeholder="e.g. The daily check"
+                        className={`${inputClass} font-bold`}
+                      />
+                    </div>
+
+                    {/* Section Description Paragraph */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-center">
+                        <label className="block font-mono text-[9px] text-zinc-500 uppercase">
+                          Section Subtitle / Description Text
+                        </label>
+                        <span className="text-[10px] font-mono text-zinc-500">
+                          {(homepageContent.dailyCheckDesc || homepageContent.journalDesc || '').length} chars
+                        </span>
+                      </div>
+                      <textarea 
+                        rows={3}
+                        value={homepageContent.dailyCheckDesc ?? homepageContent.journalDesc ?? 'Every morning starts the same way. I walk the floor before the machines start...'}
+                        onChange={e => setHomepageContent({ 
+                          ...homepageContent, 
+                          dailyCheckDesc: e.target.value,
+                          journalDesc: e.target.value
+                        })}
+                        placeholder="Every morning starts the same way..."
+                        className={textareaClass}
+                      />
+                    </div>
+
+                    {/* Suggestions Presets */}
+                    <div className="pt-2 border-t border-zinc-850 dark:border-zinc-800 light:border-zinc-200">
+                      <span className="text-[10px] font-mono text-zinc-500 block mb-1.5">Quick Presets:</span>
+                      <div className="flex flex-wrap gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setHomepageContent({
+                            ...homepageContent,
+                            dailyCheckTagline: '01 — Operations Journal',
+                            dailyCheckTitle: 'The daily check',
+                            dailyCheckDesc: 'Every morning starts the same way. I walk the floor before the machines start, reading the boards, logging the numbers, listening for what sounds wrong. This is how you catch problems before they become downtime.',
+                            journalTagline: '01 — Operations Journal',
+                            journalHeading: 'The daily check',
+                            journalDesc: 'Every morning starts the same way. I walk the floor before the machines start, reading the boards, logging the numbers, listening for what sounds wrong. This is how you catch problems before they become downtime.'
+                          })}
+                          className="px-2.5 py-1 text-[10px] font-mono bg-zinc-950 border border-zinc-800 hover:border-amber-500/50 text-zinc-300 hover:text-amber-500 rounded cursor-pointer transition-colors"
+                        >
+                          English Standard
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setHomepageContent({
+                            ...homepageContent,
+                            dailyCheckTagline: '০১ — দৈনিক অপোরেশনাল রেজিস্টার',
+                            dailyCheckTitle: 'দৈনিক ইন্সপেকশন ও সেফটি রুটিন',
+                            dailyCheckDesc: 'প্রতিদিন সকালে ফ্যাক্টরির প্রধান পাওয়ার ডিস্ট্রিবিউশন প্যানেল (MDB), ট্রান্সফরমার তেল ও তাপমাত্রা, PFI প্ল্যান্ট এবং বাসবার লোড পর্যবেক্ষণ দিয়ে কাজ শুরু হয়। যেকোনো ত্রুটি বড় ধরনের ডাউনটাইমে রূপ নেওয়ার আগেই শনাক্ত করা নিশ্চিত করা হয়।',
+                            journalTagline: '০১ — দৈনিক অপোরেশনাল রেজিস্টার',
+                            journalHeading: 'দৈনিক ইন্সপেকশন ও সেফটি রুটিন',
+                            journalDesc: 'প্রতিদিন সকালে ফ্যাক্টরির প্রধান পাওয়ার ডিস্ট্রিবিউশন প্যানেল (MDB), ট্রান্সফরমার তেল ও তাপমাত্রা, PFI প্ল্যান্ট এবং বাসবার লোড পর্যবেক্ষণ দিয়ে কাজ শুরু হয়। যেকোনো ত্রুটি বড় ধরনের ডাউনটাইমে রূপ নেওয়ার আগেই শনাক্ত করা নিশ্চিত করা হয়।'
+                          })}
+                          className="px-2.5 py-1 text-[10px] font-mono bg-zinc-950 border border-zinc-800 hover:border-amber-500/50 text-zinc-300 hover:text-amber-500 rounded cursor-pointer transition-colors"
+                        >
+                          বাংলা স্ট্যান্ডার্ড
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
+            )}
 
-              <div className="space-y-3">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Journal Tagline (01)</label>
-                    <input 
-                      type="text" 
-                      value={homepageContent.journalTagline}
-                      onChange={e => setHomepageContent({ ...homepageContent, journalTagline: e.target.value })}
-                      className={inputClass}
-                    />
+            {/* TAB 5: SECTION HEADINGS */}
+            {homepageSubTab === 'sections' && (
+              <div className="p-5 bg-zinc-900/40 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-xl space-y-5">
+                <div className="flex items-center justify-between border-b border-zinc-850 dark:border-zinc-800/50 light:border-zinc-100 pb-3">
+                  <div className="flex items-center space-x-2">
+                    <Layers className="w-4.5 h-4.5 text-amber-500" />
+                    <h3 className="font-display font-bold text-sm text-zinc-100 light:text-zinc-900 uppercase">
+                      Landing Page Section Headings & Contact Node
+                    </h3>
                   </div>
-                  <div className="space-y-1">
-                    <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Journal Heading</label>
-                    <input 
-                      type="text" 
-                      value={homepageContent.journalHeading}
-                      onChange={e => setHomepageContent({ ...homepageContent, journalHeading: e.target.value })}
-                      className={inputClass}
-                    />
-                  </div>
+                  <span className="text-[10px] font-mono text-zinc-500">SECTIONS 01-04</span>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Journal Description</label>
-                  <textarea 
-                    rows={2}
-                    value={homepageContent.journalDesc}
-                    onChange={e => setHomepageContent({ ...homepageContent, journalDesc: e.target.value })}
-                    className={textareaClass}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-zinc-850 dark:border-zinc-850 light:border-zinc-200 pt-3">
-                  <div className="space-y-1">
-                    <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Expertise Section Tagline (03)</label>
-                    <input 
-                      type="text" 
-                      value={homepageContent.expertiseTagline}
-                      onChange={e => setHomepageContent({ ...homepageContent, expertiseTagline: e.target.value })}
-                      className={inputClass}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Expertise Section Heading</label>
-                    <input 
-                      type="text" 
-                      value={homepageContent.expertiseHeading}
-                      onChange={e => setHomepageContent({ ...homepageContent, expertiseHeading: e.target.value })}
-                      className={inputClass}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Expertise Section Description</label>
-                  <textarea 
-                    rows={2}
-                    value={homepageContent.expertiseDesc}
-                    onChange={e => setHomepageContent({ ...homepageContent, expertiseDesc: e.target.value })}
-                    className={textareaClass}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-zinc-850 dark:border-zinc-850 light:border-zinc-200 pt-3">
-                  <div className="space-y-1">
-                    <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Contact Section Tagline (04)</label>
-                    <input 
-                      type="text" 
-                      value={homepageContent.contactTagline}
-                      onChange={e => setHomepageContent({ ...homepageContent, contactTagline: e.target.value })}
-                      className={inputClass}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Contact Section Heading</label>
-                    <input 
-                      type="text" 
-                      value={homepageContent.contactHeading}
-                      onChange={e => setHomepageContent({ ...homepageContent, contactHeading: e.target.value })}
-                      className={inputClass}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Contact Section Description</label>
-                  <textarea 
-                    rows={2}
-                    value={homepageContent.contactDesc}
-                    onChange={e => setHomepageContent({ ...homepageContent, contactDesc: e.target.value })}
-                    className={textareaClass}
-                  />
-                </div>
-
-                <div className="grid grid-cols-3 gap-4 border-t border-zinc-850 dark:border-zinc-850 light:border-zinc-200 pt-3">
-                  <div className="space-y-1">
-                    <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Contact Email</label>
-                    <input 
-                      type="email" 
-                      value={homepageContent.contactEmail}
-                      onChange={e => setHomepageContent({ ...homepageContent, contactEmail: e.target.value })}
-                      className={inputClass}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Linkedin Link</label>
-                    <input 
-                      type="text" 
-                      value={homepageContent.contactLinkedin}
-                      onChange={e => setHomepageContent({ ...homepageContent, contactLinkedin: e.target.value })}
-                      className={inputClass}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="block font-mono text-[10px] text-zinc-400 light:text-zinc-500 uppercase">Github Link</label>
-                    <input 
-                      type="text" 
-                      value={homepageContent.contactGithub}
-                      onChange={e => setHomepageContent({ ...homepageContent, contactGithub: e.target.value })}
-                      className={inputClass}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* BRAND LOGO SECTION EDITS */}
-            <div className="p-5 bg-zinc-900/40 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-lg space-y-4">
-              <div className="flex items-center space-x-2 border-b border-zinc-850 dark:border-zinc-800/50 light:border-zinc-100 pb-3 mb-4">
-                <SettingsIcon className="w-4 h-4 text-amber-500" />
-                <h3 className="font-display font-bold text-sm text-zinc-100 light:text-zinc-900 uppercase">
-                  Header Navigation Brand & Logo Customization
-                </h3>
-              </div>
-
-              <div className="space-y-3">
-                <p className="text-xs text-zinc-400 light:text-zinc-650">
-                  Select a brand logo icon to display in the main sticky header navigation. This represents your electrical engineering sub-specialization and system status node.
-                </p>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-                  {LOGO_OPTIONS.map((opt) => {
-                    const IconComponent = ADMIN_ICON_MAP[opt.id] || Cpu;
-                    const isSelected = (homepageContent.headerLogoIcon || 'Cpu') === opt.id;
-                    return (
+                <div className="space-y-5">
+                  {/* SECTION 01: DAILY CHECK ROUTINE */}
+                  <div className="p-4 bg-zinc-950/40 light:bg-zinc-50 border border-zinc-850 dark:border-zinc-850 light:border-zinc-200 rounded-lg space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-mono font-bold text-amber-500 uppercase">Section 01 // Daily Check Routine & Operations Log</span>
                       <button
-                        key={opt.id}
                         type="button"
-                        onClick={() => setHomepageContent({ ...homepageContent, headerLogoIcon: opt.id })}
-                        className={`p-3 rounded-lg border text-left transition-all relative overflow-hidden flex flex-col items-center justify-center text-center cursor-pointer ${
-                          isSelected
-                            ? 'border-amber-500 bg-amber-500/10 text-amber-500 shadow-md ring-1 ring-amber-500/30'
-                            : 'border-zinc-800 dark:border-zinc-800 light:border-zinc-200 bg-zinc-950/50 light:bg-zinc-50 hover:border-zinc-700 dark:hover:border-zinc-700 light:hover:border-zinc-350 text-zinc-400 light:text-zinc-600'
+                        onClick={() => setHomepageContent({ ...homepageContent, showDailyCheck: !(homepageContent.showDailyCheck ?? true) })}
+                        className={`px-2.5 py-1 text-[10px] font-mono font-bold rounded border transition-colors cursor-pointer ${
+                          (homepageContent.showDailyCheck ?? true)
+                            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/20'
+                            : 'bg-rose-500/10 text-rose-500 border-rose-500/30 hover:bg-rose-500/20'
                         }`}
                       >
-                        <IconComponent className={`w-6 h-6 mb-1.5 ${isSelected ? 'text-amber-500' : 'text-zinc-500 light:text-zinc-650'}`} />
-                        <span className="block text-[10px] font-mono uppercase font-bold tracking-tight">{opt.id}</span>
-                        <span className="block text-[8px] text-zinc-500 font-sans mt-0.5 leading-tight">{opt.desc}</span>
-                        {isSelected && (
-                          <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                        )}
+                        {(homepageContent.showDailyCheck ?? true) ? '● Enabled' : '○ Disabled'}
                       </button>
-                    );
-                  })}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[9px] text-zinc-500 uppercase">Tagline Decor</label>
+                        <input 
+                          type="text" 
+                          value={homepageContent.dailyCheckTagline ?? homepageContent.journalTagline ?? '01 — Operations Journal'}
+                          onChange={e => setHomepageContent({ 
+                            ...homepageContent, 
+                            dailyCheckTagline: e.target.value,
+                            journalTagline: e.target.value 
+                          })}
+                          className={inputClass}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[9px] text-zinc-500 uppercase">Main Heading</label>
+                        <input 
+                          type="text" 
+                          value={homepageContent.dailyCheckTitle ?? homepageContent.journalHeading ?? 'The daily check'}
+                          onChange={e => setHomepageContent({ 
+                            ...homepageContent, 
+                            dailyCheckTitle: e.target.value,
+                            journalHeading: e.target.value 
+                          })}
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block font-mono text-[9px] text-zinc-500 uppercase">Section Description</label>
+                      <textarea 
+                        rows={2}
+                        value={homepageContent.dailyCheckDesc ?? homepageContent.journalDesc ?? 'Every morning starts the same way...'}
+                        onChange={e => setHomepageContent({ 
+                          ...homepageContent, 
+                          dailyCheckDesc: e.target.value,
+                          journalDesc: e.target.value 
+                        })}
+                        className={textareaClass}
+                      />
+                    </div>
+                  </div>
+
+                  {/* SECTION 02: CASE STUDIES */}
+                  <div className="p-4 bg-zinc-950/40 light:bg-zinc-50 border border-zinc-850 dark:border-zinc-850 light:border-zinc-200 rounded-lg space-y-3">
+                    <span className="text-[10px] font-mono font-bold text-amber-500 uppercase">Section 02 // Field Investigations & Case Studies (Problem → Solve)</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[9px] text-zinc-500 uppercase">Tagline Decor</label>
+                        <input 
+                          type="text" 
+                          value={homepageContent.caseStudiesTagline ?? '02 — Field Investigations'}
+                          onChange={e => setHomepageContent({ ...homepageContent, caseStudiesTagline: e.target.value })}
+                          placeholder="e.g. 02 — Field Investigations"
+                          className={inputClass}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[9px] text-zinc-500 uppercase">Main Heading</label>
+                        <input 
+                          type="text" 
+                          value={homepageContent.caseStudiesHeading ?? 'Problem → Solve'}
+                          onChange={e => setHomepageContent({ ...homepageContent, caseStudiesHeading: e.target.value })}
+                          placeholder="e.g. Problem → Solve"
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block font-mono text-[9px] text-zinc-500 uppercase">Section Description</label>
+                      <textarea 
+                        rows={2}
+                        value={homepageContent.caseStudiesDesc ?? 'Real faults, real calculations, real fixes. Every case follows the same discipline: diagnose first, calculate second, fix third.'}
+                        onChange={e => setHomepageContent({ ...homepageContent, caseStudiesDesc: e.target.value })}
+                        className={textareaClass}
+                      />
+                    </div>
+                  </div>
+
+                  {/* SECTION 03: EXPERTISE / CAPABILITIES */}
+                  <div className="p-4 bg-zinc-950/40 light:bg-zinc-50 border border-zinc-850 dark:border-zinc-850 light:border-zinc-200 rounded-lg space-y-3">
+                    <span className="text-[10px] font-mono font-bold text-amber-500 uppercase">Section 03 // Core Engineering Capabilities</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[9px] text-zinc-500 uppercase">Tagline Decor</label>
+                        <input 
+                          type="text" 
+                          value={homepageContent.expertiseTagline}
+                          onChange={e => setHomepageContent({ ...homepageContent, expertiseTagline: e.target.value })}
+                          className={inputClass}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[9px] text-zinc-500 uppercase">Main Heading</label>
+                        <input 
+                          type="text" 
+                          value={homepageContent.expertiseHeading}
+                          onChange={e => setHomepageContent({ ...homepageContent, expertiseHeading: e.target.value })}
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block font-mono text-[9px] text-zinc-500 uppercase">Section Description</label>
+                      <textarea 
+                        rows={2}
+                        value={homepageContent.expertiseDesc}
+                        onChange={e => setHomepageContent({ ...homepageContent, expertiseDesc: e.target.value })}
+                        className={textareaClass}
+                      />
+                    </div>
+                  </div>
+
+                  {/* SECTION 04: FEATURED BLOGS / OPERATIONS JOURNAL */}
+                  <div className="p-4 bg-zinc-950/40 light:bg-zinc-50 border border-zinc-850 dark:border-zinc-850 light:border-zinc-200 rounded-lg space-y-3">
+                    <span className="text-[10px] font-mono font-bold text-amber-500 uppercase">Section 04 // Operations Journal & Featured Notes</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[9px] text-zinc-500 uppercase">Tagline Decor</label>
+                        <input 
+                          type="text" 
+                          value={homepageContent.featuredBlogsTagline ?? homepageContent.journalTagline ?? '04 — Engineering Journal'}
+                          onChange={e => setHomepageContent({ 
+                            ...homepageContent, 
+                            featuredBlogsTagline: e.target.value,
+                            journalTagline: e.target.value 
+                          })}
+                          placeholder="e.g. 04 — Engineering Journal"
+                          className={inputClass}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[9px] text-zinc-500 uppercase">Main Heading</label>
+                        <input 
+                          type="text" 
+                          value={homepageContent.featuredBlogsHeading ?? homepageContent.journalHeading ?? 'Operations Journal & Notes'}
+                          onChange={e => setHomepageContent({ 
+                            ...homepageContent, 
+                            featuredBlogsHeading: e.target.value,
+                            journalHeading: e.target.value 
+                          })}
+                          placeholder="e.g. Operations Journal & Notes"
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block font-mono text-[9px] text-zinc-500 uppercase">Section Description</label>
+                      <textarea 
+                        rows={2}
+                        value={homepageContent.featuredBlogsDesc ?? homepageContent.journalDesc ?? 'Field notes, compliance manuals, and calculation registers compiled directly from my daily substation maintenance routines in Dhaka, Bangladesh.'}
+                        onChange={e => setHomepageContent({ 
+                          ...homepageContent, 
+                          featuredBlogsDesc: e.target.value,
+                          journalDesc: e.target.value 
+                        })}
+                        className={textareaClass}
+                      />
+                    </div>
+                  </div>
+
+                  {/* SECTION 05: CONTACT NODE & SOCIALS */}
+                  <div className="p-4 bg-zinc-950/40 light:bg-zinc-50 border border-zinc-850 dark:border-zinc-850 light:border-zinc-200 rounded-lg space-y-3">
+                    <span className="text-[10px] font-mono font-bold text-amber-500 uppercase">Section 05 // Contact Node & Direct Social Links</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[9px] text-zinc-500 uppercase">Tagline Decor</label>
+                        <input 
+                          type="text" 
+                          value={homepageContent.contactTagline}
+                          onChange={e => setHomepageContent({ ...homepageContent, contactTagline: e.target.value })}
+                          className={inputClass}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[9px] text-zinc-500 uppercase">Main Heading</label>
+                        <input 
+                          type="text" 
+                          value={homepageContent.contactHeading}
+                          onChange={e => setHomepageContent({ ...homepageContent, contactHeading: e.target.value })}
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block font-mono text-[9px] text-zinc-500 uppercase">Section Description</label>
+                      <textarea 
+                        rows={2}
+                        value={homepageContent.contactDesc}
+                        onChange={e => setHomepageContent({ ...homepageContent, contactDesc: e.target.value })}
+                        className={textareaClass}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 border-t border-zinc-850 dark:border-zinc-800/80 light:border-zinc-200 pt-3">
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[9px] text-zinc-500 uppercase">Official Email</label>
+                        <input 
+                          type="email" 
+                          value={homepageContent.contactEmail}
+                          onChange={e => setHomepageContent({ ...homepageContent, contactEmail: e.target.value })}
+                          placeholder="sardersahin@gmail.com"
+                          className={inputClass}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[9px] text-zinc-500 uppercase">LinkedIn Link</label>
+                        <input 
+                          type="text" 
+                          value={homepageContent.contactLinkedin}
+                          onChange={e => setHomepageContent({ ...homepageContent, contactLinkedin: e.target.value })}
+                          placeholder="https://linkedin.com/in/..."
+                          className={inputClass}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[9px] text-zinc-500 uppercase">GitHub Link</label>
+                        <input 
+                          type="text" 
+                          value={homepageContent.contactGithub}
+                          onChange={e => setHomepageContent({ ...homepageContent, contactGithub: e.target.value })}
+                          placeholder="https://github.com/..."
+                          className={inputClass}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="block font-mono text-[9px] text-zinc-500 uppercase">WhatsApp Number</label>
+                        <input 
+                          type="text" 
+                          value={homepageContent.contactWhatsapp ?? '+8801700000000'}
+                          onChange={e => setHomepageContent({ ...homepageContent, contactWhatsapp: e.target.value })}
+                          placeholder="+8801700000000"
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 5: BRAND LOGO ICON */}
+            {homepageSubTab === 'logo' && (
+              <div className="p-5 bg-zinc-900/40 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-xl space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-850 dark:border-zinc-800/50 light:border-zinc-100 pb-3">
+                  <div className="flex items-center space-x-2">
+                    <Cpu className="w-4.5 h-4.5 text-amber-500" />
+                    <h3 className="font-display font-bold text-sm text-zinc-100 light:text-zinc-900 uppercase">
+                      Sticky Header Brand Logo & Icon Customization
+                    </h3>
+                  </div>
+                  <div className="relative w-full sm:w-64">
+                    <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-2.5" />
+                    <input
+                      type="text"
+                      value={logoIconSearch}
+                      onChange={e => setLogoIconSearch(e.target.value)}
+                      placeholder="Search icons (e.g. Zap, Cpu, Flame)..."
+                      className={`${inputClass} pl-8 h-8 text-xs font-mono`}
+                    />
+                  </div>
                 </div>
 
-                <div className="pt-2">
-                  <label className="block font-mono text-[9px] text-zinc-500 uppercase">Selected Icon Name (or type arbitrary Lucide name)</label>
-                  <input
-                    type="text"
-                    value={homepageContent.headerLogoIcon || 'Cpu'}
-                    onChange={e => setHomepageContent({ ...homepageContent, headerLogoIcon: e.target.value })}
-                    placeholder="e.g. Cpu, Zap, Activity, ShieldAlert"
-                    className={`${inputClass} max-w-xs mt-1 font-mono`}
-                  />
-                  <p className="text-[9px] text-zinc-500 font-mono mt-1">
-                    Select from the presets above or enter a valid case-sensitive Lucide icon name.
+                <div className="space-y-3">
+                  <p className="text-xs text-zinc-400 light:text-zinc-650 font-sans">
+                    মেনুবারের বামপাশে প্রদর্শিত ব্র্যান্ড লোগো বা বিশেষ টেকনিক্যাল আইকনটি নির্বাচন করুন।
                   </p>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 gap-3 pt-1">
+                    {LOGO_OPTIONS
+                      .filter(opt => !logoIconSearch || opt.id.toLowerCase().includes(logoIconSearch.toLowerCase()) || opt.name.toLowerCase().includes(logoIconSearch.toLowerCase()))
+                      .map((opt) => {
+                        const IconComponent = ADMIN_ICON_MAP[opt.id] || Cpu;
+                        const isSelected = (homepageContent.headerLogoIcon || 'Cpu') === opt.id;
+                        return (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => setHomepageContent({ ...homepageContent, headerLogoIcon: opt.id })}
+                            className={`p-3 rounded-lg border text-left transition-all relative overflow-hidden flex flex-col items-center justify-center text-center cursor-pointer ${
+                              isSelected
+                                ? 'border-amber-500 bg-amber-500/15 text-amber-500 shadow-md ring-1 ring-amber-500/40 scale-[1.02]'
+                                : 'border-zinc-800 dark:border-zinc-800 light:border-zinc-200 bg-zinc-950/60 light:bg-zinc-50 hover:border-zinc-700 text-zinc-400'
+                            }`}
+                          >
+                            <IconComponent className={`w-6 h-6 mb-1.5 ${isSelected ? 'text-amber-500 animate-pulse' : 'text-zinc-500'}`} />
+                            <span className="block text-[11px] font-mono uppercase font-bold tracking-tight">{opt.id}</span>
+                            <span className="block text-[8px] text-zinc-500 font-sans mt-0.5 leading-tight">{opt.desc}</span>
+                            {isSelected && (
+                              <div className="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-500 rounded-full ring-2 ring-emerald-500/30" />
+                            )}
+                          </button>
+                        );
+                      })}
+                  </div>
+
+                  <div className="pt-3 border-t border-zinc-850 dark:border-zinc-850 light:border-zinc-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div>
+                      <label className="block font-mono text-[9px] text-zinc-500 uppercase">Custom Lucide Icon Name</label>
+                      <input
+                        type="text"
+                        value={homepageContent.headerLogoIcon || 'Cpu'}
+                        onChange={e => setHomepageContent({ ...homepageContent, headerLogoIcon: e.target.value })}
+                        placeholder="e.g. Cpu, Zap, Activity, ShieldAlert"
+                        className={`${inputClass} max-w-xs mt-1 font-mono`}
+                      />
+                    </div>
+                    <div className="p-2.5 bg-zinc-950 border border-zinc-850 rounded-lg flex items-center space-x-2">
+                      <span className="text-[10px] font-mono text-zinc-400">Current Logo Icon Preview:</span>
+                      {React.createElement(ADMIN_ICON_MAP[homepageContent.headerLogoIcon || 'Cpu'] || Cpu, { className: "w-5 h-5 text-amber-500" })}
+                      <span className="text-xs font-mono font-bold text-amber-500">{homepageContent.headerLogoIcon || 'Cpu'}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* STICKY BOTTOM ACTION BAR (MOBILE & DESKTOP) */}
+            <div className="fixed bottom-0 left-0 right-0 z-30 bg-zinc-950/90 backdrop-blur-md border-t border-zinc-800 p-3.5 shadow-2xl">
+              <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+                <div className="flex items-center space-x-2 text-xs font-mono text-zinc-400">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  <span className="hidden sm:inline">Ready to sync changes with live database</span>
+                  <span className="sm:hidden">Ready to sync</span>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <button 
+                    type="submit" 
+                    className={`${btnAmberClass} px-5 h-9 text-xs font-bold shadow-lg`}
+                    id="save-homepage-btn"
+                  >
+                    <Save className="w-4 h-4 text-zinc-950" />
+                    <span>Save</span>
+                  </button>
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-end pt-4">
-              <button 
-                type="submit" 
-                className={`${btnAmberClass} px-6 h-11 text-sm`}
-                id="save-homepage-btn"
-              >
-                <Save className="w-4 h-4 text-zinc-950" />
-                <span>Save & Sync Homepage</span>
-              </button>
-            </div>
           </form>
         )}
 
@@ -5842,6 +6201,21 @@ export default function Admin({ onSync }: AdminProps) {
                           >
                             + Warning
                           </button>
+                          <button
+                            type="button"
+                            onClick={() => contentImageInputRef.current?.click()}
+                            className="px-2.5 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[10px] font-mono rounded font-bold cursor-pointer flex items-center gap-1"
+                          >
+                            <Image className="w-3 h-3 text-amber-400" />
+                            <span>+ Photo / Diagram into Text</span>
+                          </button>
+                          <input
+                            type="file"
+                            ref={contentImageInputRef}
+                            accept="image/*"
+                            onChange={handleInsertBlogContentImage}
+                            className="hidden"
+                          />
                         </div>
 
                         <textarea
@@ -5921,15 +6295,23 @@ export default function Admin({ onSync }: AdminProps) {
                         )}
                       </div>
 
-                      {/* Banner Image File Upload Only */}
+                      {/* Banner Image File Upload */}
                       <div className="p-5 bg-zinc-900/40 light:bg-white rounded-xl border border-zinc-850 dark:border-zinc-850 light:border-zinc-200 space-y-3">
-                        <label className="block font-mono text-[11px] text-amber-500 font-bold uppercase">
-                          Banner / Cover Image
-                        </label>
+                        <div className="flex items-center justify-between">
+                          <label className="block font-mono text-[11px] text-amber-500 font-bold uppercase">
+                            Banner / Cover Image
+                          </label>
+                          {blogForm.imageUrl && (
+                            <span className="text-[10px] font-mono text-emerald-400 font-bold flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                              <span>Image Attached</span>
+                            </span>
+                          )}
+                        </div>
                         
                         <label className="w-full py-3 px-4 bg-zinc-950 hover:bg-zinc-900 text-amber-400 border border-amber-500/30 font-mono font-bold text-xs rounded-lg cursor-pointer flex items-center justify-center space-x-2 transition-colors">
                           <Image className="w-4 h-4 text-amber-500" />
-                          <span>Upload Image</span>
+                          <span>{blogForm.imageUrl ? 'Change Banner Image' : 'Upload Cover Photo'}</span>
                           <input
                             type="file"
                             accept="image/*"
@@ -5939,7 +6321,7 @@ export default function Admin({ onSync }: AdminProps) {
                         </label>
 
                         {blogForm.imageUrl ? (
-                          <div className="relative rounded-lg overflow-hidden border border-amber-500/30 group bg-zinc-950 h-40">
+                          <div className="relative rounded-lg overflow-hidden border border-emerald-500/40 group bg-zinc-950 h-40">
                             <img src={blogForm.imageUrl} alt="Banner Preview" className="w-full h-full object-cover" />
                             <button
                               type="button"
@@ -5948,14 +6330,24 @@ export default function Admin({ onSync }: AdminProps) {
                               title="Remove Image"
                             >
                               <X className="w-3.5 h-3.5" />
-                              <span>Remove Image</span>
+                              <span>Remove</span>
                             </button>
+                            <div className="absolute bottom-2 left-2 bg-zinc-950/90 text-emerald-400 px-2 py-0.5 rounded text-[9px] font-mono border border-emerald-500/30 font-bold">
+                              ✓ Banner Ready
+                            </div>
                           </div>
                         ) : (
                           <div className="p-4 border border-dashed border-zinc-800 rounded-lg text-center">
                             <span className="text-[11px] font-mono text-zinc-500">No cover banner image uploaded</span>
                           </div>
                         )}
+
+                        <div className="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-lg text-[10px] font-mono text-amber-300 space-y-1">
+                          <p className="font-bold">💡 ডাটাবেজ নির্দেশনা (Database Notice):</p>
+                          <p className="text-zinc-300 leading-relaxed font-sans">
+                            ছবি সিলেক্ট করার পর ডাটাবেজে পার্মানেন্টলি সেভ করতে উপরে <strong className="text-amber-400">"Save Changes"</strong> অথবা <strong className="text-amber-400">"Publish Article"</strong> বাটনে অবশ্যই ক্লিক করুন।
+                          </p>
+                        </div>
                       </div>
 
                       {/* Tags & Keywords */}
@@ -6204,7 +6596,7 @@ export default function Admin({ onSync }: AdminProps) {
               {/* Application Layout & Theme Configuration */}
               <div className="p-5 bg-zinc-900/40 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-lg space-y-4 md:col-span-2">
                 <h3 className="font-display font-bold text-sm text-zinc-100 light:text-zinc-900 uppercase border-b border-zinc-850 dark:border-zinc-800/50 light:border-zinc-100 pb-3">
-                  Application Theme & Layout Configuration
+                  Application Theme & Mobile Navigation
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   {/* Bottom Navigation Toggle */}
@@ -6311,20 +6703,62 @@ export default function Admin({ onSync }: AdminProps) {
                 </form>
               </div>
 
-               {/* Reset to Factory Defaults */}
+              {/* ADVANCED CONFIGURATIONS ACCORDION */}
               <div className="p-5 bg-zinc-900/40 light:bg-white border border-zinc-900 dark:border-zinc-900 light:border-zinc-200 rounded-lg space-y-4">
-                <h3 className="font-display font-bold text-sm text-zinc-100 light:text-zinc-900 uppercase border-b border-zinc-850 dark:border-zinc-800/50 light:border-zinc-100 pb-3 text-rose-500">
-                  Relay System Overwrite (Reset Database)
-                </h3>
-                <p className="text-xs text-zinc-400 light:text-zinc-650 leading-relaxed">
-                  Resetting database clears any customizations made to the landing page headings, custom timeline readings, added case studies, or edited resume bio-data, and loads the original default electrical portfolio parameters.
-                </p>
-                <button 
-                  onClick={handleResetFactoryDefaults}
-                  className="px-4 py-2.5 bg-rose-500/10 hover:bg-rose-500 border border-rose-500/20 hover:text-zinc-950 text-rose-500 text-xs font-mono font-bold rounded transition-colors cursor-pointer"
-                >
-                  [Execute Hard Factory Reset Overwrite]
-                </button>
+                <div className="flex items-center justify-between border-b border-zinc-850 dark:border-zinc-800/50 light:border-zinc-100 pb-3">
+                  <h3 className="font-display font-bold text-sm text-zinc-100 light:text-zinc-900 uppercase">
+                    Advanced Operations
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
+                    className="px-2.5 py-1 bg-zinc-800 hover:bg-zinc-700 text-amber-400 font-mono text-xs font-bold rounded-lg border border-zinc-700 flex items-center space-x-1 cursor-pointer"
+                  >
+                    <Sliders className="w-3.5 h-3.5" />
+                    <span>{showAdvancedSettings ? 'Hide Options' : 'Show Options'}</span>
+                    {showAdvancedSettings ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+
+                {showAdvancedSettings ? (
+                  <div className="space-y-4 animate-fade-in pt-1">
+                    {/* Database Reset */}
+                    <div className="p-4 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-50 rounded-xl border border-rose-500/30 space-y-2.5">
+                      <h4 className="font-mono text-xs font-bold text-rose-500 uppercase flex items-center gap-1.5">
+                        <ShieldAlert className="w-4 h-4" />
+                        <span>Reset Database (Factory Defaults)</span>
+                      </h4>
+                      <p className="text-xs text-zinc-400 light:text-zinc-650 leading-relaxed">
+                        Clears customizations made to landing page headings, added case studies, or edited resume bio-data, and reloads default parameters.
+                      </p>
+                      <button 
+                        type="button"
+                        onClick={handleResetFactoryDefaults}
+                        className="px-3.5 py-2 bg-rose-500/10 hover:bg-rose-500 border border-rose-500/20 hover:text-zinc-950 text-rose-400 text-xs font-mono font-bold rounded-lg transition-colors cursor-pointer flex items-center space-x-1.5"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>[Execute Factory Reset]</span>
+                      </button>
+                    </div>
+
+                    {/* Local Storage Stats */}
+                    <div className="p-4 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-50 rounded-xl border border-zinc-800 light:border-zinc-200 space-y-2">
+                      <h4 className="font-mono text-xs font-bold text-amber-500 uppercase">
+                        Storage Cache Records
+                      </h4>
+                      <div className="grid grid-cols-2 gap-2 text-[11px] font-mono text-zinc-400">
+                        <div className="p-2 bg-zinc-900 dark:bg-zinc-900 light:bg-white rounded border border-zinc-800">Catalog: {products.length}</div>
+                        <div className="p-2 bg-zinc-900 dark:bg-zinc-900 light:bg-white rounded border border-zinc-800">Invoices: {orders.length}</div>
+                        <div className="p-2 bg-zinc-900 dark:bg-zinc-900 light:bg-white rounded border border-zinc-800">Clients: {customers.length}</div>
+                        <div className="p-2 bg-zinc-900 dark:bg-zinc-900 light:bg-white rounded border border-zinc-800">Notes: {officeNotes.length}</div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-xs text-zinc-500 italic">
+                    Advanced developer options, storage caches, and database overwrites are collapsed to keep your smartphone editor uncluttered. Click "Show Options" to expand.
+                  </p>
+                )}
               </div>
 
             </div>
@@ -6972,12 +7406,25 @@ export default function Admin({ onSync }: AdminProps) {
                 <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
                   {editingProduct ? 'Edit Catalog Product' : 'Add New Catalog Product'}
                 </h3>
-                <button onClick={() => setIsProductModalOpen(false)} className="p-1 rounded text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
+                <button type="button" onClick={() => setIsProductModalOpen(false)} className="p-1 rounded text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="space-y-3 text-xs">
+              <form onSubmit={handleSaveProduct} className="space-y-3 text-xs">
+                {/* Product Name */}
+                <div>
+                  <label className="block text-zinc-400 mb-1 font-mono font-bold">Item / Equipment Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. 11kV VCB Switchgear Panel"
+                    value={productForm.name || ''}
+                    onChange={e => setProductForm({ ...productForm, name: e.target.value })}
+                    className={inputClass}
+                  />
+                </div>
+
                 {/* Product Image Upload Section */}
                 <div className="p-3.5 bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 rounded-lg border border-zinc-850 dark:border-zinc-800 space-y-2">
                   <label className="block font-mono text-[11px] text-amber-500 font-bold uppercase">
@@ -7110,17 +7557,17 @@ export default function Admin({ onSync }: AdminProps) {
                     </div>
                   </div>
                 )}
-              </div>
 
-              <div className="flex justify-end space-x-2 pt-3 border-t border-zinc-200 dark:border-zinc-800">
-                <button onClick={() => setIsProductModalOpen(false)} className={btnSecondaryClass}>
-                  Cancel
-                </button>
-                <button onClick={handleSaveProduct} className={btnAmberClass}>
-                  <Save className="w-4 h-4" />
-                  <span>Save</span>
-                </button>
-              </div>
+                <div className="flex justify-end space-x-2 pt-3 border-t border-zinc-200 dark:border-zinc-800">
+                  <button type="button" onClick={() => setIsProductModalOpen(false)} className={btnSecondaryClass}>
+                    Cancel
+                  </button>
+                  <button type="submit" className={btnAmberClass}>
+                    <Save className="w-4 h-4" />
+                    <span>Save</span>
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
@@ -7516,22 +7963,22 @@ export default function Admin({ onSync }: AdminProps) {
                       {
                         id: 'inspection_report',
                         title: '1. Substation Inspection & Thermal Audit Report Ready',
-                        text: `Dear Sir, Greetings from Engineers Enterprise. The 11kV substation thermal audit and safety inspection report for ${whatsAppModalCustomer.name} is ready for review. Thank you.`
+                        text: `Dear Sir, Greetings from Engr. Md. Sahin Alom. The 11kV substation thermal audit and safety inspection report for ${whatsAppModalCustomer.name} is ready for review. Thank you.`
                       },
                       {
                         id: 'maintenance_due',
                         title: '2. Transformer & PFI Maintenance Due Reminder',
-                        text: `Dear Sir, Scheduled maintenance for the transformer and PFI plant at ${whatsAppModalCustomer.name} is due soon. Please let us know if you require technical service. - Engineers Enterprise`
+                        text: `Dear Sir, Scheduled maintenance for the transformer and PFI plant at ${whatsAppModalCustomer.name} is due soon. Please let us know if you require technical service. - Engr. Md. Sahin Alom`
                       },
                       {
                         id: 'invoice_followup',
                         title: '3. Service Invoice & Billing Update',
-                        text: `Dear Sir, A new service invoice has been issued for your plant site by Engineers Enterprise. Please reply if you require any billing details or payment clarification.`
+                        text: `Dear Sir, A new service invoice has been issued for your plant site by Engr. Md. Sahin Alom. Please reply if you require any billing details or payment clarification.`
                       },
                       {
                         id: 'general_greetings',
                         title: '4. General Technical Inquiry & Support',
-                        text: `Dear Sir, Greetings from Engineers Enterprise. Please let us know if you require any emergency technical support or equipment servicing for your factory substation.`
+                        text: `Dear Sir, Greetings from Engr. Md. Sahin Alom. Please let us know if you require any emergency technical support or equipment servicing for your factory substation.`
                       }
                     ].map(tpl => (
                       <button
@@ -7594,12 +8041,12 @@ export default function Admin({ onSync }: AdminProps) {
                   <Receipt className="w-5 h-5 text-amber-500" />
                   <span>Create Work Order & Service Invoice</span>
                 </h3>
-                <button onClick={() => setIsOrderModalOpen(false)} className="p-1 rounded text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
+                <button type="button" onClick={() => setIsOrderModalOpen(false)} className="p-1 rounded text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="space-y-4 text-xs">
+              <form onSubmit={handleSaveOrder} className="space-y-4 text-xs">
                 {/* Customer Info */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-zinc-950 p-3 rounded-xl border border-zinc-800">
                   <div>
@@ -7760,15 +8207,15 @@ export default function Admin({ onSync }: AdminProps) {
                 </div>
 
                 <div className="flex justify-end space-x-2 pt-3 border-t border-zinc-200 dark:border-zinc-800">
-                  <button onClick={() => setIsOrderModalOpen(false)} className={btnSecondaryClass}>
+                  <button type="button" onClick={() => setIsOrderModalOpen(false)} className={btnSecondaryClass}>
                     Cancel
                   </button>
-                  <button onClick={handleSaveOrder} className={btnAmberClass}>
+                  <button type="submit" className={btnAmberClass}>
                     <Printer className="w-4 h-4" />
                     <span>Generate & Save Invoice</span>
                   </button>
                 </div>
-              </div>
+              </form>
             </div>
           </div>
         )}
@@ -7781,12 +8228,12 @@ export default function Admin({ onSync }: AdminProps) {
                 <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
                   Create Field Logbook Note
                 </h3>
-                <button onClick={() => setIsNoteModalOpen(false)} className="p-1 rounded text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
+                <button type="button" onClick={() => setIsNoteModalOpen(false)} className="p-1 rounded text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="space-y-3 text-xs">
+              <form onSubmit={handleSaveOfficeNote} className="space-y-3 text-xs">
                 <div>
                   <label className="block text-zinc-400 mb-1 font-mono">Title</label>
                   <input
@@ -7834,17 +8281,17 @@ export default function Admin({ onSync }: AdminProps) {
                     className={inputClass}
                   />
                 </div>
-              </div>
 
-              <div className="flex justify-end space-x-2 pt-3 border-t border-zinc-200 dark:border-zinc-800">
-                <button onClick={() => setIsNoteModalOpen(false)} className={btnSecondaryClass}>
-                  Cancel
-                </button>
-                <button onClick={handleSaveOfficeNote} className={btnAmberClass}>
-                  <Save className="w-4 h-4" />
-                  <span>Save Log Note</span>
-                </button>
-              </div>
+                <div className="flex justify-end space-x-2 pt-3 border-t border-zinc-200 dark:border-zinc-800">
+                  <button type="button" onClick={() => setIsNoteModalOpen(false)} className={btnSecondaryClass}>
+                    Cancel
+                  </button>
+                  <button type="submit" className={btnAmberClass}>
+                    <Save className="w-4 h-4" />
+                    <span>Save Log Note</span>
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
@@ -8036,13 +8483,13 @@ export default function Admin({ onSync }: AdminProps) {
               <div className="border-2 border-zinc-900 p-6 rounded-lg space-y-6">
                 {/* Brand Title Header */}
                 <div className="text-center border-b-2 border-zinc-900 pb-4">
-                  <h1 className="text-2xl font-black text-zinc-950 tracking-tight">ENGINEERS ENTERPRISE</h1>
-                  <p className="text-xs font-bold text-zinc-700 mt-0.5">Electrical Engineering Services & Technical Equipment Supply</p>
+                  <h1 className="text-2xl font-black text-zinc-950 tracking-tight">ENGR. MD. SAHIN ALOM</h1>
+                  <p className="text-xs font-bold text-zinc-700 mt-0.5">Electrical Engineer • B.Sc. in EEE (Green University of Bangladesh)</p>
                   <p className="text-[11px] text-zinc-600 mt-1">
                     Industrial Substation Design, VCB/LBS Panels, Transformers & Switchgear Maintenance
                   </p>
                   <p className="text-[10px] font-mono text-zinc-500 mt-0.5">
-                    Head Office: Uttara, Dhaka | Hotline: +880 1711-223344 / +880 1822-334455
+                    Dhaka, Bangladesh | Phone: +880 1760-816120 | Email: sardershain@gmail.com
                   </p>
                 </div>
 
@@ -8141,8 +8588,8 @@ export default function Admin({ onSync }: AdminProps) {
                     Client's Signature
                   </div>
                   <div className="text-center border-t border-zinc-900 pt-1 w-48">
-                    Engineers Enterprise<br />
-                    <span className="text-[10px] text-zinc-500">Authorized Electrical Engineer</span>
+                    Engr. Md. Sahin Alom<br />
+                    <span className="text-[10px] text-zinc-500">Electrical Engineer (B.Sc. in EEE)</span>
                   </div>
                 </div>
               </div>

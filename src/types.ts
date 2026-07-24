@@ -109,6 +109,8 @@ export interface HomepageContent {
   heroTagline: string;
   heroHeading: string;
   heroSubheading: string;
+  heroCtaPrimaryText?: string;
+  heroCtaSecondaryText?: string;
   heroStat1Val: string;
   heroStat1Label: string;
   heroStat2Val: string;
@@ -119,18 +121,39 @@ export interface HomepageContent {
   heroProfileTitle: string;
   heroProfileImage?: string;
   heroProfileVideo?: string;
-  journalTagline: string;
-  journalHeading: string;
-  journalDesc: string;
+  
+  // Daily Check section
+  showDailyCheck?: boolean;
+  dailyCheckTagline?: string;
+  dailyCheckTitle?: string;
+  dailyCheckDesc?: string;
+  
+  // Case Studies (Problem -> Solve) section
+  caseStudiesTagline?: string;
+  caseStudiesHeading?: string;
+  caseStudiesDesc?: string;
+
+  // Capabilities / Scope of Expertise section
   expertiseTagline: string;
   expertiseHeading: string;
   expertiseDesc: string;
+
+  // Featured Blogs / Operations Journal section
+  journalTagline: string;
+  journalHeading: string;
+  journalDesc: string;
+  featuredBlogsTagline?: string;
+  featuredBlogsHeading?: string;
+  featuredBlogsDesc?: string;
+
+  // Contact section
   contactTagline: string;
   contactHeading: string;
   contactDesc: string;
   contactEmail: string;
   contactLinkedin: string;
   contactGithub: string;
+  contactWhatsapp?: string;
   headerLogoIcon?: string;
 }
 

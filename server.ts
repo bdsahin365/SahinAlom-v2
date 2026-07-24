@@ -160,14 +160,12 @@ async function seedDatabase() {
       await CaseStudyModel.insertMany(CASE_STUDIES as any);
       console.log(`Database Seed: ${CASE_STUDIES.length} default industrial case studies initialized.`);
     } else {
-      // Sync and update default case studies
+      // Sync missing case studies without overwriting user updates in MongoDB
       for (const study of CASE_STUDIES) {
         const exists = await CaseStudyModel.findOne({ slug: study.slug } as any);
         if (!exists) {
           await CaseStudyModel.create(study as any);
           console.log(`Database Seed Sync: Missing case study "${study.title}" inserted into MongoDB.`);
-        } else {
-          await CaseStudyModel.updateOne({ slug: study.slug } as any, { $set: study as any });
         }
       }
     }
@@ -177,14 +175,12 @@ async function seedDatabase() {
       await BlogPostModel.insertMany(DEFAULT_BLOG_POSTS as any);
       console.log(`Database Seed: ${DEFAULT_BLOG_POSTS.length} engineering blog articles initialized.`);
     } else {
-      // Sync and update default blog posts
+      // Sync missing default blog posts without overwriting user updates in MongoDB
       for (const post of DEFAULT_BLOG_POSTS) {
         const exists = await BlogPostModel.findOne({ slug: post.slug } as any);
         if (!exists) {
           await BlogPostModel.create(post as any);
           console.log(`Database Seed Sync: Missing blog post "${post.title}" inserted into MongoDB.`);
-        } else {
-          await BlogPostModel.updateOne({ slug: post.slug } as any, { $set: post as any });
         }
       }
     }

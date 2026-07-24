@@ -1,11 +1,12 @@
 import React from 'react';
 import { DEFAULT_BLOG_POSTS } from '../data';
 import { ChevronRight, Calendar, Clock, BookOpen } from 'lucide-react';
-import { BlogPost } from '../types';
+import { BlogPost, HomepageContent } from '../types';
 
 interface FeaturedBlogsProps {
   onNavigate: (view: string, slug?: string) => void;
   posts?: BlogPost[];
+  homepageContent?: HomepageContent;
 }
 
 // Helper to calculate estimated reading time based on content word count
@@ -21,9 +22,13 @@ const getReadingTime = (content: string) => {
   };
 };
 
-export default function FeaturedBlogs({ onNavigate, posts = DEFAULT_BLOG_POSTS }: FeaturedBlogsProps) {
+export default function FeaturedBlogs({ onNavigate, posts = DEFAULT_BLOG_POSTS, homepageContent }: FeaturedBlogsProps) {
   // Show first 3 published blog posts
   const featuredPosts = posts.filter(p => p.published).slice(0, 3);
+
+  const tagline = homepageContent?.featuredBlogsTagline || homepageContent?.journalTagline || "04 — Engineering Journal";
+  const heading = homepageContent?.featuredBlogsHeading || homepageContent?.journalHeading || "Operations Journal & Notes";
+  const desc = homepageContent?.featuredBlogsDesc || homepageContent?.journalDesc || "Field notes, compliance manuals, and calculation registers compiled directly from my daily substation maintenance routines in Dhaka, Bangladesh.";
 
   return (
     <section 
@@ -36,11 +41,11 @@ export default function FeaturedBlogs({ onNavigate, posts = DEFAULT_BLOG_POSTS }
         <div className="mb-12 flex flex-row items-end justify-between border-b border-zinc-900/60 dark:border-zinc-900/40 light:border-zinc-200 pb-6">
           <div className="space-y-1 flex-1 pr-4">
             <span className="font-mono text-[10px] sm:text-xs text-amber-500 uppercase tracking-widest block">
-              03 — Engineering Journal
+              {tagline}
             </span>
             <div className="flex items-center justify-between">
               <h2 className="font-display font-bold text-3xl md:text-4xl text-zinc-100 light:text-zinc-900 tracking-tight">
-                Operations Journal & Notes
+                {heading}
               </h2>
               
               {/* Mobile-only Arrow Button right next to/aligned with Title */}
@@ -54,7 +59,7 @@ export default function FeaturedBlogs({ onNavigate, posts = DEFAULT_BLOG_POSTS }
               </button>
             </div>
             <p className="text-zinc-400 light:text-zinc-650 max-w-xl text-xs sm:text-sm leading-relaxed mt-2">
-              Field notes, compliance manuals, and calculation registers compiled directly from my daily substation maintenance routines in Dhaka, Bangladesh.
+              {desc}
             </p>
           </div>
           

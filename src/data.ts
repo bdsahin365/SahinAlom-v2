@@ -211,13 +211,13 @@ export const INITIAL_ADMIN_STATS: AdminStats = {
 };
 
 export const DEFAULT_PROFILE_DATA: ProfileData = {
-  name: "Sahin Alom",
-  title: "Industrial Electrical Engineer",
+  name: "Md Sahin Alom",
+  title: "Electrical Engineer",
   location: "Dhaka, Bangladesh",
   email: "sardershain@gmail.com",
   phone: "+8801760816120",
   whatsapp: "+8801760816120",
-  summary: "Results-driven Industrial Electrical Engineer with over 4 years of hands-on expertise in electrical maintenance, load calculation, distribution substation operation, and advanced troubleshooting for large-scale textile and sweater manufacturing operations. Proven capability in maintaining zero unscheduled downtime, ensuring electrical safety compliance per BNBC and IEC standards, and designing automatic protection and transfer systems.",
+  summary: "Results-driven Electrical Engineer with B.Sc. in EEE from Green University of Bangladesh. Over 4 years of hands-on expertise in industrial electrical maintenance, load calculation, distribution substation operation, and advanced troubleshooting for large-scale manufacturing operations. Proven capability in maintaining zero unscheduled downtime, ensuring electrical safety compliance per BNBC and IEC standards, and designing automatic protection and transfer systems.",
   skills: "Substation Maintenance (11kV/0.4kV), SLD Interpretation, Protection Selectivity (ACB/MCCB/VCB), Power Factor Improvement (PFI), Cable & Breaker Sizing, Earth Resistance Testing, Generator Load Matching, Industrial Automation, LOTO Safety Protocols, BNBC & IEC Compliance",
   imageUrl: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=800&auto=format&fit=crop",
   experience: [
@@ -237,9 +237,9 @@ export const DEFAULT_PROFILE_DATA: ProfileData = {
   education: [
     {
       degree: "B.Sc. in Electrical and Electronic Engineering (EEE)",
-      institution: "Dhaka University of Engineering & Technology (DUET)",
+      institution: "Green University of Bangladesh",
       passingYear: "2020",
-      result: "CGPA: 3.65/4.00"
+      result: "Graduated"
     },
     {
       degree: "Diploma in Electrical Technology",
@@ -269,29 +269,42 @@ export const DEFAULT_PROFILE_DATA: ProfileData = {
 export const DEFAULT_HOMEPAGE_CONTENT: HomepageContent = {
   heroTagline: "Electrical Engineer",
   heroHeading: "I keep factories running.",
-  heroSubheading: "Electrical maintenance, load distribution, and power system troubleshooting for industrial facilities. Currently maintaining a sweater factory in Dhaka — keeping production lines live, motors humming, and safety standards met.",
+  heroSubheading: "Electrical maintenance, load distribution, and power system troubleshooting for industrial facilities. B.Sc. in EEE from Green University of Bangladesh. Currently maintaining industrial power systems — keeping production lines live, motors humming, and safety standards met.",
+  heroCtaPrimaryText: "Contact Me",
+  heroCtaSecondaryText: "Explore Field Studies",
   heroStat1Val: "4+ Years",
   heroStat1Label: "Field Exp",
   heroStat2Val: "24/7",
   heroStat2Label: "Operations",
   heroStat3Val: "100%",
   heroStat3Label: "Uptime Focus",
-  heroProfileName: "Sahin Alom",
-  heroProfileTitle: "Sahin Alom — Senior EE",
+  heroProfileName: "Md. Sahin Alom",
+  heroProfileTitle: "Md. Sahin Alom — Electrical Engineer",
   heroProfileImage: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=800&auto=format&fit=crop",
   heroProfileVideo: "",
-  journalTagline: "01 — Operations Journal",
-  journalHeading: "The daily check",
-  journalDesc: "Every morning starts the same way. I walk the floor before the machines start, reading the boards, logging the numbers, listening for what sounds wrong. This is how you catch problems before they become downtime.",
+  showDailyCheck: true,
+  dailyCheckTagline: "01 — Operations Journal",
+  dailyCheckTitle: "The daily check",
+  dailyCheckDesc: "Every morning starts the same way. I walk the floor before the machines start, reading the boards, logging the numbers, listening for what sounds wrong. This is how you catch problems before they become downtime.",
+  caseStudiesTagline: "02 — Field Investigations",
+  caseStudiesHeading: "Problem → Solve",
+  caseStudiesDesc: "Real faults, real calculations, real fixes. Every case follows the same discipline: diagnose first, calculate second, fix third.",
   expertiseTagline: "03 — Scope of Expertise",
   expertiseHeading: "What I can do for you",
   expertiseDesc: "Organized by who you are and what you need. Not a skills list — a capabilities statement.",
-  contactTagline: "04 — Transmission Node",
+  journalTagline: "04 — Engineering Journal",
+  journalHeading: "Operations Journal & Notes",
+  journalDesc: "Field notes, compliance manuals, and calculation registers compiled directly from my daily substation maintenance routines in Dhaka, Bangladesh.",
+  featuredBlogsTagline: "04 — Engineering Journal",
+  featuredBlogsHeading: "Operations Journal & Notes",
+  featuredBlogsDesc: "Field notes, compliance manuals, and calculation registers compiled directly from my daily substation maintenance routines in Dhaka, Bangladesh.",
+  contactTagline: "05 — Transmission Node",
   contactHeading: "Let's collaborate",
   contactDesc: "Open to project collaborations, technical discussions, and international opportunities in the electrical and power systems space. Let me know what you are looking to build or solve.",
   contactEmail: "sardershain@gmail.com",
   contactLinkedin: "https://linkedin.com",
   contactGithub: "https://github.com",
+  contactWhatsapp: "+8801700000000",
   headerLogoIcon: "Cpu"
 };
 

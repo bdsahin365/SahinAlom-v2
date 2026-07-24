@@ -1,12 +1,20 @@
 import React, { useState } from 'react';
 import { TIMELINE_STEPS, INITIAL_READINGS } from '../data';
-import { ReadingItem } from '../types';
+import { ReadingItem, HomepageContent } from '../types';
 import { Clock, RefreshCw, Thermometer, Gauge, Zap, CheckCircle, AlertTriangle } from 'lucide-react';
 
-export default function DailyCheck() {
+interface DailyCheckProps {
+  homepageContent?: HomepageContent;
+}
+
+export default function DailyCheck({ homepageContent }: DailyCheckProps) {
   const [readings, setReadings] = useState<ReadingItem[]>(INITIAL_READINGS);
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulationLog, setSimulationLog] = useState<string>('All systems operating within acceptable tolerances.');
+
+  const tagline = homepageContent?.dailyCheckTagline || homepageContent?.journalTagline || '01 — Operations Journal';
+  const title = homepageContent?.dailyCheckTitle || homepageContent?.journalHeading || 'The daily check';
+  const desc = homepageContent?.dailyCheckDesc || homepageContent?.journalDesc || 'Every morning starts the same way. I walk the floor before the machines start, reading the boards, logging the numbers, listening for what sounds wrong. This is how you catch problems before they become downtime.';
 
   // Simulation handler to simulate grid fluctuation and safety system response
   const handleSimulateFault = () => {
@@ -74,10 +82,10 @@ export default function DailyCheck() {
         {/* Section Header */}
         <div className="mb-16">
           <span className="font-mono text-xs text-amber-500 uppercase tracking-widest block mb-2">
-            01 — Operations Journal
+            {tagline}
           </span>
           <h2 className="font-display font-bold text-3xl md:text-4xl text-zinc-100 light:text-zinc-900 tracking-tight">
-            The daily check
+            {title}
           </h2>
           <div className="h-0.5 w-12 bg-amber-500 mt-4" />
         </div>
@@ -87,8 +95,7 @@ export default function DailyCheck() {
           {/* Left Column: Timeline */}
           <div className="lg:col-span-7 space-y-8">
             <p className="text-base text-zinc-400 light:text-zinc-600 leading-relaxed max-w-xl">
-              Every morning starts the same way. I walk the floor before the machines start, reading the boards, 
-              logging the numbers, listening for what sounds wrong. This is how you catch problems before they become downtime.
+              {desc}
             </p>
 
             <div className="relative border-l border-zinc-800 dark:border-zinc-800 light:border-zinc-300 ml-4 pl-6 sm:pl-8 space-y-10 py-2">

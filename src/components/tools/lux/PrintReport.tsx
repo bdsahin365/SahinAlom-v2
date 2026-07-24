@@ -25,8 +25,8 @@ export const PrintReport: React.FC<PrintReportProps> = ({
   roomName,
   bnbcClause,
   projectName = 'Corporate HQ Lighting Project',
-  clientName = 'Engineers Enterprise / Client',
-  designerName = 'Engr. Sahin Alom (Electrical Consultant)',
+  clientName = 'Client Facility / Plant',
+  designerName = 'Engr. Md. Sahin Alom (Electrical Consultant)',
   onClose
 }) => {
   const currentDate = new Date().toLocaleDateString('en-US', {
@@ -74,8 +74,8 @@ export const PrintReport: React.FC<PrintReportProps> = ({
                 <Zap className="w-6 h-6 fill-zinc-950" />
               </div>
               <div>
-                <h1 className="font-bold text-xl uppercase tracking-tight text-zinc-900">ENGINEERS ENTERPRISE</h1>
-                <p className="text-xs font-mono text-zinc-600">Electrical & Lighting Engineering Design Services</p>
+                <h1 className="font-bold text-xl uppercase tracking-tight text-zinc-900">ENGR. MD. SAHIN ALOM</h1>
+                <p className="text-xs font-mono text-zinc-600">Electrical Engineering Design Services • B.Sc. in EEE (Green University)</p>
               </div>
             </div>
           </div>
@@ -85,7 +85,7 @@ export const PrintReport: React.FC<PrintReportProps> = ({
               BNBC 2020 Compliant Calculation
             </span>
             <p className="text-xs text-zinc-500 font-mono mt-1">Date: {currentDate}</p>
-            <p className="text-xs text-zinc-500 font-mono">Doc Ref: EE-LUMEN-{Math.floor(100000 + Math.random() * 900000)}</p>
+            <p className="text-xs text-zinc-500 font-mono">Doc Ref: SA-LUMEN-{Math.floor(100000 + Math.random() * 900000)}</p>
           </div>
         </div>
 
@@ -258,10 +258,10 @@ export const PrintReport: React.FC<PrintReportProps> = ({
 
           <div className="text-center w-64">
             <div className="border-b border-zinc-900 pb-1 mb-1 font-bold text-zinc-900">
-              Engr. Sahin Alom
+              Engr. Md. Sahin Alom
             </div>
-            <p className="text-[10px] text-zinc-500 font-mono uppercase">Registered Electrical Engineer</p>
-            <p className="text-[10px] text-zinc-400">Engineers Enterprise Consultancy</p>
+            <p className="text-[10px] text-zinc-500 font-mono uppercase">Electrical Engineer (B.Sc. in EEE, Green University)</p>
+            <p className="text-[10px] text-zinc-400">Power System & Industrial Operations</p>
           </div>
         </div>
 
