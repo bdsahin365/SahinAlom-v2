@@ -763,12 +763,37 @@ export default function Admin({ onSync }: AdminProps) {
         localStorage.setItem('sahin_portfolio_settings', JSON.stringify(liveSettings));
       }
     } catch (e) {}
+
+    const apiSyncEntries = [
+      { key: 'ee_products', setter: setProducts, defaults: DEFAULT_PRODUCTS, endpoint: '/api/products' },
+      { key: 'ee_customers', setter: setCustomers, defaults: DEFAULT_CUSTOMERS, endpoint: '/api/customers' },
+      { key: 'ee_orders', setter: setOrders, defaults: DEFAULT_ORDERS, endpoint: '/api/orders' },
+      { key: 'ee_office_notes', setter: setOfficeNotes, defaults: DEFAULT_OFFICE_NOTES, endpoint: '/api/office-notes' },
+      { key: 'ee_maintenance_logs', setter: setMaintenanceLogs, defaults: DEFAULT_MAINTENANCE_LOGS, endpoint: '/api/maintenance-logs' },
+      { key: 'ee_quick_field_notes', setter: setQuickFieldNotes, defaults: DEFAULT_QUICK_FIELD_NOTES, endpoint: '/api/field-notes' }
+    ];
+
+    for (const entry of apiSyncEntries) {
+      try {
+        const res = await fetch(entry.endpoint);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            entry.setter(data);
+            localStorage.setItem(entry.key, JSON.stringify(data));
+          }
+        }
+      } catch (e) {}
+    }
   };
 
   // Login handler
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password.trim() === 'voltage50' || password.trim() === 'admin') {
+    const storedPass = localStorage.getItem('sahin_admin_passcode');
+    const validPasses = ['voltage50', 'admin', storedPass || ''].filter(Boolean);
+    const inputPass = password.trim();
+    if (validPasses.includes(inputPass)) {
       setIsAuthenticated(true);
       sessionStorage.setItem('sahin_admin_authenticated', 'true');
       setAuthError('');
@@ -787,8 +812,15 @@ export default function Admin({ onSync }: AdminProps) {
 
   // Settings: passcode edit
   const [passcodeForm, setPasscodeForm] = useState({ current: 'admin', newPass: '' });
-  const handleSavePasscode = (e: React.FormEvent) => {
+  const handleSavePasscode = async (e: React.FormEvent) => {
     e.preventDefault();
+    const newPass = passcodeForm.newPass.trim();
+    if (!newPass) {
+      triggerQuickAction('Please enter a new passcode.');
+      return;
+    }
+    localStorage.setItem('sahin_admin_passcode', newPass);
+    setPasscodeForm({ current: newPass, newPass: '' });
     triggerQuickAction('Passcode updated successfully!');
   };
 
@@ -847,6 +879,7 @@ export default function Admin({ onSync }: AdminProps) {
     }
     setProducts(updated);
     safeLocalStorageSetItem('ee_products', JSON.stringify(updated));
+    fetch('/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) }).catch(() => {});
     setIsProductModalOpen(false);
     setEditingProduct(null);
     setProductForm({ name: '', category: 'Substation & Power Distribution', imageUrl: undefined, topPrice: undefined, middlePricePerFt: undefined, bottomPrice: undefined, unitPrice: undefined, unit: 'Service / Visit', stockStatus: 'Available' });
@@ -856,6 +889,7 @@ export default function Admin({ onSync }: AdminProps) {
     const updated = products.filter(p => p.id !== id);
     setProducts(updated);
     safeLocalStorageSetItem('ee_products', JSON.stringify(updated));
+    fetch('/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) }).catch(() => {});
     triggerQuickAction('Product removed from catalog.');
   };
 
@@ -872,6 +906,7 @@ export default function Admin({ onSync }: AdminProps) {
     });
     setProducts(updated);
     localStorage.setItem('ee_products', JSON.stringify(updated));
+    fetch('/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) }).catch(() => {});
     triggerQuickAction('Updated stock status!');
   };
 
@@ -914,6 +949,7 @@ export default function Admin({ onSync }: AdminProps) {
     }
     setCustomers(updated);
     localStorage.setItem('ee_customers', JSON.stringify(updated));
+    fetch('/api/customers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) }).catch(() => {});
     setIsCustomerModalOpen(false);
     setEditingCustomer(null);
     setCustomerForm({
@@ -934,6 +970,7 @@ export default function Admin({ onSync }: AdminProps) {
     const updated = customers.filter(c => c.id !== id);
     setCustomers(updated);
     localStorage.setItem('ee_customers', JSON.stringify(updated));
+    fetch('/api/customers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) }).catch(() => {});
     triggerQuickAction('Client profile deleted successfully.');
   };
 
@@ -1020,6 +1057,7 @@ export default function Admin({ onSync }: AdminProps) {
     const updated = [newOrder, ...orders];
     setOrders(updated);
     localStorage.setItem('ee_orders', JSON.stringify(updated));
+    fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) }).catch(() => {});
     triggerQuickAction(`New work order & invoice generated (${newOrder.invoiceNo})!`);
     setIsOrderModalOpen(false);
     setSelectedInvoice(newOrder); // Auto open invoice preview!
@@ -1030,6 +1068,7 @@ export default function Admin({ onSync }: AdminProps) {
     const updated = orders.filter(o => o.id !== id);
     setOrders(updated);
     localStorage.setItem('ee_orders', JSON.stringify(updated));
+    fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) }).catch(() => {});
     triggerQuickAction('Invoice record deleted successfully.');
   };
 
@@ -1054,6 +1093,7 @@ export default function Admin({ onSync }: AdminProps) {
     const updated = [newNote, ...officeNotes];
     setOfficeNotes(updated);
     localStorage.setItem('ee_office_notes', JSON.stringify(updated));
+    fetch('/api/office-notes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) }).catch(() => {});
     triggerQuickAction('New maintenance task added to logbook!');
     setIsNoteModalOpen(false);
     setNoteForm({ title: '', content: '', priority: 'Normal', author: 'Engr. Sahin Alom' });
@@ -1079,6 +1119,7 @@ export default function Admin({ onSync }: AdminProps) {
     const updated = [newNote, ...officeNotes];
     setOfficeNotes(updated);
     localStorage.setItem('ee_office_notes', JSON.stringify(updated));
+    fetch('/api/office-notes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) }).catch(() => {});
     triggerQuickAction(`Field note logged by ${quickNoteAuthor}!`);
     setQuickNoteTitle('');
   };
@@ -1087,12 +1128,14 @@ export default function Admin({ onSync }: AdminProps) {
     const updated = officeNotes.map(n => n.id === id ? { ...n, isCompleted: !n.isCompleted } : n);
     setOfficeNotes(updated);
     localStorage.setItem('ee_office_notes', JSON.stringify(updated));
+    fetch('/api/office-notes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) }).catch(() => {});
   };
 
   const handleDeleteOfficeNote = (id: string) => {
     const updated = officeNotes.filter(n => n.id !== id);
     setOfficeNotes(updated);
     localStorage.setItem('ee_office_notes', JSON.stringify(updated));
+    fetch('/api/office-notes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) }).catch(() => {});
     triggerQuickAction('Note removed from logbook.');
   };
 
@@ -1215,6 +1258,7 @@ export default function Admin({ onSync }: AdminProps) {
 
     setMaintenanceLogs(updatedList);
     localStorage.setItem('ee_maintenance_logs', JSON.stringify(updatedList));
+    fetch('/api/maintenance-logs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updatedList) }).catch(() => {});
     setIsMaintenanceModalOpen(false);
   };
 
@@ -1234,6 +1278,7 @@ export default function Admin({ onSync }: AdminProps) {
     });
     setMaintenanceLogs(updatedList);
     localStorage.setItem('ee_maintenance_logs', JSON.stringify(updatedList));
+    fetch('/api/maintenance-logs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updatedList) }).catch(() => {});
     triggerQuickAction('Equipment marked as Serviced Today (+180 Days Inspection reset & Status set to Optimal).');
   };
 
@@ -1241,6 +1286,7 @@ export default function Admin({ onSync }: AdminProps) {
     const updatedList = maintenanceLogs.filter(item => item.id !== id);
     setMaintenanceLogs(updatedList);
     localStorage.setItem('ee_maintenance_logs', JSON.stringify(updatedList));
+    fetch('/api/maintenance-logs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updatedList) }).catch(() => {});
     triggerQuickAction('Maintenance log deleted successfully.');
   };
 
@@ -1272,6 +1318,12 @@ export default function Admin({ onSync }: AdminProps) {
       localStorage.removeItem('sahin_admin_stats');
       localStorage.removeItem('sahin_portfolio_settings');
       localStorage.removeItem('sahin_portfolio_theme');
+      localStorage.removeItem('ee_products');
+      localStorage.removeItem('ee_customers');
+      localStorage.removeItem('ee_orders');
+      localStorage.removeItem('ee_office_notes');
+      localStorage.removeItem('ee_maintenance_logs');
+      localStorage.removeItem('ee_quick_field_notes');
 
       try {
         await fetch('/api/reset-factory-defaults', { method: 'POST' });

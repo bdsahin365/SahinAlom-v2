@@ -10,14 +10,30 @@ import {
   CASE_STUDIES, 
   DEFAULT_BLOG_POSTS, 
   INITIAL_ADMIN_STATS, 
-  DEFAULT_APP_SETTINGS 
+  DEFAULT_APP_SETTINGS,
+  DEFAULT_PRODUCTS,
+  DEFAULT_CUSTOMERS,
+  DEFAULT_ORDERS,
+  DEFAULT_OFFICE_NOTES,
+  DEFAULT_MAINTENANCE_LOGS,
+  DEFAULT_QUICK_FIELD_NOTES
 } from "./src/data";
 
 import {
   User,
   BlogPost as BlogPostModel,
   CaseStudy as CaseStudyModel,
-  Settings as AppSettingsModel
+  Settings as AppSettingsModel,
+  Homepage,
+  Profile,
+  ContactMessage as ContactMessageModel,
+  AdminStats,
+  ProductItem,
+  Customer,
+  OrderInvoice,
+  OfficeNote,
+  MaintenanceLog,
+  QuickFieldNote
 } from "./models";
 
 dotenv.config();
@@ -42,101 +58,7 @@ mongoose.connect(MONGODB_URI)
     console.error("CRITICAL: MongoDB connection failure:", err);
   });
 
-// Mongoose Schemas & Models
-const HomepageSchema = new mongoose.Schema({
-  heroTagline: String,
-  heroHeading: String,
-  heroSubheading: String,
-  heroStat1Val: String,
-  heroStat1Label: String,
-  heroStat2Val: String,
-  heroStat2Label: String,
-  heroStat3Val: String,
-  heroStat3Label: String,
-  heroProfileName: String,
-  heroProfileTitle: String,
-  heroProfileImage: String,
-  heroProfileVideo: String,
-  journalTagline: String,
-  journalHeading: String,
-  journalDesc: String,
-  expertiseTagline: String,
-  expertiseHeading: String,
-  expertiseDesc: String,
-  contactTagline: String,
-  contactHeading: String,
-  contactDesc: String,
-  contactEmail: String,
-  contactLinkedin: String,
-  contactGithub: String,
-  headerLogoIcon: String
-}, { minimize: false, timestamps: true });
-
-const ProfileSchema = new mongoose.Schema({
-  name: String,
-  title: String,
-  location: String,
-  email: String,
-  phone: String,
-  whatsapp: String,
-  summary: String,
-  skills: String,
-  imageUrl: String,
-  experience: [
-    {
-      role: String,
-      company: String,
-      period: String,
-      details: String
-    }
-  ],
-  education: [
-    {
-      degree: String,
-      institution: String,
-      passingYear: String,
-      result: String
-    }
-  ],
-  personalDetails: {
-    dob: String,
-    height: String,
-    weight: String,
-    bloodGroup: String,
-    maritalStatus: String,
-    religion: String,
-    nationality: String,
-    presentAddress: String,
-    permanentAddress: String,
-    fatherName: String,
-    fatherProfession: String,
-    motherName: String,
-    motherProfession: String,
-    siblings: String
-  }
-}, { minimize: false, timestamps: true });
-
-const ContactMessageSchema = new mongoose.Schema({
-  id: String,
-  name: String,
-  email: String,
-  company: String,
-  message: String,
-  date: String
-}, { minimize: false, timestamps: true });
-
-const AdminStatsSchema = new mongoose.Schema({
-  visitors: { type: Number, default: 0 },
-  caseStudiesCount: { type: Number, default: 0 },
-  contactRequests: { type: Number, default: 0 },
-  avgReadTime: { type: String, default: "5 min" }
-}, { minimize: false, timestamps: true });
-
-// Register Models
-const Homepage = mongoose.models.Homepage || mongoose.model("Homepage", HomepageSchema);
-const Profile = mongoose.models.Profile || mongoose.model("Profile", ProfileSchema);
-const ContactMessageModel = mongoose.models.ContactMessage || mongoose.model("ContactMessage", ContactMessageSchema);
-const AdminStats = mongoose.models.AdminStats || mongoose.model("AdminStats", AdminStatsSchema);
+// Register Models (imported from ./models)
 
 // Database Seeder Function
 async function seedDatabase() {
@@ -195,6 +117,42 @@ async function seedDatabase() {
     if (settingsCount === 0) {
       await AppSettingsModel.create(DEFAULT_APP_SETTINGS);
       console.log("Database Seed: Default user settings initialized.");
+    }
+
+    const productsCount = await ProductItem.countDocuments();
+    if (productsCount === 0) {
+      await ProductItem.insertMany(DEFAULT_PRODUCTS as any);
+      console.log(`Database Seed: ${DEFAULT_PRODUCTS.length} default products initialized.`);
+    }
+
+    const customersCount = await Customer.countDocuments();
+    if (customersCount === 0) {
+      await Customer.insertMany(DEFAULT_CUSTOMERS as any);
+      console.log(`Database Seed: ${DEFAULT_CUSTOMERS.length} default customers initialized.`);
+    }
+
+    const ordersCount = await OrderInvoice.countDocuments();
+    if (ordersCount === 0) {
+      await OrderInvoice.insertMany(DEFAULT_ORDERS as any);
+      console.log(`Database Seed: ${DEFAULT_ORDERS.length} default orders initialized.`);
+    }
+
+    const notesCount = await OfficeNote.countDocuments();
+    if (notesCount === 0) {
+      await OfficeNote.insertMany(DEFAULT_OFFICE_NOTES as any);
+      console.log(`Database Seed: ${DEFAULT_OFFICE_NOTES.length} default office notes initialized.`);
+    }
+
+    const maintenanceCount = await MaintenanceLog.countDocuments();
+    if (maintenanceCount === 0) {
+      await MaintenanceLog.insertMany(DEFAULT_MAINTENANCE_LOGS as any);
+      console.log(`Database Seed: ${DEFAULT_MAINTENANCE_LOGS.length} default maintenance logs initialized.`);
+    }
+
+    const fieldNotesCount = await QuickFieldNote.countDocuments();
+    if (fieldNotesCount === 0) {
+      await QuickFieldNote.insertMany(DEFAULT_QUICK_FIELD_NOTES as any);
+      console.log(`Database Seed: ${DEFAULT_QUICK_FIELD_NOTES.length} default field notes initialized.`);
     }
 
     console.log("MongoDB data synchronization and seed verification complete.");
@@ -286,8 +244,18 @@ app.get("/api/case-studies", async (req, res) => {
 
 app.post("/api/case-studies", async (req, res) => {
   try {
-    await CaseStudyModel.deleteMany({});
-    const studies = await CaseStudyModel.insertMany(req.body as any);
+    const body = Array.isArray(req.body) ? req.body : [req.body];
+    const ops = body.map((item: any) => ({
+      updateOne: {
+        filter: { slug: item.slug },
+        update: { $set: item },
+        upsert: true
+      }
+    }));
+    if (ops.length > 0) {
+      await CaseStudyModel.bulkWrite(ops);
+    }
+    const studies = await CaseStudyModel.find().sort({ createdAt: -1 });
     res.json(studies);
   } catch (err: any) {
     console.error("POST /api/case-studies Error:", err);
@@ -312,8 +280,18 @@ app.get("/api/blog-posts", async (req, res) => {
 
 app.post("/api/blog-posts", async (req, res) => {
   try {
-    await BlogPostModel.deleteMany({});
-    const blogs = await BlogPostModel.insertMany(req.body as any);
+    const body = Array.isArray(req.body) ? req.body : [req.body];
+    const ops = body.map((item: any) => ({
+      updateOne: {
+        filter: { slug: item.slug },
+        update: { $set: item },
+        upsert: true
+      }
+    }));
+    if (ops.length > 0) {
+      await BlogPostModel.bulkWrite(ops);
+    }
+    const blogs = await BlogPostModel.find().sort({ createdAt: -1 });
     res.json(blogs);
   } catch (err: any) {
     console.error("POST /api/blog-posts Error:", err);
@@ -507,6 +485,258 @@ app.post("/api/settings", async (req, res) => {
   }
 });
 
+// Products / Services CRUD
+app.get("/api/products", async (req, res) => {
+  try {
+    const products = await ProductItem.find().sort({ createdAt: -1 });
+    res.json(products);
+  } catch (err: any) {
+    console.error("GET /api/products Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/products", async (req, res) => {
+  try {
+    const body = Array.isArray(req.body) ? req.body : [req.body];
+    const ops = body.map((item: any) => ({
+      updateOne: {
+        filter: { id: item.id },
+        update: { $set: item },
+        upsert: true
+      }
+    }));
+    if (ops.length > 0) {
+      await ProductItem.bulkWrite(ops);
+    }
+    const products = await ProductItem.find().sort({ createdAt: -1 });
+    res.json(products);
+  } catch (err: any) {
+    console.error("POST /api/products Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete("/api/products/:id", async (req, res) => {
+  try {
+    await ProductItem.deleteOne({ id: req.params.id });
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error("DELETE /api/products Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Customers CRUD
+app.get("/api/customers", async (req, res) => {
+  try {
+    const customers = await Customer.find().sort({ createdAt: -1 });
+    res.json(customers);
+  } catch (err: any) {
+    console.error("GET /api/customers Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/customers", async (req, res) => {
+  try {
+    const body = Array.isArray(req.body) ? req.body : [req.body];
+    const ops = body.map((item: any) => ({
+      updateOne: {
+        filter: { id: item.id },
+        update: { $set: item },
+        upsert: true
+      }
+    }));
+    if (ops.length > 0) {
+      await Customer.bulkWrite(ops);
+    }
+    const customers = await Customer.find().sort({ createdAt: -1 });
+    res.json(customers);
+  } catch (err: any) {
+    console.error("POST /api/customers Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete("/api/customers/:id", async (req, res) => {
+  try {
+    await Customer.deleteOne({ id: req.params.id });
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error("DELETE /api/customers Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Orders CRUD
+app.get("/api/orders", async (req, res) => {
+  try {
+    const orders = await OrderInvoice.find().sort({ createdAt: -1 });
+    res.json(orders);
+  } catch (err: any) {
+    console.error("GET /api/orders Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/orders", async (req, res) => {
+  try {
+    const body = Array.isArray(req.body) ? req.body : [req.body];
+    const ops = body.map((item: any) => ({
+      updateOne: {
+        filter: { id: item.id },
+        update: { $set: item },
+        upsert: true
+      }
+    }));
+    if (ops.length > 0) {
+      await OrderInvoice.bulkWrite(ops);
+    }
+    const orders = await OrderInvoice.find().sort({ createdAt: -1 });
+    res.json(orders);
+  } catch (err: any) {
+    console.error("POST /api/orders Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete("/api/orders/:id", async (req, res) => {
+  try {
+    await OrderInvoice.deleteOne({ id: req.params.id });
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error("DELETE /api/orders Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Office Notes CRUD
+app.get("/api/office-notes", async (req, res) => {
+  try {
+    const notes = await OfficeNote.find().sort({ createdAt: -1 });
+    res.json(notes);
+  } catch (err: any) {
+    console.error("GET /api/office-notes Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/office-notes", async (req, res) => {
+  try {
+    const body = Array.isArray(req.body) ? req.body : [req.body];
+    const ops = body.map((item: any) => ({
+      updateOne: {
+        filter: { id: item.id },
+        update: { $set: item },
+        upsert: true
+      }
+    }));
+    if (ops.length > 0) {
+      await OfficeNote.bulkWrite(ops);
+    }
+    const notes = await OfficeNote.find().sort({ createdAt: -1 });
+    res.json(notes);
+  } catch (err: any) {
+    console.error("POST /api/office-notes Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete("/api/office-notes/:id", async (req, res) => {
+  try {
+    await OfficeNote.deleteOne({ id: req.params.id });
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error("DELETE /api/office-notes Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Maintenance Logs CRUD
+app.get("/api/maintenance-logs", async (req, res) => {
+  try {
+    const logs = await MaintenanceLog.find().sort({ createdAt: -1 });
+    res.json(logs);
+  } catch (err: any) {
+    console.error("GET /api/maintenance-logs Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/maintenance-logs", async (req, res) => {
+  try {
+    const body = Array.isArray(req.body) ? req.body : [req.body];
+    const ops = body.map((item: any) => ({
+      updateOne: {
+        filter: { id: item.id },
+        update: { $set: item },
+        upsert: true
+      }
+    }));
+    if (ops.length > 0) {
+      await MaintenanceLog.bulkWrite(ops);
+    }
+    const logs = await MaintenanceLog.find().sort({ createdAt: -1 });
+    res.json(logs);
+  } catch (err: any) {
+    console.error("POST /api/maintenance-logs Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete("/api/maintenance-logs/:id", async (req, res) => {
+  try {
+    await MaintenanceLog.deleteOne({ id: req.params.id });
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error("DELETE /api/maintenance-logs Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Quick Field Notes CRUD
+app.get("/api/field-notes", async (req, res) => {
+  try {
+    const notes = await QuickFieldNote.find().sort({ createdAt: -1 });
+    res.json(notes);
+  } catch (err: any) {
+    console.error("GET /api/field-notes Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/field-notes", async (req, res) => {
+  try {
+    const body = Array.isArray(req.body) ? req.body : [req.body];
+    const ops = body.map((item: any) => ({
+      updateOne: {
+        filter: { id: item.id },
+        update: { $set: item },
+        upsert: true
+      }
+    }));
+    if (ops.length > 0) {
+      await QuickFieldNote.bulkWrite(ops);
+    }
+    const notes = await QuickFieldNote.find().sort({ createdAt: -1 });
+    res.json(notes);
+  } catch (err: any) {
+    console.error("POST /api/field-notes Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete("/api/field-notes/:id", async (req, res) => {
+  try {
+    await QuickFieldNote.deleteOne({ id: req.params.id });
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error("DELETE /api/field-notes Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // RESTORE ALL TO FACTORY DEFAULTS
 app.post("/api/reset-factory-defaults", async (req, res) => {
   try {
@@ -517,6 +747,12 @@ app.post("/api/reset-factory-defaults", async (req, res) => {
     await ContactMessageModel.deleteMany({});
     await AdminStats.deleteMany({});
     await AppSettingsModel.deleteMany({});
+    await ProductItem.deleteMany({});
+    await Customer.deleteMany({});
+    await OrderInvoice.deleteMany({});
+    await OfficeNote.deleteMany({});
+    await MaintenanceLog.deleteMany({});
+    await QuickFieldNote.deleteMany({});
 
     await Homepage.create(DEFAULT_HOMEPAGE_CONTENT);
     await Profile.create(DEFAULT_PROFILE_DATA);
@@ -524,6 +760,12 @@ app.post("/api/reset-factory-defaults", async (req, res) => {
     await BlogPostModel.insertMany(DEFAULT_BLOG_POSTS as any);
     await AdminStats.create(INITIAL_ADMIN_STATS);
     await AppSettingsModel.create(DEFAULT_APP_SETTINGS);
+    await ProductItem.insertMany(DEFAULT_PRODUCTS as any);
+    await Customer.insertMany(DEFAULT_CUSTOMERS as any);
+    await OrderInvoice.insertMany(DEFAULT_ORDERS as any);
+    await OfficeNote.insertMany(DEFAULT_OFFICE_NOTES as any);
+    await MaintenanceLog.insertMany(DEFAULT_MAINTENANCE_LOGS as any);
+    await QuickFieldNote.insertMany(DEFAULT_QUICK_FIELD_NOTES as any);
 
     res.json({ success: true, message: "Successfully reset database to factory defaults." });
   } catch (err: any) {

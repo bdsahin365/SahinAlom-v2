@@ -72,12 +72,18 @@ export default function App() {
 
     // Direct Database API Fetching (Highest Priority)
     try {
-      const [homeRes, studiesRes, blogsRes, settingsRes, profileRes] = await Promise.allSettled([
+      const [homeRes, studiesRes, blogsRes, settingsRes, profileRes, productsRes, customersRes, ordersRes, notesRes, maintenanceRes, fieldNotesRes] = await Promise.allSettled([
         fetch('/api/homepage'),
         fetch('/api/case-studies'),
         fetch('/api/blog-posts'),
         fetch('/api/settings'),
-        fetch('/api/profile')
+        fetch('/api/profile'),
+        fetch('/api/products'),
+        fetch('/api/customers'),
+        fetch('/api/orders'),
+        fetch('/api/office-notes'),
+        fetch('/api/maintenance-logs'),
+        fetch('/api/field-notes')
       ]);
 
       if (homeRes.status === 'fulfilled' && homeRes.value.ok) {
@@ -130,6 +136,48 @@ export default function App() {
         if (data && typeof data === 'object') {
           setProfileData(data);
           localStorage.setItem('sahin_profile_data', JSON.stringify(data));
+        }
+      }
+
+      if (productsRes.status === 'fulfilled' && productsRes.value.ok) {
+        const data = await productsRes.value.json();
+        if (Array.isArray(data) && data.length > 0) {
+          localStorage.setItem('ee_products', JSON.stringify(data));
+        }
+      }
+
+      if (customersRes.status === 'fulfilled' && customersRes.value.ok) {
+        const data = await customersRes.value.json();
+        if (Array.isArray(data) && data.length > 0) {
+          localStorage.setItem('ee_customers', JSON.stringify(data));
+        }
+      }
+
+      if (ordersRes.status === 'fulfilled' && ordersRes.value.ok) {
+        const data = await ordersRes.value.json();
+        if (Array.isArray(data) && data.length > 0) {
+          localStorage.setItem('ee_orders', JSON.stringify(data));
+        }
+      }
+
+      if (notesRes.status === 'fulfilled' && notesRes.value.ok) {
+        const data = await notesRes.value.json();
+        if (Array.isArray(data) && data.length > 0) {
+          localStorage.setItem('ee_office_notes', JSON.stringify(data));
+        }
+      }
+
+      if (maintenanceRes.status === 'fulfilled' && maintenanceRes.value.ok) {
+        const data = await maintenanceRes.value.json();
+        if (Array.isArray(data) && data.length > 0) {
+          localStorage.setItem('ee_maintenance_logs', JSON.stringify(data));
+        }
+      }
+
+      if (fieldNotesRes.status === 'fulfilled' && fieldNotesRes.value.ok) {
+        const data = await fieldNotesRes.value.json();
+        if (Array.isArray(data) && data.length > 0) {
+          localStorage.setItem('ee_quick_field_notes', JSON.stringify(data));
         }
       }
     } catch (err) {

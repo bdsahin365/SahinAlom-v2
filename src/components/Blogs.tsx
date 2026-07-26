@@ -710,7 +710,7 @@ export default function Blogs({ onBack, blogPosts = DEFAULT_BLOG_POSTS, initialS
         scriptToRemove.remove();
       }
     };
-  }, [selectedPost, posts, authorName, authorTitle, authorImage]);
+  }, [selectedPost, authorName, authorTitle, authorImage]);
 
   // Reading progress scroll tracker for long-form technical articles
   const [scrollProgress, setScrollProgress] = useState(0);
