@@ -24,6 +24,10 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../context/UIContext';
+import { AdminProducts } from './AdminProducts';
+import { AdminOrders } from './AdminOrders';
+import { AdminCustomers } from './AdminCustomers';
+import { AdminSettings } from './AdminSettings';
 
 type AdminTab =
   | 'dashboard'
@@ -193,45 +197,112 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   );
 }
 
-// Placeholder tab components - will be extracted to separate files
+// Tab component implementations
 function DashboardTab() {
-  return <div className="text-gray-500">Dashboard coming soon...</div>;
+  return (
+    <div>
+      <h2 className="text-3xl font-bold mb-8">Dashboard Overview</h2>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+          <div className="text-sm text-blue-600 dark:text-blue-400 font-medium">Total Products</div>
+          <div className="text-3xl font-bold mt-2">0</div>
+        </div>
+        <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+          <div className="text-sm text-green-600 dark:text-green-400 font-medium">Total Orders</div>
+          <div className="text-3xl font-bold mt-2">0</div>
+        </div>
+        <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+          <div className="text-sm text-purple-600 dark:text-purple-400 font-medium">Total Customers</div>
+          <div className="text-3xl font-bold mt-2">0</div>
+        </div>
+        <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-200 dark:border-orange-800">
+          <div className="text-sm text-orange-600 dark:text-orange-400 font-medium">Revenue</div>
+          <div className="text-3xl font-bold mt-2">$0</div>
+        </div>
+      </div>
+      <p className="text-gray-600 dark:text-gray-400">More dashboard metrics coming soon...</p>
+    </div>
+  );
 }
 
 function ProductsTab() {
-  return <div className="text-gray-500">Products tab coming soon...</div>;
+  const [products, setProducts] = useState<any[]>([]);
+
+  return (
+    <AdminProducts
+      products={products}
+      onAdd={(p) => setProducts([...products, p])}
+      onUpdate={(p) => setProducts(products.map(x => x.id === p.id ? p : x))}
+      onDelete={(id) => setProducts(products.filter(p => p.id !== id))}
+    />
+  );
 }
 
 function OrdersTab() {
-  return <div className="text-gray-500">Orders tab coming soon...</div>;
+  const [orders, setOrders] = useState<any[]>([]);
+
+  return (
+    <AdminOrders
+      orders={orders}
+      onUpdate={(o) => setOrders(orders.map(x => x.id === o.id ? o : x))}
+      onDelete={(id) => setOrders(orders.filter(o => o.id !== id))}
+    />
+  );
 }
 
 function CustomersTab() {
-  return <div className="text-gray-500">Customers tab coming soon...</div>;
+  const [customers, setCustomers] = useState<any[]>([]);
+
+  return (
+    <AdminCustomers
+      customers={customers}
+      onAdd={(c) => setCustomers([...customers, c])}
+      onUpdate={(c) => setCustomers(customers.map(x => x.id === c.id ? c : x))}
+      onDelete={(id) => setCustomers(customers.filter(c => c.id !== id))}
+    />
+  );
 }
 
 function BlogTab() {
-  return <div className="text-gray-500">Blog tab coming soon...</div>;
+  return <div className="text-gray-500 dark:text-gray-400">Blog management coming soon...</div>;
 }
 
 function NotesTab() {
-  return <div className="text-gray-500">Notes tab coming soon...</div>;
+  return <div className="text-gray-500 dark:text-gray-400">Office notes coming soon...</div>;
 }
 
 function MaintenanceTab() {
-  return <div className="text-gray-500">Maintenance tab coming soon...</div>;
+  return <div className="text-gray-500 dark:text-gray-400">Maintenance tools coming soon...</div>;
 }
 
 function PagesTab() {
-  return <div className="text-gray-500">Pages tab coming soon...</div>;
+  return <div className="text-gray-500 dark:text-gray-400">Page management coming soon...</div>;
 }
 
 function MessagesTab() {
-  return <div className="text-gray-500">Messages tab coming soon...</div>;
+  return <div className="text-gray-500 dark:text-gray-400">Messages coming soon...</div>;
 }
 
 function SettingsTab() {
-  return <div className="text-gray-500">Settings tab coming soon...</div>;
+  const defaultSettings = {
+    siteName: 'Sahin Alom',
+    siteEmail: 'contact@sahinalom.com',
+    siteBio: 'Full-stack developer and designer',
+    socialLinks: {},
+    theme: 'auto' as const,
+    itemsPerPage: 10,
+    enableNotifications: true,
+    enableAnalytics: true,
+  };
+
+  const [settings, setSettings] = useState(defaultSettings);
+
+  return (
+    <AdminSettings
+      settings={settings}
+      onSave={(s) => setSettings(s)}
+    />
+  );
 }
 
 export default AdminDashboard;

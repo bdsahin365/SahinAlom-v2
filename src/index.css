@@ -9,9 +9,27 @@
   --font-display: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   
-  --color-brand-copper: #f59e0b; /* Amber 500 */
-  --color-brand-copper-dark: #b45309; /* Amber 700 */
-  --color-brand-copper-light: #fef3c7; /* Amber 100 */
+  /* Primary Colors */
+  --color-primary: #0f172a; /* Slate 950 */
+  --color-primary-light: #1e293b; /* Slate 900 */
+  --color-primary-lighter: #334155; /* Slate 700 */
+  
+  /* Accent Colors */
+  --color-accent: #3b82f6; /* Blue 500 */
+  --color-accent-dark: #1e40af; /* Blue 800 */
+  --color-accent-light: #bfdbfe; /* Blue 100 */
+  
+  /* Status Colors */
+  --color-success: #10b981; /* Emerald 500 */
+  --color-warning: #f59e0b; /* Amber 500 */
+  --color-error: #ef4444; /* Red 500 */
+  --color-info: #3b82f6; /* Blue 500 */
+  
+  /* Neutral Colors */
+  --color-text-primary: #f1f5f9; /* Slate 100 */
+  --color-text-secondary: #cbd5e1; /* Slate 300 */
+  --color-border: #334155; /* Slate 700 */
+  --color-bg-secondary: #1e293b; /* Slate 900 */
 }
 
 /* Base style resets */
