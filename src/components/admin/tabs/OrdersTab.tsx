@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Input, Button } from '@/components/shared';
+import { Input, Button } from '../../shared';
 
 interface Order {
   id: string;
