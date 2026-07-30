@@ -7,7 +7,6 @@ import FeaturedBlogs from './components/FeaturedBlogs';
 import Capabilities from './components/Capabilities';
 import Contact from './components/Contact';
 import CaseStudyDetail from './components/CaseStudyDetail';
-import Admin from './components/Admin';
 import Resume from './components/Resume';
 import Biodata from './components/Biodata';
 import Tools from './components/Tools';
@@ -18,7 +17,7 @@ import { CASE_STUDIES, DEFAULT_HOMEPAGE_CONTENT, DEFAULT_APP_SETTINGS, DEFAULT_B
 import { CaseStudy, HomepageContent, AppSettings, BlogPost, ProfileData } from './types';
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<string>('home'); // 'home' | 'work-detail' | 'admin' | 'resume' | 'biodata'
+  const [currentView, setCurrentView] = useState<string>('home'); // 'home' | 'work-detail' | 'resume' | 'biodata'
   const [activeSlug, setActiveSlug] = useState<string>('');
   const [activeSection, setActiveSection] = useState<string>('hero');
   const [darkMode, setDarkMode] = useState<boolean>(true);
@@ -239,9 +238,6 @@ export default function App() {
       } else if (hash === '#/blog') {
         setCurrentView('blog');
         setActiveSlug('');
-      } else if (hash === '#/admin') {
-        setCurrentView('admin');
-        setActiveSlug('');
       } else if (hash === '#/resume') {
         setCurrentView('resume');
         setActiveSlug('');
@@ -336,8 +332,6 @@ export default function App() {
       } else {
         window.location.hash = '#/blog';
       }
-    } else if (view === 'admin') {
-      window.location.hash = '#/admin';
     } else if (view === 'resume') {
       window.location.hash = '#/resume';
     } else if (view === 'biodata') {
@@ -432,7 +426,7 @@ export default function App() {
       )}
 
       {/* Main Container */}
-      <main className={(currentView === 'admin' || !appSettings.showBottomNav) ? '' : 'pb-16 md:pb-0'}>
+      <main className={!appSettings.showBottomNav ? '' : 'pb-16 md:pb-0'}>
         {currentView === 'home' && (
           <>
             {/* Hero Section */}
@@ -473,10 +467,6 @@ export default function App() {
           />
         )}
 
-        {currentView === 'admin' && (
-          <Admin onSync={() => syncFromStorage(false)} />
-        )}
-
         {currentView === 'resume' && (
           <Resume onBack={() => handleNavigate('home')} profileData={profileData} />
         )}
@@ -499,8 +489,7 @@ export default function App() {
       </main>
 
       {/* Footer Section */}
-      {currentView !== 'admin' && (
-        <footer className="bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border-t border-zinc-900 dark:border-zinc-900 light:border-zinc-200 py-12 text-center text-xs text-zinc-500">
+      <footer className="bg-zinc-950 dark:bg-zinc-950 light:bg-zinc-100 border-t border-zinc-900 dark:border-zinc-900 light:border-zinc-200 py-12 text-center text-xs text-zinc-500">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-zinc-900 dark:border-zinc-900 light:border-zinc-200 pb-6 gap-4">
               <span className="font-display font-semibold text-sm text-zinc-350 light:text-zinc-800">
@@ -528,7 +517,7 @@ export default function App() {
       )}
 
       {/* Mobile Bottom Tab Navigation (< 768px) */}
-      {currentView !== 'admin' && currentView !== 'tools' && appSettings.showBottomNav && (
+      {currentView !== 'tools' && appSettings.showBottomNav && (
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-zinc-950/95 dark:bg-zinc-950/95 light:bg-zinc-50/95 border-t border-zinc-900 dark:border-zinc-900 light:border-zinc-200 z-50 h-16 flex items-center justify-around px-4 shadow-lg backdrop-blur">
           
           <button
