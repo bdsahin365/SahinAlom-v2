@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useTheme } from '@/context/ThemeContext';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -25,7 +24,6 @@ export default function AdminLayout({
   activeTab,
   onTabChange,
 }: AdminLayoutProps) {
-  const { isDark } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
