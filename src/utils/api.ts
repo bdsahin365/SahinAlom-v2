@@ -11,13 +11,7 @@ export interface ApiResponse<T> {
   success: boolean;
 }
 
-export interface ApiError {
-  message: string;
-  status?: number;
-  originalError?: Error;
-}
-
-class ApiError extends Error {
+export class ApiError extends Error {
   constructor(
     public message: string,
     public status?: number,
@@ -33,15 +27,17 @@ class ApiError extends Error {
  */
 export async function fetchWithErrorHandling<T = any>(
   url: string,
-  options: RequestInit = {},
-  retries = API_CONFIG.RETRY_ATTEMPTS
+  options?: RequestInit,
+  retries?: number
 ): Promise<ApiResponse<T>> {
+  const maxRetries = retries ?? API_CONFIG.RETRY_ATTEMPTS;
+  const reqOptions = options ?? {};
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.TIMEOUT_MS);
 
   try {
     const response = await fetch(url, {
-      ...options,
+      ...reqOptions,
       signal: controller.signal,
     });
 
@@ -64,11 +60,11 @@ export async function fetchWithErrorHandling<T = any>(
     clearTimeout(timeoutId);
 
     // Retry on network error
-    if (retries > 0 && shouldRetry(error)) {
+    if (maxRetries > 0 && shouldRetry(error)) {
       await new Promise(resolve =>
         setTimeout(resolve, API_CONFIG.RETRY_DELAY_MS)
       );
-      return fetchWithErrorHandling<T>(url, options, retries - 1);
+      return fetchWithErrorHandling<T>(url, reqOptions, maxRetries - 1);
     }
 
     const message = getErrorMessage(error);

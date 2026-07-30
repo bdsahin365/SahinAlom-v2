@@ -49,7 +49,6 @@ export {
 export {
   StorageManager,
   SessionStorageManager,
-  type StorageOptions,
 } from './storage';
 
 // Hooks
@@ -110,7 +109,6 @@ export {
   isQuickFieldNote,
   validateArray,
   safeTypecast,
-  type SafeTypecast,
 } from './typeGuards';
 
 // Image utilities (existing)

@@ -2,7 +2,7 @@
  * Custom React hooks for common patterns.
  */
 
-import { useEffect, useRef, useCallback, useState } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { fetchWithErrorHandling, ApiResponse } from './api';
 import { StorageManager } from './storage';
 

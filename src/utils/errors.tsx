@@ -2,7 +2,7 @@
  * Centralized error handling and logging.
  */
 
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 export interface ErrorInfo {
   componentStack: string;
@@ -16,23 +16,32 @@ export interface ErrorLog {
   context?: Record<string, any>;
 }
 
+interface ErrorBoundaryProps {
+  children: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
 /**
  * Error boundary component for catching React errors
+ * Note: ErrorBoundary must be a class component
  */
-export class ErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean; error: Error | null }
-> {
-  constructor(props: { children: React.ReactNode }) {
+export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  declare props: ErrorBoundaryProps;
+  state: ErrorBoundaryState = { hasError: false, error: null };
+
+  constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = { hasError: false, error: null };
   }
 
-  static getDerivedStateFromError(error: Error) {
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
     const info: ErrorInfo = {
       componentStack: errorInfo.componentStack,
       timestamp: new Date().toISOString(),
@@ -45,7 +54,9 @@ export class ErrorBoundary extends React.Component<
     });
   }
 
-  render() {
+  render(): ReactNode {
+    const { children } = this.props;
+    
     if (this.state.hasError) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-red-50 p-4">
@@ -73,7 +84,7 @@ export class ErrorBoundary extends React.Component<
       );
     }
 
-    return this.props.children;
+    return children;
   }
 }
 
