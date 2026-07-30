@@ -514,7 +514,6 @@ export default function App() {
             </div>
           </div>
         </footer>
-      )}
 
       {/* Mobile Bottom Tab Navigation (< 768px) */}
       {currentView !== 'tools' && appSettings.showBottomNav && (
