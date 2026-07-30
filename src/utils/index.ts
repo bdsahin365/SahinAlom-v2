@@ -132,5 +132,4 @@ export {
   customerSchema,
   blogPostSchema,
   caseStudySchema,
-  type ValidationError,
 } from './schemas';
