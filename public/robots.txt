@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /.next/
+Disallow: /private/
+
+Crawl-delay: 1
+
+Sitemap: https://sahinalom.com/sitemap.xml
