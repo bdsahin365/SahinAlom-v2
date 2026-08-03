@@ -1,8 +1,0 @@
-{
-  "name": "Md Sahin Alom - Electrical Engineer",
-  "description": "Professional portfolio and engineering workspace of Md Sahin Alom, Electrical Engineer with B.Sc. in EEE from Green University of Bangladesh, specialized in industrial power systems and substation maintenance.",
-  "requestFramePermissions": [
-    "microphone"
-  ],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
