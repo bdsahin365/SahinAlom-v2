@@ -25,7 +25,7 @@ export default function Work() {
         <Container>
           <h2 className="text-display-md mb-12">Featured Projects</h2>
           <div className="space-y-12">
-            {featuredProjects.map((project, idx) => (
+            {featuredProjects.map((project) => (
               <Card key={project.id} variant="hover">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
                   <div className="aspect-video bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex-center">

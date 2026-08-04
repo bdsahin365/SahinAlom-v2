@@ -23,7 +23,6 @@ export const generateSEOMetadata = ({
   return {
     title: fullTitle,
     description,
-    image: finalImage,
     openGraph: {
       type: 'website',
       locale: 'en_US',

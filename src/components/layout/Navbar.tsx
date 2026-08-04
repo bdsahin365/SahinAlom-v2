@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import Button from '@/components/ui/Button';
-import { NAVIGATION, SITE_CONFIG } from '@/config/constants';
+import { NAVIGATION } from '@/config/constants';
 import { useTheme } from '@/hooks/useTheme';
 import { cn } from '@/lib/utils';
 

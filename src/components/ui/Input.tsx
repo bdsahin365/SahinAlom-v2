@@ -40,8 +40,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             className={cn(
               'input-base w-full',
-              icon && iconPosition === 'left' && 'pl-10',
-              icon && iconPosition === 'right' && 'pr-10',
+              icon && iconPosition === 'left' ? 'pl-10' : undefined,
+              icon && iconPosition === 'right' ? 'pr-10' : undefined,
               error && 'border-error focus:border-error focus:ring-error/20',
               className
             )}
